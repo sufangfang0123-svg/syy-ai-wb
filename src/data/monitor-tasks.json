@@ -1,0 +1,60 @@
+{
+  "_disclaimer": "【演示模拟数据】以下监测任务、扫描状态和时间均为演示用途，不代表真实系统运行状态。",
+  "_generated_at": "2026-08-03T00:00:00Z",
+  "items": [
+    {
+      "task_id": "TASK-001",
+      "name": "年轻女性便携护理需求",
+      "theme": "全棉时代便携护理产品线消费者需求监测",
+      "keywords": ["棉柔巾", "便携棉柔巾", "旅行清洁", "宿舍护理", "敏感肌擦脸", "独立包装", "一次性毛巾", "压缩毛巾", "随身护理包"],
+      "exclude_keywords": ["批发", "招商", "代理", "招聘", "刷单", "广告"],
+      "sources": ["search_web", "ecommerce_review", "social_public"],
+      "frequency": "daily",
+      "time_range_days": 30,
+      "monitoring_targets": ["新痛点", "高频抱怨", "新使用场景", "竞品变化", "价格敏感"],
+      "alert_on_anomaly": true,
+      "status": "running",
+      "last_scan_at": "2026-08-03T23:12:00",
+      "next_scan_at": "2026-08-04T23:12:00",
+      "signals_today": 127,
+      "total_signals": 3842,
+      "created_at": "2026-07-15T10:00:00"
+    },
+    {
+      "task_id": "TASK-002",
+      "name": "敏感肌与安心感需求",
+      "theme": "敏感肌用户对产品安心感和成分关注度监测",
+      "keywords": ["敏感肌", "安心感", "纯棉成分", "无添加", "无荧光剂", "婴儿可用", "安心棉", "亲肤", "不致敏"],
+      "exclude_keywords": ["批发", "招商", "代理", "招聘", "刷单"],
+      "sources": ["ecommerce_review", "social_public", "brand_content"],
+      "frequency": "daily",
+      "time_range_days": 30,
+      "monitoring_targets": ["健康关注", "新痛点", "内容热点", "产品机会"],
+      "alert_on_anomaly": true,
+      "status": "running",
+      "last_scan_at": "2026-08-03T22:45:00",
+      "next_scan_at": "2026-08-04T22:45:00",
+      "signals_today": 89,
+      "total_signals": 2156,
+      "created_at": "2026-07-20T14:30:00"
+    },
+    {
+      "task_id": "TASK-003",
+      "name": "全棉产品包装与环保反馈",
+      "theme": "用户对全棉产品包装设计、环保属性和可持续消费的反馈监测",
+      "keywords": ["全棉包装", "环保包装", "可降解", "可持续", "过度包装", "简约包装", "重复利用", "绿色消费", "零废弃"],
+      "exclude_keywords": ["批发", "招商", "代理", "招聘", "刷单", "广告"],
+      "sources": ["search_web", "social_public", "news_industry"],
+      "frequency": "weekly",
+      "time_range_days": 60,
+      "monitoring_targets": ["内容热点", "新痛点", "价格敏感", "竞品变化"],
+      "alert_on_anomaly": false,
+      "status": "paused",
+      "last_scan_at": "2026-07-28T09:00:00",
+      "next_scan_at": null,
+      "signals_today": 0,
+      "total_signals": 1567,
+      "created_at": "2026-07-10T08:00:00"
+    }
+  ]
+}

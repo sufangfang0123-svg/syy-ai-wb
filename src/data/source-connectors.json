@@ -1,0 +1,72 @@
+{
+  "_disclaimer": "【演示模拟数据】以下数据源连接器状态均为演示用途，不代表真实数据源连接。",
+  "_generated_at": "2026-08-03T23:18:00Z",
+  "items": [
+    {
+      "connector_id": "CONN-001",
+      "name": "搜索与公开网页",
+      "type": "search",
+      "description": "通过公开搜索引擎获取行业趋势、竞品动态和场景关键词",
+      "status": "active",
+      "last_scan_at": "2026-08-03T23:12:00",
+      "signals_today": 86,
+      "total_signals": 5620,
+      "config_required": false
+    },
+    {
+      "connector_id": "CONN-002",
+      "name": "电商评论",
+      "type": "ecommerce",
+      "description": "采集电商平台公开商品评价，获取产品问题和用户反馈",
+      "status": "scanning",
+      "last_scan_at": "2026-08-03T23:15:00",
+      "signals_today": 142,
+      "total_signals": 12840,
+      "config_required": false
+    },
+    {
+      "connector_id": "CONN-003",
+      "name": "行业资讯",
+      "type": "news",
+      "description": "抓取行业媒体和市场研究报告，获取宏观趋势数据",
+      "status": "active",
+      "last_scan_at": "2026-08-03T22:30:00",
+      "signals_today": 23,
+      "total_signals": 3450,
+      "config_required": false
+    },
+    {
+      "connector_id": "CONN-004",
+      "name": "品牌公开内容",
+      "type": "brand",
+      "description": "监测品牌官方渠道发布的公开内容和营销活动",
+      "status": "limited",
+      "last_scan_at": "2026-08-03T18:00:00",
+      "signals_today": 8,
+      "total_signals": 1560,
+      "config_required": false
+    },
+    {
+      "connector_id": "CONN-005",
+      "name": "社交公开内容",
+      "type": "social",
+      "description": "获取社交平台上用户公开发布的内容和讨论",
+      "status": "active",
+      "last_scan_at": "2026-08-03T23:10:00",
+      "signals_today": 95,
+      "total_signals": 8920,
+      "config_required": false
+    },
+    {
+      "connector_id": "CONN-006",
+      "name": "用户授权数据",
+      "type": "user_authorized",
+      "description": "通过用户授权接入的内部数据源和企业数据",
+      "status": "pending",
+      "last_scan_at": null,
+      "signals_today": 0,
+      "total_signals": 0,
+      "config_required": true
+    }
+  ]
+}

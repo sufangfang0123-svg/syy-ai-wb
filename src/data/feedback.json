@@ -1,0 +1,477 @@
+{
+  "_disclaimer": "演示模拟数据 | DEMO MOCK DATA - 不代表真实调研结果",
+  "_generated_at": "2026-08-02",
+  "items": [
+    {
+      "feedback_id": "FB-001",
+      "platform": "xiaohongshu",
+      "product_name": "全棉时代棉柔巾便携装",
+      "category": "棉柔巾",
+      "raw_text": "出差带着全棉时代的棉柔巾，包装太大了塞不进化妆包，只能单独拎一个袋子，随身携带真的不方便。希望出个小巧的旅行装。",
+      "publish_date": "2026-07-28",
+      "likes": 342,
+      "reply_count": 28,
+      "source_url": "https://www.xiaohongshu.com/demo/fb001",
+      "data_type": "public",
+      "sentiment": "negative",
+      "scenarios": [
+        "差旅出行",
+        "随身携带"
+      ],
+      "pain_points": [
+        "包装体积大",
+        "不便携"
+      ],
+      "expected_experience": "希望有旅行小包装，能塞进化妆包",
+      "confidence": 89,
+      "cluster_id": "CL-001"
+    },
+    {
+      "feedback_id": "FB-002",
+      "platform": "douyin",
+      "product_name": "奈丝公主卫生巾日用",
+      "category": "卫生巾",
+      "raw_text": "经期出差最头疼的就是带卫生巾，一盒占半个行李箱。而且白天在外面跑，换的时候找不到卫生间，使用场景完全被割裂了。",
+      "publish_date": "2026-07-25",
+      "likes": 518,
+      "reply_count": 45,
+      "source_url": "https://www.douyin.com/demo/fb002",
+      "data_type": "public",
+      "sentiment": "negative",
+      "scenarios": [
+        "差旅出行",
+        "办公通勤"
+      ],
+      "pain_points": [
+        "包装体积大",
+        "更换场景受限"
+      ],
+      "expected_experience": "希望有出差便携组合装，带独立消毒包装",
+      "confidence": 92,
+      "cluster_id": "CL-002"
+    },
+    {
+      "feedback_id": "FB-003",
+      "platform": "jd",
+      "product_name": "全棉时代一次性内裤",
+      "category": "一次性内裤",
+      "raw_text": "产后住院用了一次性内裤，但总担心是不是真的干净灭菌了。拆开看到没有独立密封包装就更不放心了，卫生安心感不足。",
+      "publish_date": "2026-07-22",
+      "likes": 207,
+      "reply_count": 19,
+      "source_url": "https://jd.com/demo/fb003",
+      "data_type": "interview",
+      "sentiment": "negative",
+      "scenarios": [
+        "产后护理",
+        "住院"
+      ],
+      "pain_points": [
+        "灭菌标识不明确",
+        "包装不密封"
+      ],
+      "expected_experience": "希望每条都有独立密封+灭菌指示标",
+      "confidence": 85,
+      "cluster_id": "CL-003"
+    },
+    {
+      "feedback_id": "FB-004",
+      "platform": "xiaohongshu",
+      "product_name": "全棉时代洗护组合套装",
+      "category": "组合套装",
+      "raw_text": "想买全棉时代的旅行洗护套装，但一条毛巾+一包棉柔巾+湿巾就要89块，感觉组合产品价格有点贵了。单独买可能还便宜些。",
+      "publish_date": "2026-07-20",
+      "likes": 156,
+      "reply_count": 22,
+      "source_url": "https://www.xiaohongshu.com/demo/fb004",
+      "data_type": "public",
+      "sentiment": "neutral",
+      "scenarios": [
+        "差旅出行",
+        "日常护理"
+      ],
+      "pain_points": [
+        "组合定价偏高",
+        "性价比不足"
+      ],
+      "expected_experience": "希望出更灵活的旅行组合，价格更亲民",
+      "confidence": 78,
+      "cluster_id": "CL-004"
+    },
+    {
+      "feedback_id": "FB-005",
+      "platform": "weibo",
+      "product_name": "奈丝公主安睡裤",
+      "category": "安睡裤",
+      "raw_text": "安睡裤是真的好用不侧漏，但出差带三条就占了我半个行李箱侧袋。能不能出个压缩包装的旅行版？",
+      "publish_date": "2026-07-18",
+      "likes": 389,
+      "reply_count": 31,
+      "source_url": "https://weibo.com/demo/fb005",
+      "data_type": "public",
+      "sentiment": "neutral",
+      "scenarios": [
+        "差旅出行"
+      ],
+      "pain_points": [
+        "包装体积大",
+        "不便携"
+      ],
+      "expected_experience": "压缩包装旅行版安睡裤",
+      "confidence": 88,
+      "cluster_id": "CL-001"
+    },
+    {
+      "feedback_id": "FB-006",
+      "platform": "zhihu",
+      "product_name": "全棉时代棉柔巾",
+      "category": "棉柔巾",
+      "raw_text": "棉柔巾质量确实好，但每次出门带一整包太占地方了。市面上其他品牌有出过折叠小包的，全棉时代为什么没有？",
+      "publish_date": "2026-07-15",
+      "likes": 92,
+      "reply_count": 12,
+      "source_url": "https://zhihu.com/demo/fb006",
+      "data_type": "public",
+      "sentiment": "neutral",
+      "scenarios": [
+        "差旅出行",
+        "日常护理"
+      ],
+      "pain_points": [
+        "包装体积大",
+        "缺少便携规格"
+      ],
+      "expected_experience": "折叠小包便携装",
+      "confidence": 82,
+      "cluster_id": "CL-001"
+    },
+    {
+      "feedback_id": "FB-007",
+      "platform": "xiaohongshu",
+      "product_name": "全棉时代湿巾便携装",
+      "category": "湿巾",
+      "raw_text": "湿巾一小包10抽的还挺方便的，但密封口用两次就不粘了，后面就干了。密封性不够好，放包里还漏水。",
+      "publish_date": "2026-07-12",
+      "likes": 175,
+      "reply_count": 15,
+      "source_url": "https://www.xiaohongshu.com/demo/fb007",
+      "data_type": "public",
+      "sentiment": "negative",
+      "scenarios": [
+        "随身携带",
+        "母婴护理"
+      ],
+      "pain_points": [
+        "密封性差",
+        "容易干涸"
+      ],
+      "expected_experience": "更可靠的密封设计",
+      "confidence": 86,
+      "cluster_id": "CL-003"
+    },
+    {
+      "feedback_id": "FB-008",
+      "platform": "douyin",
+      "product_name": "奈丝公主卫生巾",
+      "category": "卫生巾",
+      "raw_text": "上班的时候换卫生巾真的很尴尬，办公区卫生间隔音差。有时候只能忍着等到午休去商场换，使用场景太割裂了。",
+      "publish_date": "2026-07-10",
+      "likes": 631,
+      "reply_count": 58,
+      "source_url": "https://www.douyin.com/demo/fb008",
+      "data_type": "public",
+      "sentiment": "negative",
+      "scenarios": [
+        "办公通勤"
+      ],
+      "pain_points": [
+        "更换场景受限",
+        "隐私不足"
+      ],
+      "expected_experience": "更隐蔽的包装+快速更换方案",
+      "confidence": 91,
+      "cluster_id": "CL-002"
+    },
+    {
+      "feedback_id": "FB-009",
+      "platform": "jd",
+      "product_name": "全棉时代一次性内裤",
+      "category": "一次性内裤",
+      "raw_text": "出差买了一次性内裤，但发现是一条一条塑料袋装的，没有灭菌标识。怀孕期间用这个真的很不放心，感觉卫生没有保障。",
+      "publish_date": "2026-07-08",
+      "likes": 143,
+      "reply_count": 17,
+      "source_url": "https://jd.com/demo/fb009",
+      "data_type": "public",
+      "sentiment": "negative",
+      "scenarios": [
+        "差旅出行",
+        "孕期护理"
+      ],
+      "pain_points": [
+        "灭菌标识不明确",
+        "包装不密封"
+      ],
+      "expected_experience": "独立灭菌包装+可视化灭菌指示",
+      "confidence": 84,
+      "cluster_id": "CL-003"
+    },
+    {
+      "feedback_id": "FB-010",
+      "platform": "taobao",
+      "product_name": "全棉时代棉柔巾80抽",
+      "category": "棉柔巾",
+      "raw_text": "棉柔巾用了三年了品质没话说，但旅行装真的很缺。每次出行只能自己拿密封袋分装几片，又怕不卫生，好纠结。",
+      "publish_date": "2026-07-05",
+      "likes": 264,
+      "reply_count": 24,
+      "source_url": "https://taobao.com/demo/fb010",
+      "data_type": "public",
+      "sentiment": "neutral",
+      "scenarios": [
+        "差旅出行"
+      ],
+      "pain_points": [
+        "缺少便携规格",
+        "分装不卫生"
+      ],
+      "expected_experience": "官方旅行小包密封装",
+      "confidence": 87,
+      "cluster_id": "CL-001"
+    },
+    {
+      "feedback_id": "FB-011",
+      "platform": "xiaohongshu",
+      "product_name": "全棉时代洗面奶+棉柔巾套装",
+      "category": "组合套装",
+      "raw_text": "套装里洗面奶很好用，但棉柔巾只有20抽，用两周就没了。单独补购又贵，套装价格不如单买划算。组合产品定价逻辑有问题。",
+      "publish_date": "2026-07-02",
+      "likes": 198,
+      "reply_count": 20,
+      "source_url": "https://www.xiaohongshu.com/demo/fb011",
+      "data_type": "public",
+      "sentiment": "neutral",
+      "scenarios": [
+        "日常护理"
+      ],
+      "pain_points": [
+        "组合定价偏高",
+        "搭配不合理"
+      ],
+      "expected_experience": "更灵活的组合搭配+合理定价",
+      "confidence": 80,
+      "cluster_id": "CL-004"
+    },
+    {
+      "feedback_id": "FB-012",
+      "platform": "douyin",
+      "product_name": "全棉时代婴儿湿巾",
+      "category": "湿巾",
+      "raw_text": "带娃出门湿巾是刚需，但全棉时代的湿巾包装太大，妈咪包塞不进去。而且开口贴纸用几次就失去粘性了，湿巾变干巾。",
+      "publish_date": "2026-06-30",
+      "likes": 445,
+      "reply_count": 39,
+      "source_url": "https://www.douyin.com/demo/fb012",
+      "data_type": "public",
+      "sentiment": "negative",
+      "scenarios": [
+        "母婴护理",
+        "随身携带"
+      ],
+      "pain_points": [
+        "包装体积大",
+        "密封性差"
+      ],
+      "expected_experience": "紧凑包装+可靠密封盖",
+      "confidence": 90,
+      "cluster_id": "CL-001"
+    },
+    {
+      "feedback_id": "FB-013",
+      "platform": "weibo",
+      "product_name": "奈丝公主护垫",
+      "category": "护垫",
+      "raw_text": "护垫很薄很舒服，但包装上没有任何灭菌标识。经期结束后用护垫，总担心会不会有细菌。卫生安心感真的不足。",
+      "publish_date": "2026-06-28",
+      "likes": 122,
+      "reply_count": 9,
+      "source_url": "https://weibo.com/demo/fb013",
+      "data_type": "ai_simulated",
+      "sentiment": "negative",
+      "scenarios": [
+        "日常护理"
+      ],
+      "pain_points": [
+        "灭菌标识不明确"
+      ],
+      "expected_experience": "包装上增加灭菌等级标识",
+      "confidence": 83,
+      "cluster_id": "CL-003"
+    },
+    {
+      "feedback_id": "FB-014",
+      "platform": "zhihu",
+      "product_name": "全棉时代浴巾",
+      "category": "浴巾",
+      "raw_text": "去健身房想带全棉时代的浴巾，但标准尺寸太大了，塞不进运动包。最后只能买了个杂牌的压缩毛巾。全棉时代为什么不出运动便携版？",
+      "publish_date": "2026-06-25",
+      "likes": 76,
+      "reply_count": 8,
+      "source_url": "https://zhihu.com/demo/fb014",
+      "data_type": "public",
+      "sentiment": "neutral",
+      "scenarios": [
+        "运动健身",
+        "差旅出行"
+      ],
+      "pain_points": [
+        "包装体积大",
+        "缺少便携规格"
+      ],
+      "expected_experience": "运动便携折叠浴巾",
+      "confidence": 79,
+      "cluster_id": "CL-001"
+    },
+    {
+      "feedback_id": "FB-015",
+      "platform": "jd",
+      "product_name": "全棉时代棉柔巾+湿巾组合",
+      "category": "组合套装",
+      "raw_text": "买了棉柔巾+湿巾的组合装，到手发现两包体积巨大，根本没法带出门。旅行用的话还得自己分装，那买组合装的意义在哪？",
+      "publish_date": "2026-06-22",
+      "likes": 311,
+      "reply_count": 27,
+      "source_url": "https://jd.com/demo/fb015",
+      "data_type": "public",
+      "sentiment": "negative",
+      "scenarios": [
+        "差旅出行"
+      ],
+      "pain_points": [
+        "包装体积大",
+        "组合不够便携"
+      ],
+      "expected_experience": "旅行友好组合装",
+      "confidence": 88,
+      "cluster_id": "CL-004"
+    },
+    {
+      "feedback_id": "FB-016",
+      "platform": "xiaohongshu",
+      "product_name": "奈丝公主经期护理套装",
+      "category": "组合套装",
+      "raw_text": "经期出差最需要的是卫生巾+安睡裤+湿巾+一次性内裤的组合，但现在没有这样的出差套装。而且单独买四样加起来要一百多，组合产品价格顾虑很大。",
+      "publish_date": "2026-06-20",
+      "likes": 527,
+      "reply_count": 48,
+      "source_url": "https://www.xiaohongshu.com/demo/fb016",
+      "data_type": "ai_simulated",
+      "sentiment": "neutral",
+      "scenarios": [
+        "差旅出行",
+        "经期护理"
+      ],
+      "pain_points": [
+        "组合定价偏高",
+        "缺少出行套装"
+      ],
+      "expected_experience": "经期出差一站式组合套装",
+      "confidence": 90,
+      "cluster_id": "CL-004"
+    },
+    {
+      "feedback_id": "FB-017",
+      "platform": "douyin",
+      "product_name": "全棉时代化妆棉",
+      "category": "化妆棉",
+      "raw_text": "化妆棉挺好的不掉絮，但圆盒装打开后没有密封盖，放包里化妆棉全散了。出行场景下使用体验太差了。",
+      "publish_date": "2026-06-18",
+      "likes": 89,
+      "reply_count": 7,
+      "source_url": "https://www.douyin.com/demo/fb017",
+      "data_type": "public",
+      "sentiment": "negative",
+      "scenarios": [
+        "差旅出行",
+        "日常护理"
+      ],
+      "pain_points": [
+        "包装不密封",
+        "出行散落"
+      ],
+      "expected_experience": "密封盖+便携设计",
+      "confidence": 81,
+      "cluster_id": "CL-001"
+    },
+    {
+      "feedback_id": "FB-018",
+      "platform": "weibo",
+      "product_name": "奈丝公主安睡裤",
+      "category": "安睡裤",
+      "raw_text": "安睡裤出差带着真的很占地方。而且酒店卫生间换完之后没地方扔，隐私也很差。使用场景和居家完全不一样，体验割裂感很强。",
+      "publish_date": "2026-06-15",
+      "likes": 367,
+      "reply_count": 33,
+      "source_url": "https://weibo.com/demo/fb018",
+      "data_type": "public",
+      "sentiment": "negative",
+      "scenarios": [
+        "差旅出行"
+      ],
+      "pain_points": [
+        "包装体积大",
+        "更换场景受限",
+        "隐私不足"
+      ],
+      "expected_experience": "压缩包装+隐私处理方案",
+      "confidence": 89,
+      "cluster_id": "CL-002"
+    },
+    {
+      "feedback_id": "FB-019",
+      "platform": "xiaohongshu",
+      "product_name": "全棉时代棉柔巾旅行装",
+      "category": "棉柔巾",
+      "raw_text": "终于出了旅行装！但只有20抽太少了，出差三天不够用。而且价格算下来比大包装贵了快一倍，组合产品价格真的需要优化。",
+      "publish_date": "2026-06-12",
+      "likes": 234,
+      "reply_count": 21,
+      "source_url": "https://www.xiaohongshu.com/demo/fb019",
+      "data_type": "public",
+      "sentiment": "neutral",
+      "scenarios": [
+        "差旅出行"
+      ],
+      "pain_points": [
+        "组合定价偏高",
+        "容量不足"
+      ],
+      "expected_experience": "更大容量旅行装+合理定价",
+      "confidence": 85,
+      "cluster_id": "CL-004"
+    },
+    {
+      "feedback_id": "FB-020",
+      "platform": "zhihu",
+      "product_name": "全棉时代一次性内裤",
+      "category": "一次性内裤",
+      "raw_text": "一次性内裤穿完之后不知道怎么处理最卫生。直接扔垃圾桶怕被人看到很尴尬，有没有什么更隐私的处理方案？而且出差用完没地方扔也是个问题。",
+      "publish_date": "2026-06-10",
+      "likes": 145,
+      "reply_count": 14,
+      "source_url": "https://zhihu.com/demo/fb020",
+      "data_type": "interview",
+      "sentiment": "negative",
+      "scenarios": [
+        "差旅出行"
+      ],
+      "pain_points": [
+        "更换场景受限",
+        "隐私不足"
+      ],
+      "expected_experience": "隐私包装+便携处理方案",
+      "confidence": 82,
+      "cluster_id": "CL-002"
+    }
+  ]
+}

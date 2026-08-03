@@ -1,0 +1,66 @@
+{
+  "_disclaimer": "演示模拟数据 | DEMO MOCK DATA - 不代表真实调研结果",
+  "_generated_at": "2026-08-02",
+  "items": [
+    {
+      "opportunity_id": "OP-001",
+      "title": "轻量随行护理机会",
+      "target_persona": "20-35岁差旅女性 / 健身爱好者",
+      "core_scenario": "短期出差 / 健身运动 / 周末出行",
+      "user_task": "在有限的包内空间中，携带够用3天的全棉护理用品",
+      "main_pain_point": "现有产品包装体积大、缺少便携规格，出行时塞不进化妆包或运动包",
+      "expected_experience": "压缩体积50%以上的旅行便携装，密封防潮，按天分装，一包搞定",
+      "evidence_count": 7,
+      "evidence_level": "高（7条直接相关反馈 + 3条间接佐证）",
+      "current_hypothesis": "推出「棉行随行包」旅行系列：棉柔巾折叠小包 + 湿巾紧凑装 + 安睡裤压缩包，统一尺寸适配化妆包",
+      "pending_questions": [
+        "折叠包装后棉柔巾的卫生防护是否达标？",
+        "压缩安睡裤的吸收性能是否受影响？",
+        "定价区间定在多少消费者能接受？",
+        "是否需要与化妆包品牌做联名套装？"
+      ],
+      "confidence": 88,
+      "related_cluster_ids": ["CL-001"]
+    },
+    {
+      "opportunity_id": "OP-002",
+      "title": "隐蔽更换场景方案",
+      "target_persona": "通勤白领 / 出差女性 / 经期敏感人群",
+      "core_scenario": "办公区卫生间 / 酒店卫生间 / 公共场合经期更换",
+      "user_task": "在非居家场景下，快速、隐私地更换经期护理用品",
+      "main_pain_point": "更换场景缺乏隐私保障，办公区隔音差，用完没地方处理，体验割裂感强",
+      "expected_experience": "隐蔽包装设计 + 快速更换方案 + 隐私处理袋，让外出更换不再尴尬",
+      "evidence_count": 4,
+      "evidence_level": "中高（4条核心反馈 + 2条间接关联）",
+      "current_hypothesis": "推出「经期随行舱」：卫生巾/安睡裤独立密封+消音包装+附带隐私处理袋，一站式解决更换全流程",
+      "pending_questions": [
+        "消音包装的材质是否影响产品安全性？",
+        "隐私处理袋是否需要可降解材料？",
+        "是否可以做成订阅制定期配送？",
+        "如何平衡隐蔽性与产品识别度？"
+      ],
+      "confidence": 84,
+      "related_cluster_ids": ["CL-002"]
+    },
+    {
+      "opportunity_id": "OP-003",
+      "title": "可视化安心体系",
+      "target_persona": "孕产期女性 / 洁净敏感人群 / 母婴用户",
+      "core_scenario": "产后住院 / 孕期日常 / 母婴外出",
+      "user_task": "在使用一次性护理用品时，确认产品的灭菌等级和密封状态",
+      "main_pain_point": "包装缺少可视化灭菌标识和可靠密封设计，使用时缺乏安全感",
+      "expected_experience": "每件产品独立密封 + 灭菌指示变色标 + 可追溯批次码，所见即安心",
+      "evidence_count": 4,
+      "evidence_level": "中（4条直接反馈，需补充量化调研）",
+      "current_hypothesis": "升级「安心锁」包装系统：独立密封 + 灭菌指示标 + 批次追溯码，全品类统一应用",
+      "pending_questions": [
+        "灭菌指示标的成本增加消费者是否接受？",
+        "追溯码系统需要对接哪些后端基础设施？",
+        "是否需要第三方认证机构背书？",
+        "如何在不改变现有产线的前提下实现？"
+      ],
+      "confidence": 79,
+      "related_cluster_ids": ["CL-003"]
+    }
+  ]
+}

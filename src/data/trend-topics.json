@@ -1,0 +1,51 @@
+{
+  "_disclaimer": "【演示模拟数据】以下趋势数据均为演示用途，不代表真实市场趋势。",
+  "_generated_at": "2026-08-03T23:18:00Z",
+  "items": [
+    {
+      "topic_id": "TOP-001",
+      "name": "旅行便携",
+      "change_7d": 46,
+      "signal_count": 128,
+      "trend": "rising",
+      "platforms": ["电商评价", "小红书", "抖音"],
+      "description": "用户 increasingly 关注出差/旅行时的便携护理方案，\"旅行棉柔巾\"搜索量显著增长。"
+    },
+    {
+      "topic_id": "TOP-002",
+      "name": "独立卫生",
+      "change_7d": 31,
+      "signal_count": 96,
+      "trend": "rising",
+      "platforms": ["电商评价", "小红书"],
+      "description": "独立包装卫生性受到关注，用户希望在外出场景保持个人清洁产品的卫生。"
+    },
+    {
+      "topic_id": "TOP-003",
+      "name": "包装环保",
+      "change_7d": 22,
+      "signal_count": 74,
+      "trend": "new_conflict",
+      "platforms": ["小红书", "微博"],
+      "description": "独立包装便利性与环保诉求之间出现新矛盾，用户期待可补充/可重复使用的解决方案。"
+    },
+    {
+      "topic_id": "TOP-004",
+      "name": "组合装价格",
+      "change_7d": 8,
+      "signal_count": 53,
+      "trend": "stable",
+      "platforms": ["电商评价"],
+      "description": "用户对便携组合装的价格敏感度保持平稳，中等价位接受度较高。"
+    },
+    {
+      "topic_id": "TOP-005",
+      "name": "敏感肌表达",
+      "change_7d": -3,
+      "signal_count": 41,
+      "trend": "stable",
+      "platforms": ["电商评价", "知乎"],
+      "description": "敏感肌相关讨论保持平稳，\"安心感\"成为核心关注而非\"敏感肌\"标签本身。"
+    }
+  ]
+}

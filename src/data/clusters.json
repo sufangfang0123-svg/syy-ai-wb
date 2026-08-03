@@ -1,0 +1,54 @@
+{
+  "_disclaimer": "演示模拟数据 | DEMO MOCK DATA - 不代表真实调研结果",
+  "_generated_at": "2026-08-02",
+  "items": [
+    {
+      "cluster_id": "CL-001",
+      "cluster_name": "随身携带不方便",
+      "feedback_count": 7,
+      "keywords": ["包装体积大", "不便携", "旅行装", "化妆包", "压缩包装"],
+      "main_persona": "差旅女性 / 健身爱好者",
+      "main_scenario": "差旅出行 / 运动健身 / 母婴外出",
+      "core_pain_point": "全棉时代产品包装普遍偏大，无法塞进化妆包或妈咪包，出行场景下携带成本高",
+      "evidence_strength": "high",
+      "confidence": 88,
+      "feedback_ids": ["FB-001", "FB-005", "FB-006", "FB-010", "FB-012", "FB-014", "FB-017"]
+    },
+    {
+      "cluster_id": "CL-002",
+      "cluster_name": "使用场景被割裂",
+      "feedback_count": 4,
+      "keywords": ["更换场景", "隐私", "办公区", "酒店", "使用不便"],
+      "main_persona": "通勤白领 / 出差女性",
+      "main_scenario": "办公通勤 / 差旅出行 / 经期出差",
+      "core_pain_point": "经期产品在办公、出差等非居家场景下更换不便，缺乏隐私保障和便捷处理方案",
+      "evidence_strength": "high",
+      "confidence": 91,
+      "feedback_ids": ["FB-002", "FB-008", "FB-018", "FB-020"]
+    },
+    {
+      "cluster_id": "CL-003",
+      "cluster_name": "卫生与安心感不足",
+      "feedback_count": 4,
+      "keywords": ["灭菌标识", "密封", "安心", "卫生", "独立包装"],
+      "main_persona": "孕产期女性 / 洁净敏感人群",
+      "main_scenario": "产后护理 / 孕期护理 / 日常护理",
+      "core_pain_point": "产品包装缺少可视化灭菌标识和可靠密封设计，消费者在使用时缺乏安心感",
+      "evidence_strength": "medium",
+      "confidence": 85,
+      "feedback_ids": ["FB-003", "FB-007", "FB-009", "FB-013"]
+    },
+    {
+      "cluster_id": "CL-004",
+      "cluster_name": "组合产品价格顾虑",
+      "feedback_count": 5,
+      "keywords": ["组合定价", "性价比", "套装", "旅行装溢价", "搭配灵活度"],
+      "main_persona": "理性消费者 / 出行人群",
+      "main_scenario": "差旅出行 / 日常护理 / 经期出差",
+      "core_pain_point": "组合套装定价偏高且搭配不够灵活，旅行装溢价明显，消费者认为不如单买划算",
+      "evidence_strength": "medium",
+      "confidence": 82,
+      "feedback_ids": ["FB-004", "FB-011", "FB-015", "FB-016", "FB-019"]
+    }
+  ]
+}
