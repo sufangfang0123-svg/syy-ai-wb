@@ -1,0 +1,103 @@
+{
+  "_disclaimer": "演示模拟数据 | DEMO MOCK DATA",
+  "_generated_at": "2026-08-04",
+  "items": [
+    {
+      "asset_id": "CA-001",
+      "concept_id": "C01",
+      "concept_name": "棉感随行胶囊",
+      "channel": "小红书",
+      "content_type": "图文笔记",
+      "status": "published",
+      "blocks": {
+        "fact": "材料：100%全棉水刺无纺布 | 规格：洁面巾20片+经期巾8片+清洁巾10片",
+        "persona": "18-30岁宿舍/通勤年轻女性",
+        "selling_point": "24小时只有掌心大小，一包搞定全棉护理",
+        "evidence": "来源：内部材料检测2026-06 | 适用范围：日常护理",
+        "creative": "钩子：室友以为我带了化妆包，打开全是棉 | 视觉：掌心大小对比 | CTA：点左下角看完整清单",
+        "performance": { "exposure": 12400, "save_rate": 8.5, "comment_count": 234, "click_rate": 4.2 }
+      },
+      "compliance": "green",
+      "generated_at": "2026-07-15",
+      "published_at": "2026-07-20"
+    },
+    {
+      "asset_id": "CA-002",
+      "concept_id": "C01",
+      "concept_name": "棉感随行胶囊",
+      "channel": "抖音",
+      "content_type": "短视频",
+      "status": "published",
+      "blocks": {
+        "fact": "材料：100%全棉水刺无纺布 | 工艺：密封防潮包装",
+        "persona": "18-30岁年轻女性，差旅/健身场景",
+        "selling_point": "差旅3天，这一包就够了",
+        "evidence": "来源：旅行场景测试2026-07 | 适用范围：3天短途出行",
+        "creative": "钩子：打开旅行包，所有人都问我带了多少东西 | 视觉： unpacking展示 | CTA：评论区告诉我你最想带哪个模块",
+        "performance": { "exposure": 18900, "completion_rate": 62, "comment_count": 445, "click_rate": 3.8 }
+      },
+      "compliance": "green",
+      "generated_at": "2026-07-18",
+      "published_at": "2026-07-22"
+    },
+    {
+      "asset_id": "CA-003",
+      "concept_id": "C01",
+      "concept_name": "棉感随行胶囊",
+      "channel": "视频号",
+      "content_type": "短视频",
+      "status": "draft",
+      "blocks": {
+        "fact": "材料：100%全棉水刺无纺布 | 品牌：全棉时代",
+        "persona": "25-35岁母婴家庭",
+        "selling_point": "全家出行，全棉更安心",
+        "evidence": "来源：品牌材料库 | 适用范围：家庭出行",
+        "creative": "钩子：带孩子出门，妈妈包里永远缺一样东西 | 视觉：妈妈包整理 | CTA：分享给需要的朋友",
+        "performance": { "exposure": 0, "save_rate": 0, "comment_count": 0, "click_rate": 0 }
+      },
+      "compliance": "yellow",
+      "compliance_note": "「全家出行」需确认是否涉及婴童产品表述",
+      "generated_at": "2026-07-25",
+      "published_at": null
+    },
+    {
+      "asset_id": "CA-004",
+      "concept_id": "C01-V2",
+      "concept_name": "棉感随行胶囊 · 经期加强版",
+      "channel": "电商详情页",
+      "content_type": "详情页文案",
+      "status": "published",
+      "blocks": {
+        "fact": "材料：全棉水刺+吸水纤维 | 规格：经期巾16片+安睡裤4条+清洁巾10片",
+        "persona": "18-30岁经期敏感女性",
+        "selling_point": "经期7天，这一盒承包了",
+        "evidence": "来源：吸水测试报告2026-07 | 适用范围：经期护理",
+        "creative": "钩子：经期出差最崩溃的事 | 视觉：经期场景对比 | CTA：加入会员享首单立减",
+        "performance": { "exposure": 8600, "add_cart_rate": 12.5, "conversion": 3.5, "return_rate": 1.2 }
+      },
+      "compliance": "green",
+      "generated_at": "2026-07-28",
+      "published_at": "2026-08-01"
+    },
+    {
+      "asset_id": "CA-005",
+      "concept_id": "C02",
+      "concept_name": "高温湿热通勤净护包",
+      "channel": "小红书",
+      "content_type": "图文笔记",
+      "status": "review",
+      "blocks": {
+        "fact": "材料：Cotton Cool技术（待验证）| 规格：清凉湿巾20片",
+        "persona": "易出汗、敏感感受人群",
+        "selling_point": "通勤路上3秒降温",
+        "evidence": "来源：技术预研阶段 | 适用范围：待确认",
+        "creative": "钩子：夏天坐地铁，我包里必须有这个 | 视觉：使用前后对比 | CTA：蹲一个技术验证结果",
+        "performance": { "exposure": 0, "save_rate": 0, "comment_count": 0, "click_rate": 0 }
+      },
+      "compliance": "yellow",
+      "compliance_note": "「3秒降温」为性能表述，需技术验证和检测报告",
+      "generated_at": "2026-07-30",
+      "published_at": null
+    }
+  ]
+}

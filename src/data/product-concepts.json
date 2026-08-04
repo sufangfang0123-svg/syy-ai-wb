@@ -1,0 +1,143 @@
+{
+  "_disclaimer": "演示模拟数据 | DEMO MOCK DATA",
+  "_generated_at": "2026-08-04",
+  "items": [
+    {
+      "concept_id": "C01",
+      "name": "棉感随行胶囊",
+      "status": "surviving",
+      "score": 89.0,
+      "genes": {
+        "G1": "18-30岁年轻女性",
+        "G2": "宿舍/通勤/短途旅行",
+        "G3": "洁面+经期+清洁+换洗",
+        "G4": "全棉水刺无纺布",
+        "G5": "模块化、单手取用、隐私收纳",
+        "G6": "安心、体面、松弛",
+        "G7": "对比实验、清单化",
+        "G8": "基础盒+补充芯"
+      },
+      "generation": 1,
+      "parent_id": null,
+      "mutations": [],
+      "veto_status": "pending",
+      "veto_results": {
+        "V1_consumer": { "passed": true, "note": "需求明确，频次高" },
+        "V2_brand": { "passed": true, "note": "强化全棉便携场景" },
+        "V3_compliance": { "passed": true, "note": "无医疗化表述" },
+        "V4_supply": { "passed": true, "note": "现有材料可实现" },
+        "V5_business": { "passed": true, "note": "复购逻辑清晰" }
+      },
+      "launch_round": "C-内容对战",
+      "content_test_results": {
+        "exposure": 12400,
+        "click_rate": 4.8,
+        "interaction": 890,
+        "conversion": 2.1
+      }
+    },
+    {
+      "concept_id": "C02",
+      "name": "高温湿热通勤净护包",
+      "status": "evolving",
+      "score": 87.5,
+      "genes": {
+        "G1": "易出汗、敏感感受人群",
+        "G2": "高温湿热城市通勤",
+        "G3": "清洁+吸汗+舒缓",
+        "G4": "Cotton Cool技术",
+        "G5": "清凉触感、便携、速干",
+        "G6": "体面、清爽",
+        "G7": "场景反差、可视化",
+        "G8": "单品+组合装"
+      },
+      "generation": 1,
+      "parent_id": null,
+      "mutations": [],
+      "veto_status": "pending",
+      "veto_results": {
+        "V1_consumer": { "passed": true, "note": "夏季高频痛点" },
+        "V2_brand": { "passed": true, "note": "技术方向匹配" },
+        "V3_compliance": { "passed": true, "note": "需验证Cool技术声明" },
+        "V4_supply": { "passed": false, "note": "Cool技术工艺未验证" },
+        "V5_business": { "passed": true, "note": "季节性复购" }
+      },
+      "launch_round": "B-版本进化",
+      "content_test_results": {
+        "exposure": 8600,
+        "click_rate": 3.9,
+        "interaction": 520,
+        "conversion": 1.6
+      }
+    },
+    {
+      "concept_id": "C03",
+      "name": "办公桌女性安心抽屉",
+      "status": "eliminated",
+      "score": 87.2,
+      "genes": {
+        "G1": "职场女性",
+        "G2": "办公室/实习",
+        "G3": "收纳+备用+隐私",
+        "G4": "标准全棉",
+        "G5": "抽屉适配、隐蔽",
+        "G6": "安心、体面",
+        "G7": "清单化",
+        "G8": "订阅制"
+      },
+      "generation": 1,
+      "parent_id": null,
+      "mutations": [],
+      "veto_status": "eliminated",
+      "veto_results": {
+        "V1_consumer": { "passed": true, "note": "需求存在但低频" },
+        "V2_brand": { "passed": true, "note": "符合品牌" },
+        "V3_compliance": { "passed": true, "note": "无风险" },
+        "V4_supply": { "passed": true, "note": "可实现" },
+        "V5_business": { "passed": false, "note": "复购逻辑弱，订阅接受度低" }
+      },
+      "launch_round": "D-商业审判",
+      "content_test_results": {
+        "exposure": 4200,
+        "click_rate": 2.1,
+        "interaction": 180,
+        "conversion": 0.8
+      },
+      "elimination_reason": "V5否决：商业潜力不足，复购逻辑弱"
+    },
+    {
+      "concept_id": "C01-V2",
+      "name": "棉感随行胶囊 · 经期加强版",
+      "status": "surviving",
+      "score": 91.5,
+      "genes": {
+        "G1": "18-30岁年轻女性（经期重点）",
+        "G2": "宿舍/通勤/短途旅行",
+        "G3": "洁面+经期护理+清洁+换洗",
+        "G4": "全棉水刺+吸水纤维",
+        "G5": "模块化、单手取用、隐私收纳、大吸量",
+        "G6": "安心、体面、掌控感",
+        "G7": "对比实验、清单化、开箱",
+        "G8": "基础盒+补充芯+经期专项包"
+      },
+      "generation": 2,
+      "parent_id": "C01",
+      "mutations": ["G3: 增加经期护理", "G4: 增加吸水纤维", "G5: 增加大吸量", "G8: 增加经期专项包"],
+      "veto_status": "pending",
+      "veto_results": {
+        "V1_consumer": { "passed": true, "note": "经期场景高频" },
+        "V2_brand": { "passed": true, "note": "强化护理场景" },
+        "V3_compliance": { "passed": true, "note": "无医疗化表述" },
+        "V4_supply": { "passed": true, "note": "吸水纤维需验证" },
+        "V5_business": { "passed": true, "note": "经期复购驱动强" }
+      },
+      "launch_round": "C-内容对战",
+      "content_test_results": {
+        "exposure": 15600,
+        "click_rate": 5.2,
+        "interaction": 1100,
+        "conversion": 2.8
+      }
+    }
+  ]
+}

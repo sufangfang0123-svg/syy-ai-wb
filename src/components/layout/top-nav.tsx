@@ -34,8 +34,9 @@ export function TopNav({
 
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-6">
-      {/* Brand area */}
+      {/* Brand + Nav area */}
       <div className="flex items-center gap-5">
+        {/* Logo */}
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-sm">
             <Cloud className="h-5 w-5 text-white" />
@@ -88,7 +89,7 @@ export function TopNav({
         </div>
       </div>
 
-      {/* Data status - full text */}
+      {/* Data status */}
       <div className="hidden lg:flex items-center gap-6">
         <div className="flex items-center gap-1.5">
           <span className="text-lg font-bold text-foreground">{feedbackCount}</span>

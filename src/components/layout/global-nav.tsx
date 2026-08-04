@@ -13,10 +13,10 @@ interface GlobalNavProps {
 const navItems = [
   { href: "/radar", label: "全网雷达", active: true },
   { href: "/insights", label: "信号洞察", active: true },
-  { href: "/opportunities", label: "需求机会", active: false },
-  { href: "/evolution", label: "产品进化", active: false },
-  { href: "/launch", label: "虚拟上市", active: false },
-  { href: "/content", label: "内容中枢", active: false },
+  { href: "/opportunities", label: "需求机会", active: true },
+  { href: "/evolution", label: "产品进化", active: true },
+  { href: "/launch", label: "虚拟上市", active: true },
+  { href: "/content", label: "内容中枢", active: true },
 ];
 
 export function GlobalNav({ onNewTask, onScanNow }: GlobalNavProps) {

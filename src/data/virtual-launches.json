@@ -1,0 +1,121 @@
+{
+  "_disclaimer": "演示模拟数据 | DEMO MOCK DATA",
+  "_generated_at": "2026-08-04",
+  "items": [
+    {
+      "launch_id": "L-C01-01",
+      "concept_id": "C01",
+      "concept_name": "棉感随行胶囊",
+      "round": "A-概念生存",
+      "round_number": 1,
+      "variable": "需求/场景/产品任务",
+      "target_elimination": "伪需求、低频、低品牌匹配",
+      "settings": {
+        "price": 49.9,
+        "spec": "基础盒含洁面巾20片+经期巾8片+清洁巾10片",
+        "selling_point": "24小时只有掌心大小，一包搞定全棉护理",
+        "channel": "小红书+抖音",
+        "content": "场景清单+对比实验"
+      },
+      "result": "survive",
+      "explanation": "需求真实（宿舍/通勤高频），品牌匹配度高，便携场景与全棉理念一致",
+      "counterfactual": "若价格提升至79.9，转化率预计下降40%",
+      "risk": "套装复杂度可能让部分用户困惑",
+      "next_step": "进入B轮版本进化",
+      "ai_consumer_count": 500,
+      "engagement": { "exposure": 12400, "click_rate": 4.8, "interaction": 890, "conversion": 2.1 }
+    },
+    {
+      "launch_id": "L-C01-02",
+      "concept_id": "C01",
+      "concept_name": "棉感随行胶囊",
+      "round": "B-版本进化",
+      "round_number": 2,
+      "variable": "规格/组合/包装/价格",
+      "target_elimination": "价值感不足、复杂度过高",
+      "settings": {
+        "price": 59.9,
+        "spec": "基础盒+补充芯（洁面巾40片+经期巾16片+清洁巾20片）",
+        "selling_point": "模块化补充，越用越省",
+        "channel": "小红书+抖音+电商",
+        "content": "开箱+清单+场景反差"
+      },
+      "result": "evolve",
+      "explanation": "补充芯模式提升复购预期，模块化降低初次购买决策成本",
+      "counterfactual": "若不提供补充芯单卖，复购率预计降低60%",
+      "risk": "补充芯包装可能需要新模具",
+      "next_step": "进入C轮内容对战",
+      "ai_consumer_count": 800,
+      "engagement": { "exposure": 15600, "click_rate": 5.2, "interaction": 1100, "conversion": 2.8 }
+    },
+    {
+      "launch_id": "L-C01-03",
+      "concept_id": "C01",
+      "concept_name": "棉感随行胶囊",
+      "round": "C-内容对战",
+      "round_number": 3,
+      "variable": "卖点/封面/脚本/达人类型",
+      "target_elimination": "点击高但理解低、互动虚高",
+      "settings": {
+        "price": 59.9,
+        "spec": "基础盒+补充芯",
+        "selling_point": "宿舍收纳神器， roommate都问链接",
+        "channel": "抖音+小红书",
+        "content": "场景反差（宿舍桌面before/after）+达人真实测评"
+      },
+      "result": "survive",
+      "explanation": "宿舍场景反差内容点击率高，真实测评提升信任",
+      "counterfactual": "若使用过度精致摆拍，评论区软广感评分上升35%",
+      "risk": "达人合作成本高，需筛选真实用户型KOC",
+      "next_step": "进入D轮商业审判",
+      "ai_consumer_count": 1200,
+      "engagement": { "exposure": 18900, "click_rate": 5.8, "interaction": 1450, "conversion": 3.2 }
+    },
+    {
+      "launch_id": "L-C02-01",
+      "concept_id": "C02",
+      "concept_name": "高温湿热通勤净护包",
+      "round": "A-概念生存",
+      "round_number": 1,
+      "variable": "需求/场景/产品任务",
+      "target_elimination": "伪需求、低频、低品牌匹配",
+      "settings": {
+        "price": 39.9,
+        "spec": "清凉湿巾20片+吸汗棉片10片",
+        "selling_point": "通勤路上3秒降温，全棉更安心",
+        "channel": "抖音+小红书",
+        "content": "场景反差+可视化实验"
+      },
+      "result": "survive",
+      "explanation": "夏季通勤高频场景，Cool技术方向与品牌技术储备匹配",
+      "counterfactual": "若价格低于29.9，品质感感知下降",
+      "risk": "Cool技术工艺尚未完成验证",
+      "next_step": "进入B轮版本进化（需先验证Cool技术）",
+      "ai_consumer_count": 500,
+      "engagement": { "exposure": 8600, "click_rate": 3.9, "interaction": 520, "conversion": 1.6 }
+    },
+    {
+      "launch_id": "L-C03-01",
+      "concept_id": "C03",
+      "concept_name": "办公桌女性安心抽屉",
+      "round": "A-概念生存",
+      "round_number": 1,
+      "variable": "需求/场景/产品任务",
+      "target_elimination": "伪需求、低频、低品牌匹配",
+      "settings": {
+        "price": 69.9,
+        "spec": "抽屉收纳盒+备用套装（巾+湿巾+处理袋）",
+        "selling_point": "办公桌里的私密护理站",
+        "channel": "电商+私域",
+        "content": "清单化+场景经验"
+      },
+      "result": "survive",
+      "explanation": "办公场景存在但频次低于预期",
+      "counterfactual": "若改为订阅制月付19.9，接受度可能提升",
+      "risk": "办公场景使用频次低，复购逻辑弱",
+      "next_step": "进入D轮商业审判（跳过B/C，直接评估商业可行性）",
+      "ai_consumer_count": 400,
+      "engagement": { "exposure": 4200, "click_rate": 2.1, "interaction": 180, "conversion": 0.8 }
+    }
+  ]
+}
