@@ -13,6 +13,12 @@ function fixHtmlFile(filePath) {
   content = content.replace(/href="\/syy-ai-wb\/monitor\/tasks"/g, 'href="/syy-ai-wb/monitor/tasks.html"');
   content = content.replace(/href="\/syy-ai-wb"/g, 'href="/syy-ai-wb/index.html"');
 
+  // Fix new page routes (4 added modules)
+  content = content.replace(/href="\/syy-ai-wb\/opportunities"/g, 'href="/syy-ai-wb/opportunities.html"');
+  content = content.replace(/href="\/syy-ai-wb\/evolution"/g, 'href="/syy-ai-wb/evolution.html"');
+  content = content.replace(/href="\/syy-ai-wb\/launch"/g, 'href="/syy-ai-wb/launch.html"');
+  content = content.replace(/href="\/syy-ai-wb\/content"/g, 'href="/syy-ai-wb/content.html"');
+
   fs.writeFileSync(filePath, content, 'utf-8');
   console.log('Fixed routes in: ' + path.relative(outDir, filePath));
 }

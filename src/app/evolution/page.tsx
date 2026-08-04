@@ -96,14 +96,14 @@ const concepts: Concept[] = [
 ];
 
 const geneMeta: Record<string, { label: string; color: string }> = {
-  G1: { label: "人群", color: "bg-blue-100 text-blue-700" },
-  G2: { label: "场景", color: "bg-green-100 text-green-700" },
-  G3: { label: "任务", color: "bg-purple-100 text-purple-700" },
-  G4: { label: "材料", color: "bg-orange-100 text-orange-700" },
-  G5: { label: "体验", color: "bg-pink-100 text-pink-700" },
-  G6: { label: "情绪", color: "bg-amber-100 text-amber-700" },
-  G7: { label: "传播", color: "bg-cyan-100 text-cyan-700" },
-  G8: { label: "商业", color: "bg-gray-100 text-gray-700" },
+  G1: { label: "人群基因", color: "bg-blue-100 text-blue-700" },
+  G2: { label: "场景基因", color: "bg-green-100 text-green-700" },
+  G3: { label: "任务基因", color: "bg-purple-100 text-purple-700" },
+  G4: { label: "材料与技术基因", color: "bg-orange-100 text-orange-700" },
+  G5: { label: "体验基因", color: "bg-pink-100 text-pink-700" },
+  G6: { label: "情绪基因", color: "bg-amber-100 text-amber-700" },
+  G7: { label: "传播基因", color: "bg-cyan-100 text-cyan-700" },
+  G8: { label: "商业与可持续基因", color: "bg-gray-100 text-gray-700" },
 };
 
 const vetoLabels: Record<string, string> = {

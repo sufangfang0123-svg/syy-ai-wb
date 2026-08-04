@@ -238,24 +238,52 @@ export default function LaunchPage() {
                       </div>
                     </div>
 
-                    {/* Result conclusion */}
-                    <div className="mb-4">
-                      <div className="text-sm font-medium text-muted-foreground mb-2">实验结论</div>
-                      <div
-                        className={cn(
-                          "rounded-lg p-3 text-sm",
-                          active.result === "survive"
-                            ? "bg-green-50 text-green-700"
+                    {/* Experiment outputs */}
+                    <div className="mb-5 space-y-3">
+                      <div className="text-sm font-medium text-muted-foreground mb-2">每轮实验输出</div>
+                      
+                      <div className="rounded-lg border border-border bg-card p-3">
+                        <div className="text-xs font-semibold text-foreground mb-1">1. 本轮解释</div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {active.result === "survive"
+                            ? "核心场景下需求真实且高频，概念在目标人群中获得正向反馈，关键指标（点击率>4%、转化率>2%）达到预设阈值。"
                             : active.result === "evolve"
-                            ? "bg-amber-50 text-amber-700"
-                            : "bg-red-50 text-red-700"
-                        )}
-                      >
-                        {active.result === "survive"
-                          ? "概念通过本轮测试，进入下一轮"
-                          : active.result === "evolve"
-                          ? "概念需要进化后重新测试"
-                          : "概念未通过测试，已淘汰"}
+                            ? "概念存在价值，但部分维度（如使用场景覆盖、价格敏感度）反馈不一致，需优化后重新测试。"
+                            : "需求验证失败：目标场景下用户现有替代方案已足够，新概念未提供显著差异化价值，且转化率低于淘汰阈值。"}
+                        </p>
+                      </div>
+                      
+                      <div className="rounded-lg border border-border bg-card p-3">
+                        <div className="text-xs font-semibold text-foreground mb-1">2. 反事实测试</div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {active.result === "survive"
+                            ? "若去掉'模块化收纳'卖点，点击率下降1.8%；若去掉'隐私包装'，收藏率下降12%。核心卖点组合不可替代。"
+                            : active.result === "evolve"
+                            ? "若价格降低20%，转化率提升至3.5%；若增加'经期专项'场景，目标人群扩大至40%。优化方向明确。"
+                            : "若改为常规棉柔巾形式，各项指标无显著差异；若增加香氛元素，负反馈增加25%。概念无独特价值锚点。"}
+                        </p>
+                      </div>
+                      
+                      <div className="rounded-lg border border-border bg-card p-3">
+                        <div className="text-xs font-semibold text-foreground mb-1">3. 风险标注</div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {active.result === "survive"
+                            ? "待验证：真人使用场景下的便携性体验；供应链端的小批量定制成本；竞品模仿周期预估。"
+                            : active.result === "evolve"
+                            ? "风险：场景扩展可能导致品牌定位模糊；多SKU增加库存管理复杂度；需确认企业现有产能可覆盖。"
+                            : "风险消除：避免了错误投入模具/备货成本；防止了品牌与不适配场景强行关联的稀释效应。"}
+                        </p>
+                      </div>
+                      
+                      <div className="rounded-lg border border-border bg-card p-3">
+                        <div className="text-xs font-semibold text-foreground mb-1">4. 下一步动作</div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {active.result === "survive"
+                            ? "进入下一轮虚拟上市测试（内容对战阶段），同步启动真人小样本验证（n≥50），准备A/B测试素材。"
+                            : active.result === "evolve"
+                            ? "退回产品进化舱进行基因突变优化，重点调整G3任务基因和G5体验基因，2周后重新提交虚拟上市。"
+                            : "归档淘汰原因至知识库，释放资源投入其他候选概念；若后续市场变化，可从基因库重新组合复活。"}
+                        </p>
                       </div>
                     </div>
 

@@ -307,14 +307,14 @@ export default function ContentPage() {
 
                     {/* 6-block content structure */}
                     <div className="mb-5">
-                      <div className="text-sm font-medium text-muted-foreground mb-3">内容资产六块结构</div>
+                      <div className="text-sm font-medium text-muted-foreground mb-3">内容资产六块</div>
                       <div className="space-y-3">
-                        <StructureDetail icon={FileText} label="事实层" value={activeAsset.structure.fact} color="blue" />
-                        <StructureDetail icon={Users} label="人群层" value={activeAsset.structure.persona} color="green" />
-                        <StructureDetail icon={Tag} label="卖点层" value={activeAsset.structure.selling} color="amber" />
-                        <StructureDetail icon={ShieldCheck} label="证据层" value={activeAsset.structure.evidence} color="purple" />
-                        <StructureDetail icon={Sparkles} label="创意层" value={activeAsset.structure.creative} color="pink" />
-                        <StructureDetail icon={TrendingUp} label="表现层" value={activeAsset.structure.performance} color="cyan" />
+                        <StructureDetail icon={FileText} label="事实块" value={activeAsset.structure.fact} color="blue" />
+                        <StructureDetail icon={Users} label="人群块" value={activeAsset.structure.persona} color="green" />
+                        <StructureDetail icon={Tag} label="卖点块" value={activeAsset.structure.selling} color="amber" />
+                        <StructureDetail icon={ShieldCheck} label="证据块" value={activeAsset.structure.evidence} color="purple" />
+                        <StructureDetail icon={Sparkles} label="创意块" value={activeAsset.structure.creative} color="pink" />
+                        <StructureDetail icon={TrendingUp} label="表现块" value={activeAsset.structure.performance} color="cyan" />
                       </div>
                     </div>
 
@@ -323,7 +323,7 @@ export default function ContentPage() {
                       <div className="text-sm font-medium text-muted-foreground mb-2">合规标签</div>
                       <div className={cn("rounded-lg p-3 text-sm", complianceMeta[activeAsset.compliance].className)}>
                         {complianceMeta[activeAsset.compliance].label}
-                        {activeAsset.compliance === "yellow" && ": 证据层缺少真人测试数据，需补充后重新审核"}
+                        {activeAsset.compliance === "yellow" && ": 证据块缺少真人测试数据，需补充后重新审核"}
                         {activeAsset.compliance === "red" && ": 存在绝对化用语或虚假宣传风险，需修改"}
                       </div>
                     </div>
