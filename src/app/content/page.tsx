@@ -72,7 +72,7 @@ const assets: ContentAsset[] = [
       persona: "18-30岁通勤年轻女性",
       selling: "模块化收纳，单手取用，隐私包装",
       evidence: "第三方检测报告，棉纤维含量>99%",
-      creative: "通勤包翻包vlog，对比实验展示",
+      creative: "通勤包整理vlog，对比实验展示",
       performance: "曝光1.2万，点击率4.8%",
     },
     metrics: { views: 12400, likes: 890, comments: 156, shares: 78, saves: 345 },

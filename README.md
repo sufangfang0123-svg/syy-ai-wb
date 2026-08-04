@@ -15,7 +15,7 @@
 | Tailwind CSS | 3.4 | 样式系统 |
 | shadcn/ui | - | 组件库（手写移植） |
 | Radix UI | latest | 无障碍原语（Dialog/Progress/ScrollArea/Tooltip/Separator） |
-| lucide-react | latest | 线性图标 |
+| lucide-react | latest | 界面图标 |
 
 ---
 
@@ -196,7 +196,7 @@ cotton-ai-workbench/
 - 避免纯黑背景和赛博朋克风
 - 卡片圆角适中（0.5rem）
 - 信息层级清晰，数据与证据优先
-- 简洁线性图标（lucide-react）
+- 简洁界面图标（lucide-react）
 - 适合比赛 Demo 录屏
 
 ---
