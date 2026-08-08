@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Build and deploy GitHub Pages
 
 on:
   push:
@@ -12,23 +12,34 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  build-and-deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout source
         uses: actions/checkout@v4
-      - name: Setup Pages
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build static site
+        env:
+          NEXT_PUBLIC_BASE_PATH: /syy-ai-wb
+        run: npm run build
+      - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Upload artifact
+      - name: Upload static export
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./syy-ai-wb-deploy
+          path: ./dist
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

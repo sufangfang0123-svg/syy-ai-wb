@@ -1,261 +1,156 @@
 # 棉生万物 · AI爆款进化舱
-## AI消费者反馈洞察工作台
 
-> 将小红书、抖音、电商平台等网络消费者反馈，转化为结构化需求洞察和产品机会。
+> 先在数字世界上市 100 次，再在现实世界生产 1 次。
 
----
+“棉生万物”是一套证据感知的产品概念数字进化系统。它把公开信号、真人研究、企业数据和合成压力测试组织成可追溯的产品决策链，通过机会发现、产品基因变异、五道决策门、实验淘汰和真人校准，帮助团队在投产前更早发现错误假设。
 
-## 技术栈
+这里的“100 次”是一套 1—100 轮的结构化实验协议，不代表 100 次真实商业上市；Fitness 是当前证据条件下的相对适应度，不是成功概率。
 
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| Next.js | 15.3.2 | App Router 框架 |
-| React | 19 | UI 库 |
-| TypeScript | 5 | 类型安全 |
-| Tailwind CSS | 3.4 | 样式系统 |
-| shadcn/ui | - | 组件库（手写移植） |
-| Radix UI | latest | 无障碍原语（Dialog/Progress/ScrollArea/Tooltip/Separator） |
-| lucide-react | latest | 界面图标 |
+## 在线链接
 
----
+- 产品演示：[https://sufangfang0123-svg.github.io/syy-ai-wb/](https://sufangfang0123-svg.github.io/syy-ai-wb/)
+- 源码仓库：[https://github.com/sufangfang0123-svg/syy-ai-wb](https://github.com/sufangfang0123-svg/syy-ai-wb)
 
-## 快速启动
+GitHub Pages 在 `main` 分支更新后自动安装依赖、构建静态站点并发布 `dist/`。线上更新通常需要等待 Actions 工作流完成。
 
-```bash
-# 1. 安装依赖
-npm install
+## 产品定位与核心能力
 
-# 2. 启动开发服务器
-npm run dev
+系统面向商品经理、消费者研究、品牌、供应链、质量合规和业务团队，解决三个问题：创新依据分散、跨团队决策不可追溯、真实生产之前缺少低成本淘汰机制。
 
-# 3. 打开浏览器访问
-# http://localhost:3000
+核心流程：
+
+```text
+捕捉信号 → 形成机会 → 生成产品物种 → 八类基因变异
+         → 五道决策门 → 1—100轮实验 → 真人校准 → 候选试产
 ```
 
-### 生产构建
+主要页面：
+
+| 页面 | 作用 |
+| --- | --- |
+| 进化总览 | 默认首页、进化路径、当前幸存物种、Data Readiness、业务影响 |
+| 全网雷达 | 证据流、数据源准备度、访问停止条件 |
+| 信号洞察 | A—D 证据筛选、来源详情、场景与痛点结构 |
+| 需求机会 | 信号—机会—验证三栏工作台、反证、替代方案、证据升级路径 |
+| 产品进化 | 八类 Product Genome、Fitness、Mutation Simulator、五道 Gate、Evolution Tree |
+| 虚拟上市 | 1—100 轮实验、合成压力测试、区间情景、Reality Check |
+| 内容中枢 | Claim Spine、渠道适配、A/B 变体、合规预检、结果回写 |
+
+页面中的操作会写入浏览器 `localStorage`，并进入 Audit Log；“重置演示”可恢复初始数据。静态站点不保存密钥，也不向远端发送演示操作。
+
+## 启动方式与环境变量
+
+环境要求：Node.js 20 或更高版本、npm 10 或兼容版本。
+
+```bash
+npm ci
+npm run dev
+```
+
+本地开发地址为 `http://localhost:3000`。
+
+生产静态构建：
 
 ```bash
 npm run build
-npm run start
 ```
 
----
+构建结果位于 `dist/`。如需模拟 GitHub Pages 子路径：
 
-## 页面功能
-
-### 核心流程
-
-```
-原始反馈导入 → AI标签提取 → 相似需求聚类 → 需求机会卡 → 人工确认 → 进入产品概念生成
+```bash
+# PowerShell
+$env:NEXT_PUBLIC_BASE_PATH="/syy-ai-wb"
+npm run build
 ```
 
-### 页面布局
+| 变量 | 必需 | 用途 |
+| --- | --- | --- |
+| `NEXT_PUBLIC_BASE_PATH` | 否 | 部署到子路径时设置；本地开发留空，Pages 使用 `/syy-ai-wb` |
 
-#### 顶部导航栏
-- Logo「棉生万物」+ 副标题「AI爆款进化舱」
-- 当前项目名称
-- 数据源数量、已分析反馈数量统计
-- 「导入反馈」按钮
-- 「运行AI分析」主按钮
+当前 DEMO MODE 不需要模型密钥。未来真实 AI Provider 的服务端凭据必须存放在后端或部署平台的 Secret 中，不得使用 `NEXT_PUBLIC_` 前缀，也不得提交到仓库。
 
-#### 左侧栏 · 原始反馈库
-- 平台筛选（小红书 / 抖音 / 京东 / 淘宝 / 微博 / 知乎）
-- 情绪筛选（正面 / 中性 / 负面）
-- 场景筛选（差旅出行 / 办公通勤 / 运动健身 等）
-- 搜索框
-- 反馈卡片列表（平台标签、原文摘要、点赞量、评论数、发布时间、AI痛点标签、数据类型标签）
-- 点击反馈卡片打开右侧抽屉查看详情
+## AI 介入流程
 
-#### 中间栏 · AI需求聚类
-- 4个需求聚类卡片：
-  1. 随身携带不方便
-  2. 使用场景被割裂
-  3. 卫生与安心感不足
-  4. 组合产品价格顾虑
-- 每张卡片包含：聚类名称、相关反馈数量、高频关键词、主要人群、主要场景、核心痛点、证据强度、AI置信度进度条
-- 点击聚类卡片可筛选左侧对应反馈
+AI 的角色被限制在可审计的辅助环节：
 
-#### 右侧栏 · 需求机会卡
-- 3张机会卡可切换：
-  1. 轻量随行护理机会
-  2. 隐蔽更换场景方案
-  3. 可视化安心体系
-- 每张卡片包含：机会标题、目标人群、核心场景、用户任务、主要痛点、期望体验、证据数量与等级、当前假设、待验证问题、AI置信度
-- 操作按钮：「人工确认」「加入待验证池」「生成产品概念」
+1. 从公开或授权数据中提取场景、任务、痛点、替代方案与反证。
+2. 将相似信号聚为机会假设，并附来源、证据等级和待真人验证问题。
+3. 生成产品基因组合和可控变异，计算相对 Fitness 与变化影响。
+4. 在五道 Gate 前整理证据和风险；Hard Gate 失败时直接停止评分。
+5. 生成渠道内容 A/B 变体，但只能引用 Claim Spine 中已批准的主张。
+6. 使用合成消费者寻找分歧和极端反例，再与真人研究结果比较并校准权重。
+7. 记录每次人工动作、AI 生成、证据升级和决策变化。
 
-### 交互功能
+AI 不负责最终准入、合规、供应链或投资决策。D 级合成结果不等同于真人偏好，公开互动量也不等同于购买意愿。
 
-| 交互 | 效果 |
-|------|------|
-| 点击反馈卡片 | 右侧抽屉打开，展示完整反馈详情 |
-| 点击聚类卡片 | 筛选左侧反馈列表，仅显示该聚类关联的反馈 |
-| 切换机会卡 Tab | 右侧栏内容切换 |
-| 点击「运行AI分析」 | 弹出步骤式加载弹窗（5个步骤），完成后显示成功提示 |
-| 点击「生成产品概念」 | 弹出 Toast 提示「产品棉基因模块将在下一版本接入」 |
-| 点击「人工确认」 | 标记该机会卡为已确认状态 |
-| 点击「加入待验证池」 | 标记该机会卡为已加入待验证池 |
+## 统一证据等级
 
----
+| 等级 | 定义 | 可支持的决策 |
+| --- | --- | --- |
+| A | 企业经营、真实成交或重复行为实验 | 试产与规模化讨论 |
+| B | 真人访谈、结构化问卷、真人 A/B 或官方统计 | 概念验证与小规模试点 |
+| C | 公开评论、社媒信号、竞品观察或专业研究 | 机会发现与假设形成 |
+| D | AI 模拟、专家假设、演示测算或合成测试 | 预筛、压力测试和寻找反例 |
 
-## Mock 数据
+Decision Provenance 会展示分数构成、证据列表、覆盖率、时效、风险扣分和限制条件，避免产生无来源的确定性结论。
 
-所有数据文件位于 `src/data/` 目录，均带有 `_disclaimer: "演示模拟数据"` 字段标记。
+## 技术栈
 
-| 文件 | 内容 | 条数 |
-|------|------|------|
-| `feedback.json` | 消费者反馈数据 | 20 条 |
-| `clusters.json` | 需求聚类数据 | 4 个 |
-| `opportunities.json` | 需求机会卡数据 | 3 张 |
+| 技术 | 版本 / 方案 | 用途 |
+| --- | --- | --- |
+| Next.js | 15.3.2 App Router | 页面路由、静态导出 |
+| React | 19 | 状态与交互界面 |
+| TypeScript | 5 | 领域模型与类型校验 |
+| Tailwind CSS | 3.4 | 响应式布局与原子样式 |
+| Radix UI | Dialog、Progress、ScrollArea 等 | 可访问的交互基础组件 |
+| Lucide React | 图标系统 | 一致的界面图标 |
+| ECharts | 5.5 | 后续复杂数据可视化扩展 |
+| GitHub Actions / Pages | 静态 CI/CD | 构建、上传与发布 |
 
-### 反馈数据字段
+## 工程架构
 
-```
-feedback_id       - 反馈ID
-platform          - 平台（xiaohongshu/douyin/jd/taobao/weibo/zhihu）
-product_name      - 产品名称
-category          - 品类
-raw_text          - 原始文本
-publish_date      - 发布日期
-likes             - 点赞数
-reply_count       - 回复数
-source_url        - 来源链接
-data_type         - 数据类型（public/interview/ai_simulated）
-sentiment         - 情绪（positive/neutral/negative）
-scenarios         - 使用场景列表
-pain_points       - AI提取的痛点标签
-expected_experience - 期望体验
-confidence        - AI置信度（0-100）
-cluster_id        - 关联的聚类ID
+```text
+src/
+├── app/                 # Next.js 页面与全局设计系统
+├── components/          # demo、evidence、evolution、layout、ui
+├── data/demo/           # 明确标识的演示数据
+├── domain/              # Evidence、Genome、Gate、Experiment 等领域模型
+├── providers/           # AI 能力接口与 Demo Provider
+├── repositories/        # 状态持久化接口与 localStorage 实现
+└── services/            # Fitness、证据强度、Gate 规则等纯业务逻辑
 ```
 
----
+领域层不依赖页面。`EvolutionProvider` 连接 Repository 与 Service，页面只消费状态和动作。未来可将 Demo Repository 替换为 API Repository，将 Demo AI Provider 替换为服务端模型调用，而不改动核心页面结构。
 
-## 项目目录结构
+## 数据与安全边界
 
-```
-cotton-ai-workbench/
-├── package.json
-├── tsconfig.json
-├── tailwind.config.ts
-├── postcss.config.js
-├── next.config.mjs
-├── next-env.d.ts
-├── README.md
-├── .gitignore
-└── src/
-    ├── app/
-    │   ├── layout.tsx          # 根布局
-    │   ├── page.tsx            # 主页面（三栏布局 + 状态管理）
-    │   └── globals.css        # 全局样式 + CSS变量
-    ├── components/
-    │   ├── layout/
-    │   │   └── top-nav.tsx     # 顶部导航栏
-    │   ├── panels/
-    │   │   ├── feedback-panel.tsx          # 左侧反馈库
-    │   │   ├── cluster-panel.tsx           # 中间聚类卡片
-    │   │   ├── opportunity-panel.tsx        # 右侧机会卡
-    │   │   ├── feedback-detail-drawer.tsx  # 反馈详情抽屉
-    │   │   └── ai-analysis-overlay.tsx     # AI分析加载弹窗
-    │   └── ui/                 # shadcn/ui 基础组件
-    │       ├── button.tsx
-    │       ├── card.tsx
-    │       ├── badge.tsx
-    │       ├── input.tsx
-    │       ├── progress.tsx
-    │       ├── sheet.tsx
-    │       ├── scroll-area.tsx
-    │       ├── separator.tsx
-    │       └── tooltip.tsx
-    ├── data/
-    │   ├── feedback.json       # Mock反馈数据（20条）
-    │   ├── clusters.json       # Mock聚类数据（4个）
-    │   └── opportunities.json  # Mock机会卡数据（3张）
-    ├── lib/
-    │   └── utils.ts            # cn()工具函数 + 平台/情绪/数据类型元数据映射
-    └── types/
-        └── index.ts            # TypeScript类型定义
+- 所有内置记录均为演示样例，并在界面标记数据类型与证据等级。
+- 不保存完整用户名、头像、私信或其他不必要的个人信息。
+- 不绕过登录墙、验证码、滑块、访问限制或平台风控。
+- 企业销售、会员行为、BOM 与投放 ROI 均显示为“待企业授权”，不会在前端伪造。
+- `.env`、缓存、本地数据库、原始敏感截图和构建产物默认不进入版本库。
+
+## 验证与发布
+
+提交前至少运行：
+
+```bash
+npm run build
 ```
 
----
+验收重点包括所有路由可静态导出、导航与抽屉可用、Mutation/Gate/实验推进有真实状态变化、刷新后状态仍存在、演示与真人数据不混淆，以及手机与桌面布局无关键内容遮挡。
 
-## 视觉设计
+发布工作流位于 `.github/workflows/deploy.yml`，执行顺序为 Checkout → Setup Node → `npm ci` → `npm run build` → Configure Pages → Upload `dist` → Deploy Pages。
 
-### 色彩系统
+## 三分钟演示路线
 
-| 色彩 | HSL值 | 用途 |
-|------|-------|------|
-| Primary | `165 35% 55%` | 浅青绿色，主色调 |
-| Background | `150 20% 98%` | 棉白色背景 |
-| Card | `0 0% 100%` | 纯白卡片 |
-| Border | `200 15% 90%` | 柔和边框 |
-| Muted | `200 15% 95%` | 浅灰背景 |
-
-### 设计原则
-- 柔和、专业、健康、科技感
-- 主色：棉白、浅青绿、柔和蓝绿色
-- 避免纯黑背景和赛博朋克风
-- 卡片圆角适中（0.5rem）
-- 信息层级清晰，数据与证据优先
-- 简洁界面图标（lucide-react）
-- 适合比赛 Demo 录屏
-
----
-
-## 后续接入指南
-
-### 连接 FastAPI 后端
-
-1. 在 `src/lib/` 下创建 `api.ts`，封装 fetch 请求
-2. 将 `src/app/page.tsx` 中的 Mock JSON 导入替换为 API 调用
-3. 示例：
-
-```typescript
-// src/lib/api.ts
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-export async function fetchFeedback(): Promise<FeedbackItem[]> {
-  const res = await fetch(`${API_BASE}/api/feedback`);
-  const data = await res.json();
-  return data.items;
-}
-```
-
-### 连接 Supabase
-
-1. 安装 `@supabase/supabase-js`
-2. 在 `src/lib/supabase.ts` 创建客户端
-3. 替换 Mock 数据为 Supabase 查询
-
-### 接入 ECharts
-
-ECharts 已安装但当前版本未使用图表。后续可在聚类面板添加：
-- 痛点词频柱状图
-- 情绪分布饼图
-- 置信度雷达图
-
----
-
-## 已实现功能清单
-
-- [x] 顶部导航栏（Logo、项目名、数据统计、操作按钮）
-- [x] 左侧反馈库（筛选、搜索、列表、卡片）
-- [x] 中间聚类卡片（4个聚类、关键词、置信度）
-- [x] 右侧机会卡（3张可切换、完整信息展示）
-- [x] 反馈详情抽屉（点击反馈打开）
-- [x] 聚类筛选联动（点击聚类筛选左侧反馈）
-- [x] AI分析步骤式加载弹窗（5个步骤）
-- [x] Toast 提示系统
-- [x] 人工确认 / 待验证池状态管理
-- [x] 生成产品概念提示
-- [x] 底部免责声明
-- [x] Mock 数据（20条反馈 / 4个聚类 / 3张机会卡）
-- [x] 1440px 桌面端适配
-- [x] 基本移动端响应式
-- [x] TypeScript 零报错
-- [x] 生产构建通过
-
----
+1. 在首页点击“开始 3 分钟进化演示”，理解“100 次”实验协议和当前幸存物种。
+2. 进入“需求机会”，查看支持证据、反证、替代方案和证据升级路径。
+3. 进入“产品进化”，运行一次基因变异，观察 Fitness 变化与 Audit Log。
+4. 修改一个 Hard Gate 为 FAIL，展示直接淘汰和失败谱系；再恢复为 WARNING。
+5. 进入“虚拟上市”，推进一轮实验，对比合成结果与真人结果的校准偏差。
+6. 进入“内容中枢”，切换渠道和 A/B 版本，说明 Claim Spine 如何阻止缺证表达。
 
 ## 免责声明
 
-当前页面中的模拟结果仅用于产品机会预筛，不代表真实市场需求或销量预测。所有机会均需通过真人访谈、问卷、概念测试和企业数据进一步验证。
+本项目是产品研究与决策辅助 DEMO。模拟分数、选择份额、内容指标和商业区间仅用于展示方法与验证流程，不构成真实市场预测、销量承诺、医疗建议或投资建议。重大产品决策必须由真人研究和企业责任人确认。

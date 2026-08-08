@@ -1,440 +1,59 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { GlobalNav } from "@/components/layout/global-nav";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import {
-  Dna,
-  GitBranch,
-  Trophy,
-  ShieldCheck,
-  Sparkles,
-  ChevronRight,
-  Zap,
-  Layers,
-  X,
-  TrendingUp,
-  BarChart3,
-  MessageSquare,
-  MousePointer,
-  ShoppingCart,
-  RotateCcw,
-  CheckCircle2,
-  AlertTriangle,
-} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { AlertOctagon, ArrowRight, Check, ChevronRight, Dna, GitBranch, Lock, LockOpen, RotateCw, ShieldAlert, Sparkles, X } from "lucide-react";
+import { useEvolution } from "@/components/demo/evolution-provider";
+import { DecisionProvenanceDrawer } from "@/components/evidence/decision-provenance-drawer";
+import { EvidenceBadge } from "@/components/evidence/evidence-badge";
+import { FitnessRing } from "@/components/evolution/fitness-ring";
+import { FITNESS_LABELS, GENOME_LABELS } from "@/domain/constants";
+import { FitnessDimensionKey, GateStatus, GenomeCategory, ProductVersion } from "@/domain/types";
 
-interface Concept {
-  concept_id: string;
-  name: string;
-  status: "surviving" | "evolving" | "eliminated";
-  score: number;
-  generation: number;
-  parent_id: string | null;
-  mutations: string[];
-  launch_round: string;
-  engagement: { exposure: number; click_rate: number; interaction: number; conversion: number };
-  genes: Record<string, string>;
-  veto: Record<string, boolean>;
-}
-
-const concepts: Concept[] = [
-  {
-    concept_id: "C01",
-    name: "棉感随行胶囊",
-    status: "surviving",
-    score: 89.0,
-    generation: 1,
-    parent_id: null,
-    mutations: [],
-    launch_round: "C-内容对战",
-    engagement: { exposure: 12400, click_rate: 4.8, interaction: 890, conversion: 2.1 },
-    genes: { G1: "18-30岁年轻女性", G2: "宿舍/通勤/短途旅行", G3: "洁面+经期+清洁+换洗", G4: "全棉水刺无纺布", G5: "模块化、单手取用、隐私收纳", G6: "安心、体面、松弛", G7: "对比实验、清单化", G8: "基础盒+补充芯" },
-    veto: { V1: true, V2: true, V3: true, V4: true, V5: true },
-  },
-  {
-    concept_id: "C01-V2",
-    name: "棉感随行胶囊 · 经期加强版",
-    status: "surviving",
-    score: 91.5,
-    generation: 2,
-    parent_id: "C01",
-    mutations: ["G3: 增加经期护理", "G4: 增加吸水纤维", "G5: 增加大吸量", "G8: 增加经期专项包"],
-    launch_round: "C-内容对战",
-    engagement: { exposure: 15600, click_rate: 5.2, interaction: 1100, conversion: 2.8 },
-    genes: { G1: "18-30岁年轻女性（经期重点）", G2: "宿舍/通勤/短途旅行", G3: "洁面+经期护理+清洁+换洗", G4: "全棉水刺+吸水纤维", G5: "模块化、单手取用、隐私收纳、大吸量", G6: "安心、体面、掌控感", G7: "对比实验、清单化、开箱", G8: "基础盒+补充芯+经期专项包" },
-    veto: { V1: true, V2: true, V3: true, V4: true, V5: true },
-  },
-  {
-    concept_id: "C02",
-    name: "高温湿热通勤净护包",
-    status: "evolving",
-    score: 87.5,
-    generation: 1,
-    parent_id: null,
-    mutations: [],
-    launch_round: "B-版本进化",
-    engagement: { exposure: 8600, click_rate: 3.9, interaction: 520, conversion: 1.6 },
-    genes: { G1: "易出汗、敏感感受人群", G2: "高温湿热城市通勤", G3: "清洁+吸汗+舒缓", G4: "Cotton Cool技术", G5: "清凉触感、便携、速干", G6: "体面、清爽", G7: "场景反差、可视化", G8: "单品+组合装" },
-    veto: { V1: true, V2: true, V3: true, V4: false, V5: true },
-  },
-  {
-    concept_id: "C03",
-    name: "办公桌女性安心抽屉",
-    status: "eliminated",
-    score: 87.2,
-    generation: 1,
-    parent_id: null,
-    mutations: [],
-    launch_round: "D-商业审判",
-    engagement: { exposure: 4200, click_rate: 2.1, interaction: 180, conversion: 0.8 },
-    genes: { G1: "职场女性", G2: "办公室/实习", G3: "收纳+备用+隐私", G4: "标准全棉", G5: "抽屉适配、隐蔽", G6: "安心、体面", G7: "清单化", G8: "订阅制" },
-    veto: { V1: true, V2: true, V3: true, V4: true, V5: false },
-  },
+const categories = Object.keys(GENOME_LABELS) as GenomeCategory[];
+const impactPresets = [
+  { id: "compact", category: "G5" as const, valueId: "g5-3", label: "小体积包装", impacts: { demand: 3, differentiation: 3, communication: 4, commercial: -2, supply: -3 } },
+  { id: "one-hand", category: "G5" as const, valueId: "g5-2", label: "强化单手取用", impacts: { pain: 4, differentiation: 2, communication: 2, supply: -1 } },
+  { id: "refill", category: "G8" as const, valueId: "g8-2", label: "增加补充装", impacts: { brand: 2, commercial: 3, supply: -2, compliance: 1 } },
 ];
 
-const geneMeta: Record<string, { label: string; color: string }> = {
-  G1: { label: "人群基因", color: "bg-blue-100 text-blue-700" },
-  G2: { label: "场景基因", color: "bg-green-100 text-green-700" },
-  G3: { label: "任务基因", color: "bg-purple-100 text-purple-700" },
-  G4: { label: "材料与技术基因", color: "bg-orange-100 text-orange-700" },
-  G5: { label: "体验基因", color: "bg-pink-100 text-pink-700" },
-  G6: { label: "情绪基因", color: "bg-amber-100 text-amber-700" },
-  G7: { label: "传播基因", color: "bg-cyan-100 text-cyan-700" },
-  G8: { label: "商业与可持续基因", color: "bg-gray-100 text-gray-700" },
-};
-
-const vetoLabels: Record<string, string> = {
-  V1: "V1 消费者否决",
-  V2: "V2 技术可行性否决",
-  V3: "V3 品牌一致性否决",
-  V4: "V4 供应链否决",
-  V5: "V5 商业可持续否决",
-};
-
 export default function EvolutionPage() {
-  const [selectedConcept, setSelectedConcept] = useState<string | null>("C01");
-  const [geneFilter, setGeneFilter] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ msg: string; type: "info" | "success" } | null>(null);
+  const { state, currentVersion, toggleGenomeValue, toggleGenomeLock, createMutation, setGateStatus } = useEvolution();
+  const [activeVersionId, setActiveVersionId] = useState(currentVersion.id);
+  const [metric, setMetric] = useState<FitnessDimensionKey | null>(null);
+  const [mutationId, setMutationId] = useState(impactPresets[0].id);
+  const [price, setPrice] = useState(79);
+  const [treeNode, setTreeNode] = useState<ProductVersion | null>(null);
+  const displayedVersion = state.versions.find((item) => item.id === activeVersionId) ?? currentVersion;
+  const selectedMutation = impactPresets.find((item) => item.id === mutationId) ?? impactPresets[0];
+  const evidence = state.evidence.filter((item) => displayedVersion.fitness.evidenceIds.includes(item.id));
+  const hardFail = state.gates.some((gate) => gate.mode === "hard" && gate.status === "FAIL");
+  const timeline = state.versions.filter((item) => item.opportunityId === "OP-01");
 
-  const showToast = (msg: string, type: "info" | "success" = "info") => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 2500);
+  const priceImpact = useMemo(() => price <= 59 ? { demand: 3, commercial: -5 } : price >= 99 ? { demand: -5, commercial: 3 } : { demand: 0, commercial: 0 }, [price]);
+  const combinedImpacts = { ...selectedMutation.impacts, demand: (selectedMutation.impacts.demand ?? 0) + priceImpact.demand, commercial: (selectedMutation.impacts.commercial ?? 0) + priceImpact.commercial };
+
+  useEffect(() => setActiveVersionId(currentVersion.id), [currentVersion.id]);
+
+  const create = () => {
+    createMutation({ category: selectedMutation.category, valueId: selectedMutation.valueId, label: `${selectedMutation.label} · 价格${price}元`, impacts: combinedImpacts });
   };
 
-  const activeConcept = concepts.find((c) => c.concept_id === selectedConcept) || null;
+  return <div className="page-frame"><div className="page-heading"><div><p className="section-kicker">Evolution Laboratory</p><h1 className="section-title">产品进化</h1><p className="page-description">让产品物种在证据约束下变异、竞争、淘汰和校准。</p></div><div className="flex items-center gap-2"><span className="simulation-chip">D级模拟 · 仅用于预筛</span><EvidenceBadge level={displayedVersion.evidenceLevel} /></div></div>
 
-  const filteredConcepts = useMemo(() => {
-    if (!geneFilter) return concepts;
-    return concepts.filter((c) => c.genes[geneFilter]);
-  }, [geneFilter]);
+    <section className="evolution-timeline"><div className="mb-5 flex items-center justify-between"><div><p className="section-kicker">Evolution Timeline</p><h2 className="text-xl font-semibold">版本谱系</h2></div><p className="text-xs text-[#636E72]">点击版本切换工作台</p></div><div className="timeline-row">{timeline.map((version, index) => <div key={version.id} className="contents"><button onClick={() => setActiveVersionId(version.id)} className={`version-node version-${version.status} ${displayedVersion.id === version.id ? "version-node-active" : ""}`}><span className="version-dot">{version.status === "survivor" ? <Check className="h-3 w-3" /> : version.status === "eliminated" ? <X className="h-3 w-3" /> : <RotateCw className="h-3 w-3" />}</span><b>{version.label}</b><small>{version.fitness.finalFitness} Fitness</small><span>{version.mutation}</span></button>{index < timeline.length - 1 ? <ChevronRight className="h-5 w-5 shrink-0 text-[#A7B1AD]" /> : null}</div>)}</div></section>
 
-  const stats = useMemo(() => {
-    const total = concepts.length;
-    const surviving = concepts.filter((c) => c.status === "surviving").length;
-    const evolving = concepts.filter((c) => c.status === "evolving").length;
-    const eliminated = concepts.filter((c) => c.status === "eliminated").length;
-    return { total, surviving, evolving, eliminated };
-  }, []);
+    <div className="mt-6 grid gap-6 xl:grid-cols-[.85fr_1.15fr]"><section className="data-surface rounded-[24px] p-6"><div className="flex items-start justify-between"><div><p className="section-kicker">Fitness Dashboard</p><h2 className="text-xl font-semibold">{displayedVersion.name} {displayedVersion.label}</h2><p className="mt-1 text-xs text-[#636E72]">{hardFail ? "Hard Gate失败：状态直接REJECTED" : displayedVersion.status === "survivor" ? "当前幸存物种" : displayedVersion.status === "eliminated" ? "已进入失败谱系" : "实验中"}</p></div><button onClick={() => setMetric("demand")} aria-label="展开适应度证据链"><FitnessRing value={displayedVersion.fitness.finalFitness} size={126} /></button></div><div className="formula-grid"><Formula label="Raw Fitness" value={displayedVersion.fitness.rawFitness} /><span>×</span><Formula label="Evidence Factor" value={displayedVersion.fitness.evidenceFactor.toFixed(2)} /><span>−</span><Formula label="Risk Penalty" value={displayedVersion.fitness.riskPenalty} /><span>=</span><Formula label="Final Fitness" value={displayedVersion.fitness.finalFitness} strong /></div><div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">{(Object.entries(displayedVersion.fitness.dimensions) as [FitnessDimensionKey, number][]).map(([key, value]) => <button key={key} onClick={() => setMetric(key)} className="fitness-metric"><span>{FITNESS_LABELS[key]}</span><b>{value}</b><i style={{ width: `${value}%` }} /></button>)}</div><p className="mt-4 rounded-lg bg-[#F3F1EC] p-3 text-xs leading-5 text-[#636E72]">Final Fitness = Raw Fitness × Evidence Factor − Risk Penalty。任何 Hard Gate = FAIL 时停止评分并直接淘汰。</p></section>
 
-  return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background">
-      <GlobalNav />
+      <section className="evolution-surface rounded-[24px] p-6"><div className="flex items-start justify-between"><div><p className="section-kicker text-[#A8D5BA]">Mutation Simulator</p><h2 className="text-xl font-semibold text-white">运行一次基因变异</h2></div><span className="simulation-chip border-white/15 bg-white/10 text-white">D级模拟</span></div><div className="mt-5 grid gap-5 md:grid-cols-[.8fr_1.2fr]"><div><label className="field-label">变异方案</label><div className="space-y-2">{impactPresets.map((preset) => <button key={preset.id} onClick={() => setMutationId(preset.id)} className={`mutation-option ${mutationId === preset.id ? "mutation-option-active" : ""}`}><Sparkles className="h-4 w-4" />{preset.label}</button>)}</div><label className="field-label mt-5">价格情景：{price}元</label><input type="range" min="49" max="109" step="10" value={price} onChange={(event) => setPrice(Number(event.target.value))} className="w-full accent-[#A8D5BA]" aria-label="价格情景" /><div className="mt-1 flex justify-between text-[10px] text-white/45"><span>谨慎 49</span><span>基准 79</span><span>进取 109</span></div></div><div><p className="field-label">Mutation Impact Matrix</p><div className="grid grid-cols-2 gap-2">{(Object.entries(combinedImpacts) as [FitnessDimensionKey, number][]).map(([key, value]) => <div key={key} className="impact-cell"><span>{FITNESS_LABELS[key]}</span><b className={value >= 0 ? "text-[#A8D5BA]" : "text-[#F0A9A4]"}>{value >= 0 ? "+" : ""}{value}</b></div>)}</div><button onClick={create} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#A8D5BA] px-4 py-3 text-sm font-semibold text-[#244936] hover:bg-[#BCE2C9]"><Dna className="h-4 w-4" />创建下一代版本<ArrowRight className="h-4 w-4" /></button></div></div></section></div>
 
-      <main className="flex-1 overflow-auto">
-        {/* Stats */}
-        <div className="px-6 pt-6 pb-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard icon={Layers} label="概念总数" value={stats.total} color="primary" />
-            <StatCard icon={Trophy} label="存活中" value={stats.surviving} color="green" />
-            <StatCard icon={Zap} label="进化中" value={stats.evolving} color="amber" />
-            <StatCard icon={X} label="已淘汰" value={stats.eliminated} color="red" />
-          </div>
-        </div>
+    <section className="mt-6 rounded-[24px] border border-[#DFE6E9] bg-white p-6"><div className="mb-5"><p className="section-kicker">Genome Workbench</p><h2 className="text-xl font-semibold">八类棉基因</h2><p className="mt-1 text-xs text-[#636E72]">选择基因会改变当前版本；锁定后变异操作不会覆盖该值。</p></div><div className="genome-grid">{categories.map((category) => <article key={category} className="genome-card"><div className="mb-3 flex items-start justify-between"><div><span className="font-mono text-xs font-bold text-[#5B8C5A]">{category}</span><h3 className="text-sm font-semibold">{GENOME_LABELS[category].title}</h3></div><Dna className="h-4 w-4 text-[#9CAB9F]" /></div><p className="mb-3 text-[10px] text-[#7D8B85]">{GENOME_LABELS[category].subtitle}</p><div className="space-y-1.5">{displayedVersion.genome[category].map((value) => <div key={value.id} className={`genome-value ${value.selected ? "genome-value-selected" : ""}`}><button onClick={() => toggleGenomeValue(category, value.id)} disabled={displayedVersion.id !== currentVersion.id || value.locked} className="flex min-w-0 flex-1 items-center gap-2 text-left disabled:cursor-not-allowed"><span className="gene-check">{value.selected ? <Check className="h-3 w-3" /> : null}</span><span className="truncate">{value.label}</span>{!value.verified ? <em>待确认</em> : null}</button><button onClick={() => toggleGenomeLock(category, value.id)} disabled={displayedVersion.id !== currentVersion.id} className="p-1 text-[#7D8B85] disabled:opacity-30" aria-label={`${value.locked ? "解锁" : "锁定"}${value.label}`}>{value.locked ? <Lock className="h-3.5 w-3.5" /> : <LockOpen className="h-3.5 w-3.5" />}</button></div>)}</div></article>)}</div></section>
 
-        {/* Toolbar */}
-        <div className="px-6 pb-4 flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1 flex-wrap">
-            <span className="text-sm text-muted-foreground mr-2">基因筛选:</span>
-            {Object.entries(geneMeta).map(([key, meta]) => (
-              <button
-                key={key}
-                onClick={() => setGeneFilter(geneFilter === key ? null : key)}
-                className={cn(
-                  "px-2 py-1 rounded-md text-xs font-medium transition-colors",
-                  geneFilter === key ? "ring-1 ring-primary bg-primary/10" : "hover:bg-secondary"
-                )}
-              >
-                <span className={cn("inline-block w-2 h-2 rounded-full mr-1", meta.color.split(" ")[0])} />
-                {meta.label}
-              </button>
-            ))}
-          </div>
-          <Button
-            variant="outline"
-            className="h-9 gap-1.5 ml-auto"
-            onClick={() => showToast("基因交叉实验功能开发中", "info")}
-          >
-            <Dna className="h-4 w-4" />
-            基因交叉
-          </Button>
-        </div>
+    <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_1fr]"><section className="rounded-[24px] border border-[#DFE6E9] bg-white p-6"><div className="mb-5 flex items-center justify-between"><div><p className="section-kicker">Five Decision Gates</p><h2 className="text-xl font-semibold">五道否决</h2></div>{hardFail ? <span className="status-badge status-fail"><AlertOctagon className="h-3.5 w-3.5" />REJECTED</span> : <span className="status-badge status-warning"><ShieldAlert className="h-3.5 w-3.5" />HUMAN REVIEW</span>}</div><div className="space-y-3">{state.gates.map((gate) => <article key={gate.id} className={`gate-card gate-card-${gate.status.toLowerCase()}`}><div className="flex flex-wrap items-center gap-3"><span className="gate-code">{gate.id}</span><div className="min-w-[140px] flex-1"><div className="flex items-center gap-2"><h3 className="text-sm font-semibold">{gate.name}</h3><span className={`mode-chip mode-${gate.mode}`}>{gate.mode === "hard" ? "Hard Gate" : "Soft Gate"}</span></div><p className="mt-1 text-[11px] text-[#636E72]">{gate.reason}</p></div><div className="segmented segmented-small">{(["PASS", "WARNING", "FAIL"] as GateStatus[]).map((status) => <button key={status} onClick={() => setGateStatus(gate.id, status)} className={gate.status === status ? "active" : ""}>{status}</button>)}</div></div><div className="mt-2 grid gap-1 text-[10px] text-[#7D8B85] sm:grid-cols-2"><p>AI：{gate.aiRole}</p><p>最终责任人：{gate.owner}</p></div></article>)}</div></section>
 
-        {/* Content */}
-        <div className="px-6 pb-6">
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
-            {/* Left - Concept list */}
-            <div className="xl:col-span-7 space-y-3">
-              {filteredConcepts.map((concept) => (
-                <div
-                  key={concept.concept_id}
-                  onClick={() => setSelectedConcept(concept.concept_id)}
-                  className={cn(
-                    "cursor-pointer rounded-xl border bg-card p-5 transition-all hover:shadow-md",
-                    selectedConcept === concept.concept_id
-                      ? "border-primary ring-1 ring-primary/20"
-                      : "border-border hover:border-primary/30"
-                  )}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <StatusBadge status={concept.status} />
-                      {concept.generation > 1 && (
-                        <Badge variant="outline" className="text-xs">
-                          <GitBranch className="h-3 w-3 mr-1" />
-                          第{concept.generation}代
-                        </Badge>
-                      )}
-                      <span className="text-xs text-muted-foreground font-mono">
-                        {concept.concept_id}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-lg font-bold text-primary">{concept.score}</span>
-                      <span className="text-xs text-muted-foreground">分</span>
-                    </div>
-                  </div>
+      <section className="rounded-[24px] border border-[#DFE6E9] bg-[#F3F1EC] p-6"><div className="mb-5"><p className="section-kicker">Evolution Tree</p><h2 className="text-xl font-semibold">失败谱系</h2><p className="mt-1 text-xs text-[#636E72]">失败不是垃圾数据，而是企业知识资产。</p></div><div className="tree-root"><span>Opportunity OP-01</span><div className="tree-branches">{timeline.map((version) => <button key={version.id} onClick={() => setTreeNode(version)} className={`tree-node tree-${version.status}`}><GitBranch className="h-4 w-4" /><div><b>{version.label}</b><small>{version.mutation}</small></div></button>)}</div></div>{treeNode ? <div className="mt-5 rounded-xl border border-[#D8DFDB] bg-white p-4"><div className="flex items-center justify-between"><div><span className="font-mono text-xs text-[#7D8B85]">{treeNode.id}</span><h3 className="text-base font-semibold">{treeNode.name} {treeNode.label}</h3></div><button onClick={() => setTreeNode(null)} className="icon-button"><X className="h-4 w-4" /></button></div><dl className="tree-detail"><div><dt>状态</dt><dd>{treeNode.status}</dd></div><div><dt>淘汰Gate</dt><dd>{treeNode.eliminatedBy ?? "未淘汰"}</dd></div><div><dt>关键学习</dt><dd>{treeNode.learning ?? "验证进行中"}</dd></div><div><dt>未来复活</dt><dd>{treeNode.revivable ? "允许，需补充新证据" : "不允许"}</dd></div></dl></div> : null}</section></div>
 
-                  <h3 className="text-base font-semibold text-foreground mb-2">{concept.name}</h3>
-
-                  {/* Genes */}
-                  <div className="flex flex-wrap gap-1.5 mb-3">
-                    {Object.entries(concept.genes).map(([geneKey, geneVal]) => (
-                      <span
-                        key={geneKey}
-                        className={cn(
-                          "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium",
-                          geneMeta[geneKey]?.color || "bg-gray-100 text-gray-700"
-                        )}
-                      >
-                        <span className="font-bold">{geneKey}</span>
-                        <span className="opacity-70">{geneMeta[geneKey]?.label}</span>
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Mutations */}
-                  {concept.mutations.length > 0 && (
-                    <div className="mb-3">
-                      <div className="text-xs text-muted-foreground mb-1">基因突变:</div>
-                      <div className="flex flex-wrap gap-1">
-                        {concept.mutations.map((m, i) => (
-                          <span key={i} className="text-xs bg-amber-50 text-amber-700 rounded px-2 py-0.5">
-                            {m}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Engagement mini stats */}
-                  <div className="grid grid-cols-4 gap-2">
-                    <MiniStat label="曝光" value={concept.engagement.exposure.toLocaleString()} icon={TrendingUp} />
-                    <MiniStat label="点击" value={`${concept.engagement.click_rate}%`} icon={MousePointer} />
-                    <MiniStat label="互动" value={concept.engagement.interaction.toLocaleString()} icon={MessageSquare} />
-                    <MiniStat label="转化" value={`${concept.engagement.conversion}%`} icon={ShoppingCart} />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Right - Detail panel */}
-            <div className="xl:col-span-5">
-              {activeConcept ? (
-                <div className="sticky top-0 space-y-4">
-                  <div className="rounded-xl border border-border bg-card p-5">
-                    <div className="flex items-center gap-2 mb-4">
-                      <StatusBadge status={activeConcept.status} />
-                      {activeConcept.generation > 1 && (
-                        <Badge variant="outline" className="text-xs">
-                          <GitBranch className="h-3 w-3 mr-1" />
-                          第{activeConcept.generation}代
-                        </Badge>
-                      )}
-                      <span className="text-xs text-muted-foreground font-mono">
-                        {activeConcept.concept_id}
-                      </span>
-                    </div>
-
-                    <h2 className="text-xl font-bold text-foreground mb-2">{activeConcept.name}</h2>
-                    <div className="text-sm text-muted-foreground mb-4">
-                      {activeConcept.launch_round} · 评分 {activeConcept.score}
-                    </div>
-
-                    {/* Score meter */}
-                    <div className="mb-5">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-muted-foreground">综合评分</span>
-                        <span className="text-lg font-bold text-primary">{activeConcept.score}分</span>
-                      </div>
-                      <Progress value={activeConcept.score} className="h-2" />
-                    </div>
-
-                    {/* Gene details */}
-                    <div className="mb-5">
-                      <div className="text-sm font-medium text-muted-foreground mb-2">基因图谱 (8类棉基因)</div>
-                      <div className="space-y-2">
-                        {Object.entries(activeConcept.genes).map(([key, val]) => (
-                          <div key={key} className="flex items-start gap-2">
-                            <span className={cn("inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium flex-shrink-0", geneMeta[key]?.color)}>
-                              <span className="font-bold">{key}</span>
-                            </span>
-                            <span className="text-sm text-foreground">{val}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Veto gates */}
-                    <div className="mb-5">
-                      <div className="text-sm font-medium text-muted-foreground mb-2">五道否决门</div>
-                      <div className="space-y-1.5">
-                        {Object.entries(activeConcept.veto).map(([key, passed]) => (
-                          <div key={key} className="flex items-center gap-2">
-                            {passed ? (
-                              <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
-                            ) : (
-                              <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />
-                            )}
-                            <span className={cn("text-sm", passed ? "text-foreground" : "text-red-600 font-medium")}>
-                              {vetoLabels[key] || key}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex gap-3">
-                      <Button
-                        className="flex-1 gap-1.5"
-                        onClick={() => showToast("已进入虚拟上市", "success")}
-                      >
-                        <Trophy className="h-4 w-4" />
-                        进入虚拟上市
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="flex-1 gap-1.5"
-                        onClick={() => showToast("基因突变实验已启动", "info")}
-                      >
-                        <Dna className="h-4 w-4" />
-                        基因突变
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="sticky top-0 flex flex-col items-center justify-center h-64 rounded-xl border border-dashed border-border bg-card/50">
-                  <Dna className="h-10 w-10 text-muted-foreground/40 mb-3" />
-                  <p className="text-sm text-muted-foreground">点击左侧概念卡片查看基因详情</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="shrink-0 h-11 flex items-center border-t border-border bg-card px-6">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          <p className="text-xs text-muted-foreground leading-normal">
-            概念评分基于AI消费者模拟测试，不代表真实市场表现。所有概念须通过五道否决门和真人校准验证。
-          </p>
-        </div>
-      </footer>
-
-      {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <div
-            className={`flex items-center gap-2 rounded-xl px-5 py-3 shadow-lg border ${
-              toast.type === "success"
-                ? "bg-primary text-white border-primary"
-                : "bg-card text-foreground border-border"
-            }`}
-          >
-            <Sparkles className="h-5 w-5" />
-            <span className="text-sm font-medium">{toast.msg}</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    <DecisionProvenanceDrawer open={metric !== null} onClose={() => setMetric(null)} metric={metric ?? "demand"} score={displayedVersion.fitness.dimensions[metric ?? "demand"]} evidence={evidence} fitness={displayedVersion.fitness} />
+  </div>;
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; className: string }> = {
-    surviving: { label: "存活中", className: "bg-green-100 text-green-700" },
-    evolving: { label: "进化中", className: "bg-amber-100 text-amber-700" },
-    eliminated: { label: "已淘汰", className: "bg-red-100 text-red-700" },
-  };
-  const cfg = map[status] || map.surviving;
-  return <Badge variant="secondary" className={cn("text-xs", cfg.className)}>{cfg.label}</Badge>;
-}
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  color,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string | number;
-  color: string;
-}) {
-  const colorMap: Record<string, string> = {
-    primary: "bg-primary/10 text-primary",
-    green: "bg-green-100 text-green-700",
-    amber: "bg-amber-100 text-amber-700",
-    red: "bg-red-100 text-red-700",
-  };
-
-  return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs text-muted-foreground">{label}</span>
-        <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${colorMap[color]}`}>
-          <Icon className="h-4 w-4" />
-        </div>
-      </div>
-      <div className="text-2xl font-bold text-foreground">{value}</div>
-    </div>
-  );
-}
-
-function MiniStat({ label, value, icon: Icon }: { label: string; value: string; icon: React.ElementType }) {
-  return (
-    <div className="bg-secondary/50 rounded-lg p-2 text-center">
-      <div className="text-xs text-muted-foreground mb-0.5">{label}</div>
-      <div className="text-sm font-semibold flex items-center justify-center gap-1">
-        <Icon className="h-3 w-3 text-muted-foreground" />
-        {value}
-      </div>
-    </div>
-  );
-}
+function Formula({ label, value, strong = false }: { label: string; value: string | number; strong?: boolean }) { return <div className={`formula-card ${strong ? "formula-strong" : ""}`}><span>{label}</span><b>{value}</b></div>; }

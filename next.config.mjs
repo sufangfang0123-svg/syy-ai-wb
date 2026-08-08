@@ -1,12 +1,14 @@
 /** @type {import('next').NextConfig} */
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export',
-  distDir: 'dist',
-  basePath: '/syy-ai-wb',
-  images: {
-    unoptimized: true,
-  },
+  output: "export",
+  distDir: "dist",
+  trailingSlash: true,
+  basePath,
+  assetPrefix: basePath || undefined,
+  images: { unoptimized: true },
 };
 
 export default nextConfig;

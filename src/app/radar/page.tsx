@@ -1,154 +1,29 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import Link from "next/link";
-import { GlobalNav } from "@/components/layout/global-nav";
-import { RadarStatsOverview } from "@/components/radar/radar-stats-overview";
-import { MonitorTasksCard } from "@/components/radar/monitor-tasks-card";
-import { RawSignalsStream } from "@/components/radar/raw-signals-stream";
-import { TrendRadar } from "@/components/radar/trend-radar";
-import { AnomalyAlerts } from "@/components/radar/anomaly-alerts";
-import { SourceStatus } from "@/components/radar/source-status";
-import { CreateTaskDialog } from "@/components/radar/create-task-dialog";
-import { ShieldCheck, Info } from "lucide-react";
-import {
-  MonitorTask,
-  RawSignal,
-  TrendTopic,
-  AnomalyAlert,
-  SourceConnector,
-  JsonDataWrapper,
-} from "@/types";
+import { useMemo, useState } from "react";
+import { Activity, AlertTriangle, CheckCircle2, Play, Radar, Radio, RefreshCw } from "lucide-react";
+import { useEvolution } from "@/components/demo/evolution-provider";
+import { EvidenceBadge } from "@/components/evidence/evidence-badge";
 
-import tasksJson from "@/data/monitor-tasks.json";
-import signalsJson from "@/data/raw-signals.json";
-import topicsJson from "@/data/trend-topics.json";
-import alertsJson from "@/data/anomaly-alerts.json";
-import connectorsJson from "@/data/source-connectors.json";
+const sources = [
+  { name: "公开社交信号", status: "演示样例", coverage: 68, note: "仅公开可见内容" },
+  { name: "真人研究", status: "部分接入", coverage: 42, note: "访谈与概念测试" },
+  { name: "企业经营数据", status: "待授权", coverage: 0, note: "不在前端模拟" },
+  { name: "合成压力测试", status: "可用", coverage: 100, note: "明确标为D级" },
+];
 
 export default function RadarPage() {
-  const [tasks] = useState<MonitorTask[]>(
-    (tasksJson as JsonDataWrapper<MonitorTask>).items
-  );
-  const [signals] = useState<RawSignal[]>(
-    (signalsJson as JsonDataWrapper<RawSignal>).items
-  );
-  const [topics] = useState<TrendTopic[]>(
-    (topicsJson as JsonDataWrapper<TrendTopic>).items
-  );
-  const [alerts] = useState<AnomalyAlert[]>(
-    (alertsJson as JsonDataWrapper<AnomalyAlert>).items
-  );
-  const [connectors] = useState<SourceConnector[]>(
-    (connectorsJson as JsonDataWrapper<SourceConnector>).items
-  );
+  const { state } = useEvolution();
+  const [running, setRunning] = useState(false);
+  const [lastScan, setLastScan] = useState("08:30");
+  const [focus, setFocus] = useState("全部场景");
+  const filtered = useMemo(() => focus === "全部场景" ? state.evidence : state.evidence.filter((item) => item.scenario.includes(focus)), [focus, state.evidence]);
+  const runScan = () => { setRunning(true); window.setTimeout(() => { setRunning(false); setLastScan(new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })); }, 900); };
 
-  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
-  const [toast, setToast] = useState<{ msg: string; type: "info" | "success" } | null>(null);
-
-  const totalSignalsToday = signals.length; // In real system this would be computed from all connectors
-
-  const handleNewTask = useCallback(() => {
-    setTaskDialogOpen(true);
-  }, []);
-
-  const handleScanNow = useCallback(() => {
-    setToast({ msg: "正在启动实时扫描...（演示模式）", type: "info" });
-    setTimeout(() => setToast(null), 2000);
-  }, []);
-
-  const handleRunTask = useCallback((id: string) => {
-    setToast({ msg: `任务 ${id} 已开始扫描（演示模式）`, type: "success" });
-    setTimeout(() => setToast(null), 2000);
-  }, []);
-
-  const handlePauseTask = useCallback((id: string) => {
-    setToast({ msg: `任务 ${id} 已暂停（演示模式）`, type: "info" });
-    setTimeout(() => setToast(null), 2000);
-  }, []);
-
-  const handleSaveTask = useCallback((_task: Partial<MonitorTask>) => {
-    setToast({ msg: "监测任务已保存（演示模式）", type: "success" });
-    setTimeout(() => setToast(null), 2000);
-  }, []);
-
-  return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background">
-      {/* Global Nav */}
-      <GlobalNav onNewTask={handleNewTask} onScanNow={handleScanNow} />
-
-      {/* Main content */}
-      <main className="flex-1 overflow-auto">
-        {/* Stats overview */}
-        <RadarStatsOverview
-          taskCount={tasks.filter((t) => t.status === "running").length}
-          sourceCount={connectors.filter((c) => c.status === "active" || c.status === "scanning").length}
-          signalsToday={totalSignalsToday}
-          trendTopics={topics.filter((t) => t.trend === "rising" || t.trend === "new_conflict").length}
-          anomalies={alerts.filter((a) => a.status === "new").length}
-          lastScanMinutes={8}
-        />
-
-        {/* Two-column layout */}
-        <div className="px-6 pb-6">
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
-            {/* Left column - 8 cols */}
-            <div className="xl:col-span-8 space-y-5">
-              <MonitorTasksCard
-                tasks={tasks}
-                onRunTask={handleRunTask}
-                onPauseTask={handlePauseTask}
-              />
-              <RawSignalsStream signals={signals} />
-              <SourceStatus connectors={connectors} />
-            </div>
-
-            {/* Right column - 4 cols */}
-            <div className="xl:col-span-4 space-y-5">
-              <TrendRadar topics={topics} />
-              <AnomalyAlerts
-                alerts={alerts}
-                onViewEvidence={(id) => console.log("View evidence:", id)}
-                onPin={(id) => console.log("Pin alert:", id)}
-                onDismiss={(id) => console.log("Dismiss alert:", id)}
-              />
-            </div>
-          </div>
-        </div>
-      </main>
-
-      {/* Footer disclaimer */}
-      <footer className="shrink-0 h-11 flex items-center border-t border-border bg-card px-6">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          <p className="text-xs text-muted-foreground leading-normal">
-            当前结果用于产品机会预筛，不代表真实市场需求或销量预测。所有机会必须经过真人访谈、问卷、概念测试和企业数据验证。
-          </p>
-        </div>
-      </footer>
-
-      {/* Create Task Dialog */}
-      <CreateTaskDialog
-        open={taskDialogOpen}
-        onOpenChange={setTaskDialogOpen}
-        onSave={handleSaveTask}
-      />
-
-      {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <div
-            className={`flex items-center gap-2 rounded-xl px-5 py-3 shadow-lg border ${
-              toast.type === "success"
-                ? "bg-primary text-white border-primary"
-                : "bg-card text-foreground border-border"
-            }`}
-          >
-            <ShieldCheck className="h-5 w-5" />
-            <span className="text-sm font-medium">{toast.msg}</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <div className="page-frame"><header className="page-heading"><div><p className="section-kicker">Signal Radar</p><h1>全网雷达</h1><p className="page-description">把公开信号、真人研究与企业数据接入状态分开显示。跨平台只比较覆盖，不直接推断需求强弱。</p></div><button className="primary-action" onClick={runScan} disabled={running}>{running ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />}{running ? "扫描中" : "运行演示扫描"}</button></header>
+    <section className="stat-grid"><Stat icon={Radio} label="演示信号" value={state.evidence.length} /><Stat icon={Activity} label="真人证据" value={state.evidence.filter((item) => item.isHuman).length} /><Stat icon={AlertTriangle} label="待验证假设" value={state.evidence.filter((item) => item.level === "D").length} /><Stat icon={Radar} label="上次扫描" value={lastScan} /></section>
+    <div className="mt-6 grid gap-6 xl:grid-cols-[1.15fr_.85fr]"><section className="panel-surface"><div className="panel-title-row"><div><p className="section-kicker">Incoming Signals</p><h2>最新证据流</h2></div><select className="field-select" value={focus} onChange={(event) => setFocus(event.target.value)}><option>全部场景</option><option>短期出差</option><option>家庭补给</option><option>公共空间</option></select></div><div className="signal-stream">{filtered.slice(0, 9).map((item) => <article key={item.id} className="stream-row"><div className="stream-marker" /><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><EvidenceBadge level={item.level} /><span className="platform-chip">{item.platform}</span><span className="text-xs text-[#84908A]">{item.date}</span></div><strong>{item.title}</strong><p>{item.excerpt}</p><div className="flex gap-3 text-xs text-[#748079]"><span>场景：{item.scenario}</span><span>痛点：{item.painPoint}</span></div></div></article>)}</div></section><div className="space-y-6"><section className="panel-surface"><div className="panel-title-row"><div><p className="section-kicker">Source Readiness</p><h2>数据源状态</h2></div></div><div className="mt-4 space-y-3">{sources.map((item) => <div key={item.name} className="source-row"><div><strong>{item.name}</strong><p>{item.note}</p></div><div className="text-right"><span>{item.status}</span><div className="source-meter"><i style={{ width: `${item.coverage}%` }} /></div></div></div>)}</div></section><section className="panel-surface"><p className="section-kicker">Stop Conditions</p><h2 className="section-title">采集停止条件</h2><ul className="rule-list"><li><AlertTriangle />403、429、验证码或平台限制</li><li><AlertTriangle />登录墙、敏感个人信息或账号异常</li><li><AlertTriangle />需要发布、互动或绕过安全机制</li><li><CheckCircle2 />保存状态，转人工处理并记录审计</li></ul></section></div></div>
+  </div>;
 }
+
+function Stat({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string | number }) { return <div className="stat-card"><Icon className="h-5 w-5" /><span>{label}</span><strong>{value}</strong></div>; }

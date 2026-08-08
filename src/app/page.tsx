@@ -1,22 +1,42 @@
 "use client";
 
-import { useEffect } from "react";
+import Link from "next/link";
+import { useState } from "react";
+import { ArrowRight, CheckCircle2, ChevronRight, Dna, LockKeyhole, Play, Sparkles, TestTube2 } from "lucide-react";
+import { useEvolution } from "@/components/demo/evolution-provider";
+import { DecisionProvenanceDrawer } from "@/components/evidence/decision-provenance-drawer";
+import { EvidenceBadge } from "@/components/evidence/evidence-badge";
+import { FitnessRing } from "@/components/evolution/fitness-ring";
+import { dataReadiness } from "@/data/demo/evolution-data";
+import { FITNESS_LABELS } from "@/domain/constants";
+import { FitnessDimensionKey } from "@/domain/types";
 
-export default function HomeRedirect() {
-  useEffect(() => {
-    // Client-side redirect for SPA navigation
-    if (typeof window !== "undefined") {
-      const base = window.location.pathname.replace(/\/[^\/]*$/, "/");
-      window.location.href = base + "radar.html";
-    }
-  }, []);
+const evolutionPath = [
+  ["01", "捕捉信号", "832", "Signals"],
+  ["02", "形成机会", "14", "Opportunities"],
+  ["03", "生成物种", "36", "Concepts"],
+  ["04", "基因变异", "128", "Variants"],
+  ["05", "选择压力", "87", "Eliminated"],
+  ["06", "真人校准", "3", "Survivors"],
+  ["FINAL", "候选试产", "1", "Candidate"],
+];
 
-  return (
-    <div className="flex h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-sm text-muted-foreground">正在进入全网消费信号雷达...</p>
-      </div>
-    </div>
-  );
+export default function EvolutionCommandCenter() {
+  const { state, currentVersion, setDemoStep } = useEvolution();
+  const [metric, setMetric] = useState<FitnessDimensionKey | null>(null);
+  const evidence = state.evidence.filter((item) => currentVersion.fitness.evidenceIds.includes(item.id));
+  return <div>
+    <section className="hero-section"><div className="mx-auto grid max-w-[1500px] items-center gap-10 px-5 py-16 lg:grid-cols-[1.05fr_.95fr] lg:px-10 lg:py-20"><div><p className="section-kicker">Cotton Evolution Lab · V2</p><h1 className="mt-4 text-5xl font-semibold leading-[1.08] tracking-[-0.04em] text-[#26312D] md:text-7xl">棉生万物<span className="mt-3 block text-2xl font-medium tracking-normal text-[#5B8C5A] md:text-3xl">AI爆款进化舱</span></h1><p className="mt-7 max-w-2xl text-2xl font-medium leading-snug text-[#315C46]">先在数字世界上市100次，<br className="hidden sm:block" />再在现实世界生产1次。</p><p className="mt-5 max-w-2xl text-base leading-7 text-[#636E72]">不是预测哪个产品一定会爆，而是用证据、实验、淘汰和真人校准，降低产品创新中的错误决策。“100次”代表投产前系统化实验框架，并非100次真实商业上市。</p><div className="mt-8 flex flex-wrap gap-3"><button onClick={() => setDemoStep(0)} className="primary-action px-5 py-3"><Play className="h-4 w-4 fill-current" />开始3分钟进化演示</button><Link href="/evolution" className="secondary-action px-5 py-3">进入进化工作台<ArrowRight className="h-4 w-4" /></Link></div></div><EvolutionHeroVisual /></div></section>
+
+    <section className="mx-auto max-w-[1600px] px-4 py-10 lg:px-6"><div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="section-kicker">Evolution Pipeline</p><h2 className="section-title">一条从信号到现实的进化路径</h2></div><span className="simulation-chip">D级模拟演示数据</span></div><div className="evolution-track">{evolutionPath.map(([step, label, value, unit], index) => <div key={step} className={`evolution-stage ${index === evolutionPath.length - 1 ? "evolution-stage-final" : ""}`}><span className="text-[10px] font-bold tracking-[0.16em] text-[#789087]">{step}</span><p className="mt-3 text-sm font-semibold text-[#2D3436]">{label}</p><div className="mt-2 flex items-baseline gap-1"><span className="text-3xl font-semibold text-[#315C46]">{value}</span><span className="text-[10px] uppercase text-[#7D8B85]">{unit}</span></div>{index < evolutionPath.length - 1 ? <ChevronRight className="evolution-arrow" /> : null}</div>)}</div></section>
+
+    <section className="mx-auto grid max-w-[1600px] gap-6 px-4 py-8 lg:grid-cols-[1.05fr_.95fr] lg:px-6"><article className="evolution-surface relative overflow-hidden rounded-[28px] p-6 lg:p-8"><div className="fiber-orbit" aria-hidden="true" /><div className="relative"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="section-kicker text-[#A8D5BA]">Current Survivor</p><h2 className="mt-1 text-3xl font-semibold text-white">{currentVersion.name} {currentVersion.label}</h2><p className="mt-2 text-sm text-white/65">真人验证中 · 37次实验 · 18次淘汰 · 4次变异</p></div><EvidenceBadge level={currentVersion.evidenceLevel} /></div><div className="mt-8 grid gap-6 sm:grid-cols-[180px_1fr]"><button onClick={() => setMetric("demand")} className="rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"><FitnessRing value={currentVersion.fitness.finalFitness} size={170} /></button><div><p className="text-sm font-semibold text-white">分数不是成功概率</p><p className="mt-1 text-xs leading-5 text-white/60">“89分 ≠ 89%成功概率”。分数仅表示当前证据条件下的相对适应度。</p><div className="mt-4 grid grid-cols-2 gap-3"><DarkMetric label="Raw Fitness" value={currentVersion.fitness.rawFitness} /><DarkMetric label="Evidence Factor" value={currentVersion.fitness.evidenceFactor.toFixed(2)} /><DarkMetric label="Risk Penalty" value={`−${currentVersion.fitness.riskPenalty}`} /><DarkMetric label="Evidence Coverage" value={`${currentVersion.fitness.evidenceCoverage}%`} /></div></div></div><div className="mt-6 grid grid-cols-2 gap-2 md:grid-cols-4">{(Object.entries(currentVersion.fitness.dimensions) as [FitnessDimensionKey, number][]).map(([key, value]) => <button key={key} onClick={() => setMetric(key)} className="rounded-xl border border-white/10 bg-white/5 p-3 text-left transition hover:bg-white/10"><p className="text-[11px] text-white/55">{FITNESS_LABELS[key]}</p><p className="mt-1 text-xl font-semibold text-white">{value}</p></button>)}</div></div></article>
+      <div className="space-y-6"><section className="data-surface rounded-[24px] p-6"><div className="mb-4 flex items-center justify-between"><div><p className="section-kicker">Data Readiness</p><h2 className="text-xl font-semibold">数据接入准备度</h2></div><LockKeyhole className="h-5 w-5 text-[#5B8C5A]" /></div><div className="space-y-2">{dataReadiness.map((item) => <div key={item.id} className="flex items-center justify-between rounded-xl border border-[#E5E8E6] bg-white/70 px-3 py-2.5"><div className="flex items-center gap-2">{item.status === "ready" ? <CheckCircle2 className="h-4 w-4 text-[#5B8C5A]" /> : item.status === "partial" ? <TestTube2 className="h-4 w-4 text-[#E8A87C]" /> : <LockKeyhole className="h-4 w-4 text-[#8B9691]" />}<span className="text-sm font-medium">{item.label}</span></div><span className="text-xs text-[#7D8B85]">{item.note}</span></div>)}</div></section><section className="rounded-[24px] border border-[#DFE6E9] bg-white p-6"><p className="section-kicker">Business Impact</p><h2 className="text-xl font-semibold">从线性协作到证据闭环</h2><div className="mt-5 grid gap-4 md:grid-cols-2"><FlowColumn title="Before" items={["人工整理反馈", "凭经验讨论", "多平台重复生产", "上市后才发现问题"]} muted /><FlowColumn title="After" items={["Evidence Hub", "Product Genome", "Gate + 真人校准", "结果回流再进化"]} /></div><p className="mt-5 rounded-xl bg-[#EEF3EF] p-3 text-xs leading-5 text-[#52625B]">AI不替代最终决策者；它减少无效整理、缺乏证据的争论和高成本试错。所有价值指标均为演示测算，待企业试点验证。</p></section></div>
+    </section>
+    <DecisionProvenanceDrawer open={metric !== null} onClose={() => setMetric(null)} metric={metric ?? "demand"} score={currentVersion.fitness.dimensions[metric ?? "demand"]} evidence={evidence} fitness={currentVersion.fitness} />
+  </div>;
 }
+
+function EvolutionHeroVisual() { return <div className="evolution-hero" aria-label="数字生命进化示意图"><div className="evolution-core"><Dna className="h-12 w-12" /><span>Product<br />Genome</span></div>{[0,1,2,3,4,5].map((item) => <span key={item} className={`gene-node gene-node-${item}`}><Sparkles className="h-3 w-3" /></span>)}<div className="branch branch-a" /><div className="branch branch-b" /><div className="branch branch-c" /><p className="absolute bottom-5 left-6 text-xs tracking-[0.18em] text-[#DCE8E1]">EVIDENCE → MUTATION → SELECTION</p></div>; }
+function DarkMetric({ label, value }: { label: string; value: string | number }) { return <div className="rounded-xl border border-white/10 bg-white/5 p-3"><p className="text-[10px] uppercase tracking-wider text-white/45">{label}</p><p className="mt-1 text-lg font-semibold text-white">{value}</p></div>; }
+function FlowColumn({ title, items, muted = false }: { title: string; items: string[]; muted?: boolean }) { return <div><p className={`mb-2 text-xs font-bold uppercase tracking-widest ${muted ? "text-[#9AA49F]" : "text-[#5B8C5A]"}`}>{title}</p><div className="space-y-1.5">{items.map((item, index) => <div key={item} className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs ${muted ? "bg-[#F4F3F0] text-[#737C78]" : "bg-[#EDF4EE] text-[#315C46]"}`}><span className="font-mono text-[10px]">{String(index + 1).padStart(2, "0")}</span>{item}</div>)}</div></div>; }
