@@ -1,203 +1,24 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
-import { TopNav } from "@/components/layout/top-nav";
-import { FeedbackPanel } from "@/components/panels/feedback-panel";
-import { ClusterPanel } from "@/components/panels/cluster-panel";
-import { OpportunityPanel } from "@/components/panels/opportunity-panel";
-import { FeedbackDetailDrawer } from "@/components/panels/feedback-detail-drawer";
-import { AIAnalysisOverlay } from "@/components/panels/ai-analysis-overlay";
-import { ShieldCheck, Info, Zap } from "lucide-react";
-import { FeedbackItem, Cluster, Opportunity, AIAnalysisStep, JsonDataWrapper } from "@/types";
-import feedbackJson from "@/data/feedback.json";
-import clusterJson from "@/data/clusters.json";
-import opportunityJson from "@/data/opportunities.json";
-
-const aiSteps: AIAnalysisStep[] = [
-  { id: "clean", label: "正在清洗反馈" },
-  { id: "scenario", label: "正在提取用户场景" },
-  { id: "pain", label: "正在识别高频痛点" },
-  { id: "cluster", label: "正在生成需求聚类" },
-  { id: "opportunity", label: "正在构建机会卡" },
-];
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { ArrowRight, Filter, Layers3, MessageCircleWarning, Users } from "lucide-react";
+import { useEvolution } from "@/components/demo/evolution-provider";
+import { EvidenceBadge } from "@/components/evidence/evidence-badge";
+import { EvidenceLevel } from "@/domain/types";
 
 export default function InsightsPage() {
-  const [feedback] = useState<FeedbackItem[]>(
-    (feedbackJson as JsonDataWrapper<FeedbackItem>).items
-  );
-  const [clusters] = useState<Cluster[]>(
-    (clusterJson as JsonDataWrapper<Cluster>).items
-  );
-  const [opportunities] = useState<Opportunity[]>(
-    (opportunityJson as JsonDataWrapper<Opportunity>).items
-  );
+  const { state } = useEvolution();
+  const [level, setLevel] = useState<"ALL" | EvidenceLevel>("ALL");
+  const [selected, setSelected] = useState(state.evidence[0].id);
+  const filtered = useMemo(() => level === "ALL" ? state.evidence : state.evidence.filter((item) => item.level === level), [level, state.evidence]);
+  const active = state.evidence.find((item) => item.id === selected) ?? filtered[0] ?? state.evidence[0];
+  const painClusters = useMemo(() => Object.entries(state.evidence.reduce<Record<string, number>>((acc, item) => { acc[item.painPoint] = (acc[item.painPoint] ?? 0) + 1; return acc; }, {})).sort((a, b) => b[1] - a[1]).slice(0, 6), [state.evidence]);
 
-  const [activeClusterId, setActiveClusterId] = useState<string | null>(null);
-  const [selectedFeedback, setSelectedFeedback] = useState<FeedbackItem | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [activeOppId, setActiveOppId] = useState<string>(
-    opportunities[0]?.opportunity_id || ""
-  );
-  const [confirmedIds, setConfirmedIds] = useState<Set<string>>(new Set());
-  const [pooledIds, setPooledIds] = useState<Set<string>>(new Set());
-  const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
-  const [toast, setToast] = useState<{ msg: string; type: "info" | "success" } | null>(null);
-
-  const totalPainPoints = useMemo(() => {
-    const set = new Set<string>();
-    feedback.forEach((f) => f.pain_points.forEach((p) => set.add(p)));
-    return set.size;
-  }, [feedback]);
-
-  const handleSelectFeedback = useCallback((item: FeedbackItem) => {
-    setSelectedFeedback(item);
-    setDrawerOpen(true);
-  }, []);
-
-  const handleSelectCluster = useCallback((cluster: Cluster) => {
-    setActiveClusterId((prev) =>
-      prev === cluster.cluster_id ? null : cluster.cluster_id
-    );
-  }, []);
-
-  const handleRunAI = useCallback(() => {
-    setAiOverlayOpen(true);
-  }, []);
-
-  const handleAIComplete = useCallback(() => {
-    setAiOverlayOpen(false);
-    setToast({ msg: "AI分析完成！已生成需求聚类和机会卡。", type: "success" });
-    setTimeout(() => setToast(null), 3500);
-  }, []);
-
-  const handleConfirm = useCallback((id: string) => {
-    setConfirmedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-    setToast({ msg: "机会卡已人工确认", type: "success" });
-    setTimeout(() => setToast(null), 2000);
-  }, []);
-
-  const handleAddToPool = useCallback((id: string) => {
-    setPooledIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-    setToast({ msg: "已加入待验证池", type: "info" });
-    setTimeout(() => setToast(null), 2000);
-  }, []);
-
-  const handleGenerate = useCallback((_id: string) => {
-    setToast({ msg: "产品棉基因模块将在下一版本接入", type: "info" });
-    setTimeout(() => setToast(null), 3500);
-  }, []);
-
-  const handleImport = useCallback(() => {
-    setToast({ msg: "反馈导入功能将在下一版本接入", type: "info" });
-    setTimeout(() => setToast(null), 2000);
-  }, []);
-
-  return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background">
-      {/* Top Navigation — 64px height */}
-      <TopNav
-        feedbackCount={feedback.length}
-        clusterCount={clusters.length}
-        onImport={handleImport}
-        onRunAI={handleRunAI}
-        isAnalyzing={aiOverlayOpen}
-      />
-
-      {/* Main 3-column work area */}
-      <main className="flex flex-1 overflow-hidden">
-        {/* Left panel - Feedback 280px */}
-        <div className="w-[280px] flex-shrink-0 border-r border-border hidden md:block">
-          <FeedbackPanel
-            feedback={feedback}
-            activeClusterId={activeClusterId}
-            onSelectFeedback={handleSelectFeedback}
-            selectedFeedbackId={selectedFeedback?.feedback_id || null}
-            title="消费信号库"
-            showAutoStatus
-          />
-        </div>
-
-        {/* Center panel - Clusters */}
-        <div className="flex-1 min-w-0">
-          <ClusterPanel
-            clusters={clusters}
-            activeClusterId={activeClusterId}
-            onSelectCluster={handleSelectCluster}
-            totalFeedback={feedback.length}
-            totalPainPoints={totalPainPoints}
-            totalOpportunities={opportunities.length}
-          />
-        </div>
-
-        {/* Right panel - Opportunity 360px */}
-        <div className="w-[360px] flex-shrink-0 border-l border-border hidden lg:block">
-          <OpportunityPanel
-            opportunities={opportunities}
-            activeId={activeOppId}
-            onSelect={setActiveOppId}
-            onConfirm={handleConfirm}
-            onAddToPool={handleAddToPool}
-            onGenerate={handleGenerate}
-            confirmedIds={confirmedIds}
-            pooledIds={pooledIds}
-            autoDetected
-          />
-        </div>
-      </main>
-
-      {/* Footer disclaimer — 44px height */}
-      <footer className="shrink-0 h-11 flex items-center border-t border-border bg-card px-6">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          <p className="text-xs text-muted-foreground leading-normal">
-            当前结果用于产品机会预筛，不代表真实市场需求或销量预测。所有机会必须经过真人访谈、问卷、概念测试和企业数据验证。
-          </p>
-        </div>
-      </footer>
-
-      {/* Feedback Detail Drawer */}
-      <FeedbackDetailDrawer
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-        item={selectedFeedback}
-      />
-
-      {/* AI Analysis Overlay */}
-      <AIAnalysisOverlay
-        open={aiOverlayOpen}
-        steps={aiSteps}
-        onComplete={handleAIComplete}
-      />
-
-      {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <div
-            className={`flex items-center gap-2 rounded-xl px-5 py-3 shadow-lg border ${
-              toast.type === "success"
-                ? "bg-primary text-white border-primary"
-                : "bg-card text-foreground border-border"
-            }`}
-          >
-            {toast.type === "success" ? (
-              <ShieldCheck className="h-5 w-5" />
-            ) : (
-              <Zap className="h-5 w-5 text-primary" />
-            )}
-            <span className="text-sm font-medium">{toast.msg}</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <div className="page-frame"><header className="page-heading"><div><p className="section-kicker">Insight Distillation</p><h1>信号洞察</h1><p className="page-description">先保留来源与不确定性，再聚类场景和痛点。系统输出的是待验证假设，不是无来源的确定性结论。</p></div><Link href="/opportunities" className="primary-action">形成机会卡<ArrowRight className="h-4 w-4" /></Link></header>
+    <section className="stat-grid"><Stat icon={Layers3} label="信号条目" value={state.evidence.length} /><Stat icon={Users} label="涉及人群" value={new Set(state.evidence.map((item) => item.persona)).size} /><Stat icon={MessageCircleWarning} label="反向信号" value={state.evidence.filter((item) => item.sentiment === "negative").length} /><Stat icon={Filter} label="痛点簇" value={painClusters.length} /></section>
+    <div className="mt-6 insights-layout"><section className="panel-surface"><div className="panel-title-row"><div><p className="section-kicker">Evidence Library</p><h2>可追溯信号</h2></div><div className="segmented compact">{(["ALL", "A", "B", "C", "D"] as const).map((item) => <button key={item} onClick={() => setLevel(item)} className={level === item ? "active" : ""}>{item}</button>)}</div></div><div className="insight-list">{filtered.map((item) => <button key={item.id} onClick={() => setSelected(item.id)} className={selected === item.id ? "active" : ""}><EvidenceBadge level={item.level} /><div><strong>{item.title}</strong><p>{item.excerpt}</p><span>{item.platform} · {item.scenario}</span></div></button>)}</div></section><section className="panel-surface insight-detail"><div className="flex items-center justify-between"><EvidenceBadge level={active.level} /><span className="text-xs text-[#7C8882]">{active.id}</span></div><h2>{active.title}</h2><blockquote>{active.excerpt}</blockquote><dl><div><dt>来源</dt><dd>{active.platform} / {active.date}</dd></div><div><dt>人群</dt><dd>{active.persona}</dd></div><div><dt>场景</dt><dd>{active.scenario}</dd></div><div><dt>痛点</dt><dd>{active.painPoint}</dd></div><div><dt>真人研究</dt><dd>{active.isHuman ? "是" : "否 / 不可确认"}</dd></div><div><dt>人工复核</dt><dd>{active.reviewed ? "已复核" : "待复核"}</dd></div></dl><p className="data-caution">单条信号不能独立支持产品结论。需结合独立支持证据、反对证据、替代方案和待真人验证问题。</p></section><section className="panel-surface"><p className="section-kicker">Pain Clusters</p><h2 className="section-title">痛点结构</h2><div className="cluster-bars">{painClusters.map(([name, count], index) => <div key={name}><div><span>{name}</span><strong>{count}</strong></div><i><b style={{ width: `${Math.max(24, 100 - index * 13)}%` }} /></i></div>)}</div><div className="mt-6 rounded-2xl bg-[#EDF3EE] p-4"><p className="text-xs font-semibold uppercase tracking-wider text-[#668071]">Interpretation</p><p className="mt-2 text-sm leading-6 text-[#4D5C55]">“携带体积、操作步骤、组合灵活度”共同指向外出准备成本，但价格和供应链形成明显反证。</p></div></section></div>
+  </div>;
 }
+
+function Stat({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: number }) { return <div className="stat-card"><Icon className="h-5 w-5" /><span>{label}</span><strong>{value}</strong></div>; }
