@@ -32,10 +32,10 @@ export function GlobalNav({ onNewTask, onScanNow }: GlobalNavProps) {
           </div>
           <div className="flex flex-col">
             <span className="text-[15px] font-semibold leading-none text-foreground">
-              棉生万物
+              Evolution Lab
             </span>
             <span className="text-xs leading-none text-muted-foreground mt-0.5">
-              AI爆款进化舱
+              新品投前决策引擎
             </span>
           </div>
         </div>

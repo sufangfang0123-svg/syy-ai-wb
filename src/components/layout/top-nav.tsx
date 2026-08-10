@@ -46,7 +46,7 @@ export function TopNav({
               棉生万物
             </span>
             <span className="text-xs leading-none text-muted-foreground mt-0.5">
-              AI爆款进化舱
+              新品投前决策引擎
             </span>
           </div>
         </div>
