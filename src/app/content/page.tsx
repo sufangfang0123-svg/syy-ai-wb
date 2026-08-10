@@ -20,6 +20,7 @@ export default function ContentPage() {
 
   return <div className="page-frame">
     <header className="page-heading"><div><p className="section-kicker">Evidence-aware Content Hub</p><h1>Claim Spine 与内容中枢</h1><p className="page-description">所有传播表达从可追溯主张出发，经过渠道适配、合规预检和实验回流；AI负责生成变体，不获得未经审核的事实。</p></div><span className="simulation-chip"><Sparkles className="h-3.5 w-3.5" /> 内容指标为D级模拟</span></header>
+    <div className="content-ownership" aria-label="内容责任分层"><span><b>事实层</b> 企业与真人证据确认</span><ArrowRight /><span><b>生成层</b> AI仅改写结构与渠道语气</span><ArrowRight /><span><b>发布层</b> 合规责任人批准后方可使用</span></div>
 
     <section className="content-flow">{flow.map((item, index) => <div key={item} className="content-flow-step"><span>{String(index + 1).padStart(2, "0")}</span><strong>{item}</strong>{index < flow.length - 1 ? <ArrowRight className="h-4 w-4" /> : null}</div>)}</section>
 

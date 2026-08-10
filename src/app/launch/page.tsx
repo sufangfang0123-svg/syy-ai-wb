@@ -38,9 +38,10 @@ export default function LaunchPage() {
 
   return <div className="page-frame">
     <header className="page-heading"><div><p className="section-kicker">Experiment Protocol</p><h1>虚拟上市与现实校准</h1><p className="page-description">将产品放入结构化选择压力中；合成消费者负责压力测试，真人研究负责校准，不把模拟偏好写成市场销量。</p></div><span className="simulation-chip"><Bot className="h-3.5 w-3.5" /> D级模拟进行中</span></header>
+    <div className="provenance-legend" aria-label="数据分层说明"><span><Bot />合成压力测试 <b>D级</b></span><ArrowRight /><span><Users />真人校准 <b>B级</b></span><ArrowRight /><span><ShieldAlert />最终决策 <b>责任人确认</b></span></div>
 
     <section className="experiment-progress data-surface">
-      <div className="flex flex-wrap items-center justify-between gap-4"><div><p className="section-kicker">Round {String(completed).padStart(3, "0")}</p><h2 className="section-title">{stage.name} · {statusCopy}</h2></div><button className="primary-action" onClick={advanceExperiment} disabled={completed >= 100}><Play className="h-4 w-4 fill-current" />{completed >= 100 ? "协议已完成" : "运行下一轮"}</button></div>
+      <div className="flex flex-wrap items-center justify-between gap-4"><div aria-live="polite"><p className="section-kicker">Round {String(completed).padStart(3, "0")}</p><h2 className="section-title">{stage.name} · {statusCopy}</h2><p className="mt-2 text-xs text-[#6D7A73]">本轮选择压力：{stage.pressure}</p></div><button className="primary-action" onClick={advanceExperiment} disabled={completed >= 100}><Play className="h-4 w-4 fill-current" />{completed >= 100 ? "协议已完成" : "运行下一轮"}</button></div>
       <div className="round-meter mt-6"><span style={{ width: `${completed}%` }} /></div>
       <div className="mt-5 grid gap-3 md:grid-cols-5">{stages.map((item, index) => <article key={item.key} className={`stage-card ${index === stageIndex ? "stage-card-active" : ""} ${index < stageIndex ? "stage-card-done" : ""}`}><span>{item.range}</span><strong>{item.name}</strong><small>{item.pressure}</small></article>)}</div>
     </section>
