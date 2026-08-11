@@ -37,6 +37,9 @@ Evolution Lab围绕 **Next-Dollar Gate｜下一笔钱闸门** 工作：在企业
 ```bash
 npm ci
 npm run dev
+npm run lint
+npm run typecheck
+npm run test:e2e
 npm run build
 ```
 
@@ -60,6 +63,7 @@ npm run build
 
 - [`docs/next-dollar-gate-redesign.md`](docs/next-dollar-gate-redesign.md)：改版决策、信息架构、页面方案和实际验收。
 - [`docs/product-delivery-brief.md`](docs/product-delivery-brief.md)：产品事实、交付资料、企业/赛方文件框架与下一阶段验证。
+- [`docs/audit/acceptance-hardening/README.md`](docs/audit/acceptance-hardening/README.md)：本轮风险修复、自动化结果、截图索引与交付边界。
 
 ## 免责声明
 

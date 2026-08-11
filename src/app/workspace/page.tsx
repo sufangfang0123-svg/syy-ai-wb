@@ -1,16 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, CircleDollarSign, FileSearch, ShieldAlert } from "lucide-react";
+import { ArrowRight, CheckCircle2, CircleDollarSign, FileSearch, ShieldAlert } from "lucide-react";
 import { useDecision } from "@/components/decision/decision-provider";
 import { DataBoundary, ModeSwitch, WorkspaceHeading, recommendationLabel } from "@/components/decision/workspace-ui";
 
 export default function WorkspacePage() {
   const { state, updateProject, setTier } = useDecision();
   const p = state.project;
-  return <div className="page-frame"><WorkspaceHeading eyebrow="Next-Dollar Gate · Project" title="新品决策项目" description="从下一笔不可逆投入开始，而不是从生成创意开始。先完成四个问题，系统才能判断现在最缺哪条证据。" actions={<ModeSwitch />} /><DataBoundary />
-    <div className="workspace-grid"><section className="panel-surface" data-guide="project"><div className="panel-title-row"><div><p className="section-kicker">Four-question brief</p><h2>把下一笔投入说清楚</h2></div><span className="simulation-chip">{p.id}</span></div><div className="form-grid mt-6"><label className="form-field"><span>想做什么新品</span><textarea value={p.productIdea} onChange={(e)=>updateProject({productIdea:e.target.value})} placeholder="例如：三天差旅用的按日棉品护理组合" /></label><label className="form-field"><span>面向谁</span><input value={p.targetUser} onChange={(e)=>updateProject({targetUser:e.target.value})} placeholder="目标人群和关键场景" /></label><label className="form-field"><span>当前阶段</span><input value={p.stage} onChange={(e)=>updateProject({stage:e.target.value})} /></label><label className="form-field"><span>下一步准备做什么</span><input value={p.nextAction} onChange={(e)=>updateProject({nextAction:e.target.value})} placeholder="打样、开模、备货或投放" /></label><label className="form-field"><span>计划投入金额</span><input type="number" value={p.nextInvestmentAmount ?? ""} onChange={(e)=>updateProject({nextInvestmentAmount:e.target.value ? Number(e.target.value) : null})} /></label><label className="form-field"><span>负责人</span><input value={p.owner} onChange={(e)=>updateProject({owner:e.target.value})} /></label></div><div className="mt-6 flex flex-wrap gap-3"><Link href="/evidence" className="primary-action">保存并进入证据库<ArrowRight className="h-4 w-4" /></Link><button className="secondary-action">保存草稿</button></div></section>
-      <aside className="space-y-5"><section className="decision-summary-card"><p className="section-kicker text-white/55">Current gate</p><div className="mt-3 flex items-center justify-between gap-3"><h2>{recommendationLabel[state.decision.recommendation]}</h2><ShieldAlert className="h-6 w-6" /></div><p className="mt-4 text-sm leading-6 text-white/70">{state.decision.confidenceLimit}</p><div className="mt-5 border-t border-white/10 pt-4"><span>下一笔投入</span><strong>{p.nextInvestmentAmount === null ? "待填写" : `¥${p.nextInvestmentAmount.toLocaleString("zh-CN")}`}</strong><small>{p.nextAction || "尚未填写具体动作"}</small></div></section><section className="panel-surface"><p className="section-kicker">Usage depth</p><h2 className="mt-1 text-lg font-semibold">选择使用深度</h2><div className="mt-4 segmented">{(["quick","team","enterprise"] as const).map((tier)=><button key={tier} onClick={()=>setTier(tier)} className={state.tier===tier?"active":""}>{tier==="quick"?"快速版":tier==="team"?"团队版":"企业版"}</button>)}</div><p className="mt-4 text-xs leading-5 text-[#6F7D77]">三档共用相同项目、证据、实验和Gate模型；团队版增加协作，企业版增加权限、审计和接口配置。</p></section><section className="panel-surface"><CircleDollarSign className="h-5 w-5 text-[#5B8C5A]" /><h2 className="mt-3 text-lg font-semibold">当前P0闭环</h2><p className="mt-2 text-xs leading-5 text-[#6F7D77]">建项 → 证据 → 风险假设 → 下一验证 → 投前决策单 → 结果回流</p><Link href="/opportunities" className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-[#315C46]"><FileSearch className="h-4 w-4" />打开保留的研究实验室</Link></section></aside>
+  return <div className="page-frame">
+    <WorkspaceHeading eyebrow="Next-Dollar Gate · Project" title="新品决策项目" description="从下一笔不可逆投入开始，而不是从生成创意开始。先完成四个问题，系统才能判断现在最缺哪条证据。" actions={<ModeSwitch />} />
+    <DataBoundary />
+    <div className="workspace-grid">
+      <section className="panel-surface">
+        <div className="panel-title-row" data-guide="project-brief"><div><p className="section-kicker">Four-question brief</p><h2>把下一笔投入说清楚</h2></div><span className="simulation-chip">{p.id}</span></div>
+        <div className="form-grid mt-6">
+          <label className="form-field"><span>想做什么新品</span><textarea value={p.productIdea} onChange={(e) => updateProject({ productIdea: e.target.value })} placeholder="例如：三天差旅用的按日棉品护理组合" /></label>
+          <label className="form-field"><span>面向谁</span><input value={p.targetUser} onChange={(e) => updateProject({ targetUser: e.target.value })} placeholder="目标人群和关键场景" /></label>
+          <label className="form-field"><span>当前阶段</span><input value={p.stage} onChange={(e) => updateProject({ stage: e.target.value })} /></label>
+          <label className="form-field"><span>下一步准备做什么</span><input value={p.nextAction} onChange={(e) => updateProject({ nextAction: e.target.value })} placeholder="打样、开模、备货或投放" /></label>
+          <label className="form-field"><span>计划投入金额</span><input type="number" value={p.nextInvestmentAmount ?? ""} onChange={(e) => updateProject({ nextInvestmentAmount: e.target.value ? Number(e.target.value) : null })} /></label>
+          <label className="form-field"><span>负责人</span><input value={p.owner} onChange={(e) => updateProject({ owner: e.target.value })} /></label>
+        </div>
+        <div className="mt-6 flex flex-wrap items-center gap-3"><Link href="/evidence" className="primary-action">保存并进入证据库<ArrowRight className="h-4 w-4" /></Link><span className="save-status" role="status" aria-live="polite"><CheckCircle2 className="h-4 w-4" />草稿已自动保存在当前浏览器</span></div>
+      </section>
+      <aside className="space-y-5">
+        <section className="decision-summary-card"><p className="section-kicker text-white/55">Current gate</p><div className="mt-3 flex items-center justify-between gap-3"><h2>{recommendationLabel[state.decision.recommendation]}</h2><ShieldAlert className="h-6 w-6" /></div><p className="mt-4 text-sm leading-6 text-white/70">{state.decision.confidenceLimit}</p><div className="mt-5 border-t border-white/10 pt-4"><span>下一笔投入</span><strong>{p.nextInvestmentAmount === null ? "待填写" : `¥${p.nextInvestmentAmount.toLocaleString("zh-CN")}`}</strong><small>{p.nextAction || "尚未填写具体动作"}</small></div></section>
+        <section className="panel-surface"><p className="section-kicker">Usage depth</p><h2 className="mt-1 text-lg font-semibold">选择使用深度</h2><div className="mt-4 segmented">{(["quick", "team", "enterprise"] as const).map((tier) => <button key={tier} onClick={() => setTier(tier)} className={state.tier === tier ? "active" : ""}>{tier === "quick" ? "快速版" : tier === "team" ? "团队版" : "企业版"}</button>)}</div><p className="mt-4 text-xs leading-5 text-[#6F7D77]">三档共用相同项目、证据、实验和Gate模型；团队版增加协作，企业版增加权限、审计和接口配置。</p></section>
+        <section className="panel-surface"><CircleDollarSign className="h-5 w-5 text-[#5B8C5A]" /><h2 className="mt-3 text-lg font-semibold">当前P0闭环</h2><p className="mt-2 text-xs leading-5 text-[#6F7D77]">建项 → 证据 → 风险假设 → 下一验证 → 投前决策单 → 结果回流</p><Link href="/opportunities" className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-[#315C46]"><FileSearch className="h-4 w-4" />打开保留的研究实验室</Link></section>
+      </aside>
     </div>
   </div>;
 }

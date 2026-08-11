@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { SourceConnector } from "@/types";
-import { Globe, Activity, AlertTriangle, Clock, WifiOff, Settings } from "lucide-react";
+import { Globe, Activity, AlertTriangle, Clock, Settings } from "lucide-react";
 
 interface SourceStatusProps {
   connectors: SourceConnector[];

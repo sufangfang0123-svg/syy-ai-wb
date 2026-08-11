@@ -29,3 +29,12 @@ Thumbs.db
 # Screenshots (generated during dev)
 screenshot_insights.png
 demo_screenshot.png
+
+# Automated test artifacts
+playwright-report/
+test-results/
+
+# Local verification helpers
+.next-dev-*.log
+.next-dev-*.err.log
+docs/audit/acceptance-hardening/after/08-workspace-200-percent.png

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, Ban, CheckCircle2, ExternalLink, Filter, GitBranch, Grid2X2, ListFilter, Search, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { AlertTriangle, ArrowRight, Ban, CheckCircle2, ExternalLink, Filter, GitBranch, Grid2X2, ListFilter, Search, Sparkles, UserRound } from "lucide-react";
 import { useEvolution } from "@/components/demo/evolution-provider";
 import { EvidenceBadge } from "@/components/evidence/evidence-badge";
 import { EvidenceUpgradePath } from "@/components/evidence/evidence-upgrade-path";
