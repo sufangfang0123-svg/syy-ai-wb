@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Activity, ArrowRight, Bot, CheckCircle2, FlaskConical, Play, RefreshCw, ShieldAlert, Users } from "lucide-react";
+import { ArrowRight, Bot, CheckCircle2, Play, RefreshCw, ShieldAlert, Users } from "lucide-react";
 import { useEvolution } from "@/components/demo/evolution-provider";
 import { EvidenceBadge } from "@/components/evidence/evidence-badge";
+import { useDecision } from "@/components/decision/decision-provider";
+import { formatStatusCounts, getValidationLedger } from "@/lib/validation-ledger";
 
 const stages = [
   { range: "01—20", key: "concept", name: "概念生存", pressure: "需求真实性 / 替代方案" },
@@ -27,6 +29,8 @@ const scenarios = [
 
 export default function LaunchPage() {
   const { state, currentVersion, advanceExperiment } = useEvolution();
+  const { state: decisionState } = useDecision();
+  const validationLedger = getValidationLedger(decisionState);
   const [view, setView] = useState<"synthetic" | "human" | "delta">("delta");
   const [scenario, setScenario] = useState("基准");
   const latest = state.experiments.at(-1)!;
@@ -39,6 +43,7 @@ export default function LaunchPage() {
   return <div className="page-frame">
     <header className="page-heading"><div><p className="section-kicker">Experiment Protocol</p><h1>虚拟上市与现实校准</h1><p className="page-description">将产品放入结构化选择压力中；合成消费者负责压力测试，真人研究负责校准，不把模拟偏好写成市场销量。</p></div><span className="simulation-chip"><Bot className="h-3.5 w-3.5" /> D级模拟进行中</span></header>
     <div className="provenance-legend" aria-label="数据分层说明"><span><Bot />合成压力测试 <b>D级</b></span><ArrowRight /><span><Users />真人校准 <b>B级</b></span><ArrowRight /><span><ShieldAlert />最终决策 <b>责任人确认</b></span></div>
+    <section className="panel-surface mt-5" aria-label="核心验证账本"><div className="panel-title-row"><div><p className="section-kicker">Core validation ledger</p><h2>与投前主链一致的验证状态</h2></div><span className="simulation-chip">研究实验室记录不自动计入</span></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{[["数字实验",formatStatusCounts(validationLedger.digital)],["真人校准",formatStatusCounts(validationLedger.human)],["样品验证",`已完成 ${validationLedger.sampleCompleted}`],["销售结果",`已完成 ${validationLedger.salesCompleted}`]].map(([label,value])=><div key={label} className="validation-count"><span>{label}</span><strong className="text-sm">{value}</strong><small>核心决策账本</small></div>)}</div></section>
 
     <section className="experiment-progress data-surface">
       <div className="flex flex-wrap items-center justify-between gap-4"><div aria-live="polite"><p className="section-kicker">Round {String(completed).padStart(3, "0")}</p><h2 className="section-title">{stage.name} · {statusCopy}</h2><p className="mt-2 text-xs text-[#6D7A73]">本轮选择压力：{stage.pressure}</p></div><button className="primary-action" onClick={advanceExperiment} disabled={completed >= 100}><Play className="h-4 w-4 fill-current" />{completed >= 100 ? "协议已完成" : "运行下一轮"}</button></div>
@@ -52,7 +57,7 @@ export default function LaunchPage() {
       <section className="panel-surface"><div className="panel-title-row"><div><p className="section-kicker">Scenario Planning</p><h2>商业情景区间</h2></div><span className="meta-chip">非销量预测</span></div><div className="segmented mt-5">{scenarios.map((item) => <button key={item.name} onClick={() => setScenario(item.name)} className={scenario === item.name ? "active" : ""}>{item.name}</button>)}</div>{scenarios.filter((item) => item.name === scenario).map((item) => <div key={item.name} className="scenario-result"><p>目标人群中的概念考虑区间</p><strong>{item.range}</strong><span>{item.note}</span></div>)}<div className="mt-4 grid grid-cols-3 gap-2"><MiniFact label="候选价带" value="69—89元" /><MiniFact label="成本状态" value="待BOM" /><MiniFact label="供应链" value="需验证" /></div></section>
     </div>
 
-    <section className="mt-6 panel-surface"><div className="panel-title-row"><div><p className="section-kicker">Reality Check</p><h2>合成结果 × 真人研究</h2></div><div className="segmented compact"><button onClick={() => setView("synthetic")} className={view === "synthetic" ? "active" : ""}>AI模拟</button><button onClick={() => setView("human")} className={view === "human" ? "active" : ""}>真人</button><button onClick={() => setView("delta")} className={view === "delta" ? "active" : ""}>偏差</button></div></div><div className="calibration-grid">{state.calibrations.map((item) => { const delta = item.syntheticValue - item.humanValue; const value = view === "synthetic" ? item.syntheticValue : view === "human" ? item.humanValue : Math.abs(delta); return <article key={item.id} className="calibration-card"><div className="flex items-center justify-between"><EvidenceBadge level={item.evidenceLevel} /><span className="text-xs text-[#7D8B85]">{item.id}</span></div><h3>{item.metric}</h3><div className="calibration-value">{view === "delta" ? (delta > 0 ? "+" : "−") : ""}{value}{item.unit}</div><p>{item.conclusion}</p><div className="calibration-action"><RefreshCw className="h-3.5 w-3.5" />{item.action}</div></article>; })}</div><div className="reality-summary"><Users className="h-5 w-5" /><div><strong>当前平均校准偏差 {calibrationAverage} 个百分点</strong><p>最大偏差来自价格接受度。系统已把该差异回写为下一轮价格分层访谈任务，不能用合成结果替代真人结论。</p></div><ArrowRight className="ml-auto h-5 w-5" /></div></section>
+    <section className="mt-6 panel-surface"><div className="panel-title-row"><div><p className="section-kicker">Reality Check · 演示校准样例</p><h2>合成结果 × 真人研究</h2></div><div className="segmented compact"><button onClick={() => setView("synthetic")} className={view === "synthetic" ? "active" : ""}>AI模拟</button><button onClick={() => setView("human")} className={view === "human" ? "active" : ""}>真人</button><button onClick={() => setView("delta")} className={view === "delta" ? "active" : ""}>偏差</button></div></div><div className="calibration-grid">{state.calibrations.map((item) => { const delta = item.syntheticValue - item.humanValue; const value = view === "synthetic" ? item.syntheticValue : view === "human" ? item.humanValue : Math.abs(delta); return <article key={item.id} className="calibration-card"><div className="flex items-center justify-between"><EvidenceBadge level={item.evidenceLevel} /><span className="text-xs text-[#7D8B85]">{item.id}</span></div><h3>{item.metric}</h3><div className="calibration-value">{view === "delta" ? (delta > 0 ? "+" : "−") : ""}{value}{item.unit}</div><p>{item.conclusion}</p><div className="calibration-action"><RefreshCw className="h-3.5 w-3.5" />{item.action}</div></article>; })}</div><div className="reality-summary"><Users className="h-5 w-5" /><div><strong>演示样例平均校准偏差 {calibrationAverage} 个百分点</strong><p>这些研究实验室样例不会自动计入上方核心账本；只有带来源的结果回填才进入已完成计数。</p></div><ArrowRight className="ml-auto h-5 w-5" /></div></section>
 
     <section className="mt-6 decision-output"><div><CheckCircle2 className="h-5 w-5" /><div><p>本轮系统输出</p><strong>{currentVersion.label} 暂时存活；继续验证价格与小规格包装可行性</strong></div></div><span>负责人：商品经理 / 供应链 / 真人研究</span></section>
   </div>;

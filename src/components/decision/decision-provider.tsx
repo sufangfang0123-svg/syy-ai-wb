@@ -2,7 +2,7 @@
 
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { demoDecisionState, emptyDecisionState } from "@/data/demo/decision-data";
-import { DecisionEngineState, DecisionEvidence, DecisionProject, ProductTier, ResultFeedback, WorkspaceMode } from "@/domain/decision-types";
+import { DecisionEngineState, DecisionEvidence, DecisionProject, DecisionRecommendation, ProductTier, ResultFeedback, WorkspaceMode } from "@/domain/decision-types";
 
 const STORAGE = { demo: "evolution-lab:decision-demo:v1", real: "evolution-lab:decision-real:v1" } as const;
 const ACTIVE_MODE = "evolution-lab:decision-active-mode:v1";
@@ -15,6 +15,7 @@ interface DecisionContextValue {
   updateProject: (patch: Partial<DecisionProject>) => void;
   addEvidence: (draft: Pick<DecisionEvidence, "title" | "source" | "level" | "finding" | "scope" | "limitation">) => void;
   addResult: (draft: Pick<ResultFeedback, "type" | "summary" | "outcome" | "source">) => void;
+  confirmDecision: (decision: DecisionRecommendation, note: string) => void;
   setOnboardingStep: (step: number | null) => void;
   completeOnboarding: () => void;
   resetOnboarding: () => void;
@@ -28,7 +29,15 @@ function loadState(mode: WorkspaceMode): DecisionEngineState {
   if (typeof window === "undefined") return structuredClone(fallback);
   const raw = window.localStorage.getItem(STORAGE[mode]);
   if (!raw) return structuredClone(fallback);
-  try { return JSON.parse(raw) as DecisionEngineState; } catch { return structuredClone(fallback); }
+  try {
+    const parsed = JSON.parse(raw) as DecisionEngineState & { tests?: Array<DecisionEngineState["tests"][number] & { status: string }> };
+    return {
+      ...structuredClone(fallback),
+      ...parsed,
+      tests: (parsed.tests ?? fallback.tests).map((test) => ({ ...test, status: test.status === "running" || test.status === "completed" ? test.status : "proposed" })),
+      decision: { ...structuredClone(fallback.decision), ...parsed.decision },
+    } as DecisionEngineState;
+  } catch { return structuredClone(fallback); }
 }
 
 function loadActiveMode(): WorkspaceMode {
@@ -63,6 +72,10 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
     ...current,
     results: [...current.results, { ...draft, id: `RES-${Date.now()}`, projectId: current.project.id, recordedAt: new Date().toISOString().slice(0, 10), ruleChange: draft.outcome === "conflicts" ? "进入人工复核，重新评估假设与阈值。" : "暂无自动规则修改，等待责任人确认。", isDemo: current.mode === "demo" }],
   })), []);
+  const confirmDecision = useCallback((humanDecision: DecisionRecommendation, humanNote: string) => setState((current) => ({
+    ...current,
+    decision: { ...current.decision, humanDecision, humanNote, humanDecidedAt: new Date().toISOString() },
+  })), []);
   const setOnboardingStep = useCallback((onboardingStep: number | null) => setState((current) => {
     const next = { ...current, onboardingStep };
     window.localStorage.setItem(STORAGE[next.mode], JSON.stringify(next));
@@ -83,7 +96,7 @@ export function DecisionProvider({ children }: { children: ReactNode }) {
     setState(structuredClone(demoDecisionState));
   }, []);
 
-  const value = useMemo(() => ({ state, isHydrated, setMode, setTier, updateProject, addEvidence, addResult, setOnboardingStep, completeOnboarding, resetOnboarding, clearDemoData }), [state, isHydrated, setMode, setTier, updateProject, addEvidence, addResult, setOnboardingStep, completeOnboarding, resetOnboarding, clearDemoData]);
+  const value = useMemo(() => ({ state, isHydrated, setMode, setTier, updateProject, addEvidence, addResult, confirmDecision, setOnboardingStep, completeOnboarding, resetOnboarding, clearDemoData }), [state, isHydrated, setMode, setTier, updateProject, addEvidence, addResult, confirmDecision, setOnboardingStep, completeOnboarding, resetOnboarding, clearDemoData]);
   return <DecisionContext.Provider value={value}>{children}</DecisionContext.Provider>;
 }
 

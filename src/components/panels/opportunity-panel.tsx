@@ -2,7 +2,6 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -10,7 +9,6 @@ import {
   Users,
   Layers,
   ClipboardList,
-  AlertCircle,
   Sparkles,
   CheckCircle2,
   HelpCircle,
@@ -39,7 +37,6 @@ export function OpportunityPanel({
   onSelect,
   onConfirm,
   onAddToPool,
-  onGenerate,
   confirmedIds,
   pooledIds,
   autoDetected = false,

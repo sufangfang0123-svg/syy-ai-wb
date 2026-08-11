@@ -63,7 +63,7 @@ export interface NextBestTest {
   passThreshold: string;
   supplementThreshold: string;
   stopThreshold: string;
-  status: "recommended" | "approved" | "running" | "completed";
+  status: "proposed" | "running" | "completed";
   evidenceLevel: EvidenceLevel;
   isDigital: boolean;
 }
@@ -84,6 +84,7 @@ export interface PreInvestmentDecision {
   owner: string;
   humanDecision: "pending" | DecisionRecommendation;
   humanNote: string;
+  humanDecidedAt?: string;
 }
 
 export interface ResultFeedback {
