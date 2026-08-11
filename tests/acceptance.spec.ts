@@ -87,16 +87,17 @@ test("proposed human test never counts as completed calibration", async ({ page 
   await expect(page.getByText("待执行方案不计为已完成真人研究")).toBeVisible();
 });
 
-test("demo and real drafts remain isolated", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name.includes("mobile"), "desktop mode workflow only");
+test("demo data persists without creating any real-project browser storage", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.includes("mobile"), "desktop storage boundary only");
   await page.goto("/workspace/");
   await closeGuide(page);
   const idea = page.getByLabel("想做什么新品");
   await idea.fill("演示空间专属内容");
-  await page.getByRole("button", { name: "真实项目草稿" }).click();
+  await page.reload();
   await closeGuide(page);
-  await expect(idea).not.toHaveValue("演示空间专属内容");
-  await idea.fill("真实空间专属内容");
-  await page.getByRole("button", { name: "模拟项目" }).click();
   await expect(idea).toHaveValue("演示空间专属内容");
+  const keys = await page.evaluate(() => Object.keys(window.localStorage));
+  expect(keys).toContain("evolution-lab:decision-demo:v1");
+  expect(keys.some((key) => key.includes("decision-real") || key.includes("active-mode"))).toBe(false);
+  await expect(page.getByRole("button", { name: "真实项目入口" })).toHaveCount(0);
 });

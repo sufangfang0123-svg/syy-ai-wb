@@ -68,7 +68,7 @@ export function AIAnalysisOverlay({ open, steps, onComplete }: AIAnalysisOverlay
               </div>
             </div>
 
-            <h3 className="text-center text-lg font-bold text-foreground mb-1">AI分析进行中</h3>
+            <h3 className="text-center text-lg font-bold text-foreground mb-1">模拟规则演算中</h3>
             <p className="text-center text-sm text-muted-foreground mb-8">
               正在对消费者反馈进行多维度深度分析
             </p>

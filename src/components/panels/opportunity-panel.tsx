@@ -109,7 +109,7 @@ export function OpportunityPanel({
           <div className="grid grid-cols-3 gap-3">
             <MetricBox label="证据强度" value={active.evidence_level.split("（")[0]} />
             <MetricBox label="需求热度" value={`${active.evidence_count}条`} />
-            <MetricBox label="AI置信度" value={`${active.confidence}%`} />
+            <MetricBox label="演示模型分" value={`${active.confidence}%`} />
           </div>
 
           {/* 4. Target persona */}

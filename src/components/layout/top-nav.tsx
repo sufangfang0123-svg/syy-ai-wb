@@ -15,7 +15,7 @@ interface TopNavProps {
 }
 
 const navItems = [
-  { href: "/radar", label: "全网雷达", active: true },
+  { href: "/radar", label: "模拟信号雷达", active: true },
   { href: "/insights", label: "信号洞察", active: true },
   { href: "/opportunities", label: "需求机会", active: true },
   { href: "/evolution", label: "产品进化", active: true },

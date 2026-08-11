@@ -38,7 +38,7 @@ export function ClusterPanel({
       {/* Header with view toggle */}
       <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-foreground">AI需求聚类</h2>
+          <h2 className="text-lg font-semibold text-foreground">模拟需求聚类</h2>
           <Badge variant="secondary" className="text-xs h-6">{clusters.length} 个聚类</Badge>
         </div>
         <div className="flex items-center rounded-lg border border-border bg-secondary p-1">
@@ -194,7 +194,7 @@ function ClusterCard({
         {/* Confidence */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-medium text-muted-foreground">AI置信度</span>
+            <span className="text-xs font-medium text-muted-foreground">演示模型分</span>
             <span className="text-sm font-bold text-foreground">{cluster.confidence}%</span>
           </div>
           <Progress value={cluster.confidence} className="h-2" />

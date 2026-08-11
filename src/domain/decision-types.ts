@@ -1,6 +1,6 @@
 import { EvidenceLevel } from "@/domain/types";
 
-export type WorkspaceMode = "demo" | "real";
+export type WorkspaceMode = "demo";
 export type ProductTier = "quick" | "team" | "enterprise";
 export type DecisionRecommendation = "continue" | "supplement" | "stop";
 export type AssumptionCategory = "demand" | "product" | "technology" | "cost" | "supply" | "compliance" | "commercial";

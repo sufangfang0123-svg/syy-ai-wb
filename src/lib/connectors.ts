@@ -119,7 +119,7 @@ export class EcommerceReviewConnector implements SourceConnector {
   connector_id = "CONN-002";
   name = "电商评论";
   type = "ecommerce" as const;
-  description = "采集电商平台公开商品评价，获取产品问题和用户反馈";
+  description = "演示公开评价导入结构，不连接电商平台或自动采集";
 
   validateConfig(): boolean {
     return true;

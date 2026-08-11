@@ -38,12 +38,3 @@ export const demoDecisionState: DecisionEngineState = {
   onboardingStep: null,
   onboardingCompleted: false,
 };
-
-export const emptyDecisionState: DecisionEngineState = {
-  ...structuredClone(demoDecisionState),
-  mode: "real",
-  project: { id: "REAL-DRAFT-001", name: "未命名新品决策项目", productIdea: "", targetUser: "", stage: "想法阶段", nextAction: "", nextInvestmentAmount: null, investmentUnit: "人民币", industryPack: "通用决策引擎", owner: "待填写", createdAt: new Date().toISOString().slice(0, 10), isDemo: false },
-  evidence: [], assumptions: [], tests: [], results: [],
-  decision: { id: "DEC-DRAFT-001", projectId: "REAL-DRAFT-001", decidedAt: new Date().toISOString().slice(0, 10), recommendation: "supplement", confidence: "low", confidenceLimit: "尚未导入证据，不足以判断。", dangerousAssumptionIds: [], evidenceIds: [], testId: "", rationale: "请先完成建项并导入至少一条可追溯证据。", modelVersion: "Decision Demo v0.2", ruleVersion: "Next-Dollar Gate R1", owner: "待填写", humanDecision: "pending", humanNote: "" },
-  onboardingStep: null, onboardingCompleted: false,
-};

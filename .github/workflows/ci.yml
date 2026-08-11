@@ -17,14 +17,24 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      - run: npm run test:unit
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
-      - run: npm run build
+      - run: npm run test:e2e:public
+      - run: npm run test:e2e:local
+      - run: npm run build:public
         env:
           NEXT_PUBLIC_BASE_PATH: /syy-ai-wb
+          NEXT_PUBLIC_BUILD_PROFILE: public_demo
+          NEXT_PUBLIC_REAL_WORKSPACE_ENABLED: "false"
+      - run: npm run build:local
+        env:
+          NEXT_PUBLIC_BUILD_PROFILE: local_integrated
+          NEXT_PUBLIC_REAL_WORKSPACE_ENABLED: "true"
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: phase-1a0-test-reports
+          path: |
+            playwright-report/
+            test-results/phase1a0/
           retention-days: 7

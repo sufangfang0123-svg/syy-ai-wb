@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { EvolutionProvider } from "@/components/demo/evolution-provider";
 import { DecisionProvider } from "@/components/decision/decision-provider";
 import { SiteShell } from "@/components/layout/site-shell";
+import { RuntimeBoundaryProvider } from "@/components/system/runtime-boundary-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +14,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="zh-CN">
       <body>
-        <EvolutionProvider><DecisionProvider><SiteShell>{children}</SiteShell></DecisionProvider></EvolutionProvider>
+        <RuntimeBoundaryProvider><EvolutionProvider><DecisionProvider><SiteShell>{children}</SiteShell></DecisionProvider></EvolutionProvider></RuntimeBoundaryProvider>
       </body>
     </html>
   );

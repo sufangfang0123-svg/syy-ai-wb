@@ -116,7 +116,7 @@ export function NewcomerGuide() {
     router.push(steps[bounded].route);
   };
   const clear = () => {
-    if (window.confirm("确认清空并恢复演示项目？真实项目空间不会受到影响。")) clearDemoData();
+    if (window.confirm("确认清空并恢复模拟研究实验室？此操作只影响浏览器中的演示数据。")) clearDemoData();
   };
   const close = () => completeOnboarding();
   const panelStyle = { "--guide-left": `${placement.left}px`, "--guide-top": `${placement.top}px` } as CSSProperties;
@@ -142,11 +142,11 @@ export function NewcomerGuide() {
         onPointerDownOutside={(event) => event.preventDefault()}
       >
         <div className="guide-panel-body">
-          <div className="flex items-start justify-between gap-4"><div><p className="section-kicker">真实任务指引 · {state.mode === "demo" ? "模拟数据空间" : "真实项目草稿空间"}</p><Dialog.Title id="guide-title" className="mt-2 text-xl font-semibold">{step.title}</Dialog.Title><Dialog.Description id="guide-description" className="mt-2 text-sm leading-6 text-[#65726B]">{step.body}</Dialog.Description></div><Dialog.Close asChild><button ref={closeRef} className="icon-button shrink-0" aria-label="关闭新手指引"><X className="h-4 w-4" /></button></Dialog.Close></div>
+          <div className="flex items-start justify-between gap-4"><div><p className="section-kicker">模拟任务指引 · 独立研究实验室</p><Dialog.Title id="guide-title" className="mt-2 text-xl font-semibold">{step.title}</Dialog.Title><Dialog.Description id="guide-description" className="mt-2 text-sm leading-6 text-[#65726B]">{step.body}</Dialog.Description></div><Dialog.Close asChild><button ref={closeRef} className="icon-button shrink-0" aria-label="关闭新手指引"><X className="h-4 w-4" /></button></Dialog.Close></div>
           <div className="mt-5 flex gap-1" aria-label={`第${index + 1}步，共${steps.length}步`}>{steps.map((_, i) => <span key={i} className={`guide-progress ${i <= index ? "active" : ""}`} />)}</div>
           <div className="guide-meta-row">{index > 0 ? <button onClick={() => go(0)} className="guide-restart"><RotateCcw className="h-3.5 w-3.5" />重新开始</button> : <span />}<p className="guide-step-label">第 {index + 1} / {steps.length} 步</p></div>
         </div>
-        <div className="guide-actions"><div className="flex flex-wrap gap-2">{state.mode === "demo" && index === 0 ? <button onClick={clear} className="secondary-action"><Trash2 className="h-4 w-4" />清空演示数据</button> : null}<Dialog.Close asChild><button className="secondary-action">跳过</button></Dialog.Close></div><div className="flex gap-2"><button disabled={index === 0} onClick={() => go(index - 1)} className="secondary-action"><ArrowLeft className="h-4 w-4" />上一步</button>{index === steps.length - 1 ? <Dialog.Close asChild><button className="primary-action">完成指引</button></Dialog.Close> : <button onClick={() => go(index + 1)} className="primary-action">下一步<ArrowRight className="h-4 w-4" /></button>}</div></div>
+        <div className="guide-actions"><div className="flex flex-wrap gap-2">{index === 0 ? <button onClick={clear} className="secondary-action"><Trash2 className="h-4 w-4" />清空演示数据</button> : null}<Dialog.Close asChild><button className="secondary-action">跳过</button></Dialog.Close></div><div className="flex gap-2"><button disabled={index === 0} onClick={() => go(index - 1)} className="secondary-action"><ArrowLeft className="h-4 w-4" />上一步</button>{index === steps.length - 1 ? <Dialog.Close asChild><button className="primary-action">完成指引</button></Dialog.Close> : <button onClick={() => go(index + 1)} className="primary-action">下一步<ArrowRight className="h-4 w-4" /></button>}</div></div>
       </Dialog.Content>
     </Dialog.Portal>
   </Dialog.Root>;

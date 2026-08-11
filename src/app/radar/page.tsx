@@ -27,7 +27,7 @@ export default function RadarPage() {
   };
 
   return <div className="page-frame">
-    <header className="page-heading"><div><p className="section-kicker">Signal Radar</p><h1>全网雷达</h1><p className="page-description">把公开信号、真人研究与企业数据接入状态分开显示。跨平台只比较覆盖，不直接推断需求强弱。</p></div><button className="primary-action" onClick={runScan} disabled={running}>{running ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />}{running ? "扫描中" : "运行演示扫描"}</button></header>
+    <header className="page-heading"><div><p className="section-kicker">Simulation Signal Radar</p><h1>模拟信号雷达</h1><p className="page-description">播放内置演示信号以说明覆盖比较方法，不连接平台、不执行全网采集，也不推断真实需求强弱。</p></div><button className="primary-action" onClick={runScan} disabled={running}>{running ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />}{running ? "演示播放中" : "运行演示扫描"}</button></header>
     <section className="stat-grid"><Stat icon={Radio} label="演示信号" value={state.evidence.length} /><Stat icon={Activity} label="真人证据" value={state.evidence.filter((item) => item.isHuman).length} /><Stat icon={AlertTriangle} label="待验证假设" value={state.evidence.filter((item) => item.level === "D").length} /><Stat icon={Radar} label="上次扫描" value={lastScan} /></section>
     <div className="mt-6 grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
       <section className="panel-surface">
@@ -36,7 +36,7 @@ export default function RadarPage() {
       </section>
       <div className="space-y-6">
         <section className="panel-surface"><div className="panel-title-row"><div><p className="section-kicker">Source Readiness</p><h2>数据源状态</h2></div></div><div className="mt-4 space-y-3">{sources.map((item) => <div key={item.name} className="source-row"><div><strong>{item.name}</strong><p>{item.note}</p></div><div className="text-right"><span>{item.status}</span><div className="source-meter"><i style={{ width: `${item.coverage}%` }} /></div></div></div>)}</div></section>
-        <section className="panel-surface"><p className="section-kicker">Stop Conditions</p><h2 className="section-title">采集停止条件</h2><ul className="rule-list"><li><AlertTriangle />403、429、验证码或平台限制</li><li><AlertTriangle />登录墙、敏感个人信息或账号异常</li><li><AlertTriangle />需要发布、互动或绕过安全机制</li><li><CheckCircle2 />保存状态，转人工处理并记录审计</li></ul></section>
+        <section className="panel-surface"><p className="section-kicker">Planned safeguards</p><h2 className="section-title">未来证据导入停止条件</h2><ul className="rule-list"><li><AlertTriangle />403、429、验证码或平台限制</li><li><AlertTriangle />登录墙、敏感个人信息或账号异常</li><li><AlertTriangle />需要发布、互动或绕过安全机制</li><li><CheckCircle2 />停止处理并交由人工确认</li></ul></section>
       </div>
     </div>
   </div>;

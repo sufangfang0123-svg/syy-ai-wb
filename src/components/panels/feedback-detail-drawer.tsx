@@ -91,7 +91,7 @@ export function FeedbackDetailDrawer({ open, onOpenChange, item }: FeedbackDetai
         </div>
 
         <div className="mb-4">
-          <span className="text-xs font-medium text-muted-foreground mb-2 block">AI提取痛点</span>
+          <span className="text-xs font-medium text-muted-foreground mb-2 block">模拟提取痛点</span>
           <div className="flex flex-wrap gap-1.5">
             {item.pain_points.map((p) => (
               <Badge key={p} variant="outline" className="text-sm h-7 px-3 border-destructive/30 text-destructive">{p}</Badge>
@@ -107,7 +107,7 @@ export function FeedbackDetailDrawer({ open, onOpenChange, item }: FeedbackDetai
         {/* Confidence */}
         <div className="mb-5">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-medium text-muted-foreground">AI置信度</span>
+            <span className="text-xs font-medium text-muted-foreground">演示模型分</span>
             <span className="text-sm font-bold text-foreground">{item.confidence}%</span>
           </div>
           <div className="h-2.5 rounded-full bg-secondary">

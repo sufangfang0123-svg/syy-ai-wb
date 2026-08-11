@@ -30,7 +30,7 @@ export default function DecisionPage() {
     <DataBoundary />
     <article className="decision-sheet">
       <header>
-        <div><span className="simulation-chip">{project.isDemo ? "模拟决策单" : "真实项目草稿"} · {decision.id}</span><h2>{project.name}</h2><p>{project.stage} · 系统建议日期 {decision.decidedAt}</p></div>
+        <div><span className="simulation-chip">模拟决策单 · {decision.id}</span><h2>{project.name}</h2><p>{project.stage} · 演示建议日期 {decision.decidedAt}</p></div>
         <div className="min-w-[160px] space-y-2"><div className={`decision-verdict ${decision.recommendation}`} data-guide="decision-verdict"><span>系统建议（只读）</span><strong>{recommendationLabel[decision.recommendation]}</strong><small>置信程度：{decision.confidence === "high" ? "较高" : decision.confidence === "medium" ? "中等" : "较低"}</small></div><a href="#human-decision" className="secondary-action w-full" data-guide="decision-confirm"><UserCheck className="h-4 w-4" />前往人工确认</a></div>
       </header>
       <div className="decision-sheet-grid">
@@ -54,7 +54,7 @@ export default function DecisionPage() {
         {differs ? <p className="decision-delta"><AlertTriangle className="h-4 w-4 shrink-0" />人工决定与系统建议不同。系统会同时保留两者，便于后续审计与复盘。</p> : null}
         <div className="mt-4 flex flex-wrap items-center gap-3"><button className="primary-action" disabled={choice === "pending" || !note.trim()}>确认并记录人工决定</button><span role="status" aria-live="polite" className="text-xs text-[#536B5E]">{message}</span></div>
       </form>
-      <footer><div><Clock3 className="h-4 w-4" /><span>人工决定：{decision.humanDecision === "pending" ? "待责任人确认" : `${recommendationLabel[decision.humanDecision]} · ${decision.humanDecidedAt ? new Date(decision.humanDecidedAt).toLocaleString("zh-CN") : "时间未记录"}`}</span></div><p>AI建议不自动改变预算、订单或审批状态。</p></footer>
+      <footer><div><Clock3 className="h-4 w-4" /><span>模拟人工决定：{decision.humanDecision === "pending" ? "待演示确认" : `${recommendationLabel[decision.humanDecision]} · ${decision.humanDecidedAt ? new Date(decision.humanDecidedAt).toLocaleString("zh-CN") : "时间未记录"}`}</span></div><p>本页只演示人工确认交互，不改变真实预算、订单或审批状态。</p></footer>
     </article>
     <div className="mt-6 flex justify-end"><Link href="/results" className="primary-action">回填真实结果<ArrowRight className="h-4 w-4" /></Link></div>
   </div>;

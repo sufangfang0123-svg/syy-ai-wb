@@ -26,7 +26,7 @@ export function RawSignalsStream({ signals, onViewEvidence }: RawSignalsStreamPr
         </div>
         <Badge variant="secondary" className="text-xs h-6">
           <span className="h-2 w-2 rounded-full bg-primary animate-pulse mr-1.5" />
-          自动采集中
+          演示信号播放中
         </Badge>
       </div>
       <ScrollArea className="flex-1">
