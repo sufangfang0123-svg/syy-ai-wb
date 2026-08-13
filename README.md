@@ -1,6 +1,6 @@
 # Evolution Lab｜新品投前决策与下一证据引擎
 
-> 当前仓库提供产品展示站、独立模拟研究实验室，以及 Phase 1A-0 的真实服务边界检查。
+> v0.2.0 提供公开模拟演示站，以及单用户本地真实闭环MVP。
 
 Evolution Lab 围绕 Next-Dollar Gate 方法组织信息：在投入打样、开模、备货、测试或推广费用前，明确风险假设、证据缺口和下一项验证。当前页面中的项目、证据、评分和结论均为模拟夹具，不是实际市场研究结果。
 
@@ -9,7 +9,7 @@ Evolution Lab 围绕 Next-Dollar Gate 方法组织信息：在投入打样、开
 | 构建配置 | 可用能力 | 不可用能力 |
 | --- | --- | --- |
 | `public_demo` | 展示站、独立模拟研究实验室 | 真实项目入口、后端连接、真实数据保存 |
-| `local_integrated` | 模拟实验室、后端健康检查、真实服务边界入口 | Project、数据库、规则计算和真实项目操作 |
+| `local_integrated` | FastAPI、SQLite、真实项目、Evidence导入、Assumption、Validation、Gate、Decision、历史与导出 | 多用户、RBAC、企业审批、云托管 |
 
 GitHub Pages 必须使用 `public_demo`。即使错误设置 `NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true`，公开构建也不会渲染真实项目入口。
 
@@ -30,12 +30,16 @@ npm ci
 npm run dev:public
 ```
 
-本地集成边界配置：
+首次运行（Windows）：
 
 ```powershell
-$env:NEXT_PUBLIC_API_BASE_URL="http://127.0.0.1:8000"
-npm run dev:local
+npm.cmd run setup:integrated
+npm.cmd run dev:integrated
 ```
+
+日常只需第二条命令。启动后打开 `http://127.0.0.1:3000/real`；按 `Ctrl+C` 同时停止前后端。健康检查为 `http://127.0.0.1:8000/api/v1/health`。
+
+SQLite默认位于 `backend/data/next-dollar-gate.sqlite3`。停止服务后复制该文件即可备份；恢复时停止服务并用备份文件替换它。单项目JSON由真实工作区“导出JSON”按钮下载。
 
 本地集成构建会请求：
 
@@ -43,7 +47,7 @@ npm run dev:local
 GET {NEXT_PUBLIC_API_BASE_URL}/api/v1/health
 ```
 
-只有 HTTP 成功且响应为 `{"status":"ok"}` 或 `{"status":"healthy"}` 时，真实项目边界入口才可操作。Phase 1A-0 不包含 FastAPI 或数据库。
+只有后端健康检查成功时真实入口才开放；失败时不会回退到localStorage。
 
 ## 构建与测试
 
@@ -90,4 +94,4 @@ npm run build:public
 
 ## 免责声明
 
-本项目当前版本不执行真实采集、真实AI分析、真实项目计算或企业审批。模拟页面不构成销量、成功率、医疗、法律、合规或投资承诺。
+本地版本可保存用户主动录入的数据并采集单个公开URL，使用确定性规则计算Gate。它不是多用户生产系统，不提供账号、RBAC、企业审批、真实AI分析、全网搜索或社交平台爬取，也不构成销量、成功率、医疗、法律、合规或投资承诺。常见错误：端口3000/8000冲突时关闭占用程序；后端不可用时先重跑setup并检查health；数据库备份和恢复必须在服务停止后进行。

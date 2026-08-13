@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { Database, Info, PlayCircle } from "lucide-react";
 import { useRuntimeBoundary } from "@/components/system/runtime-boundary-provider";
 
@@ -9,10 +10,11 @@ export function WorkspaceHeading({ eyebrow, title, description, actions }: { eye
 }
 
 export function ModeSwitch() {
-  const { config, activeSpace, backendStatus, openDemo, openRealBoundary } = useRuntimeBoundary();
+  const { config, activeSpace, backendStatus, openDemo, openReal } = useRuntimeBoundary();
+  const router = useRouter();
   return <div className="mode-switch" aria-label="数据空间">
     <button onClick={openDemo} className={activeSpace === "demo" ? "active" : ""}><PlayCircle className="h-4 w-4" />模拟研究实验室</button>
-    {config.realWorkspaceConfigured ? <button onClick={openRealBoundary} disabled={backendStatus !== "available"} className={activeSpace === "real-boundary" ? "active" : ""}><Database className="h-4 w-4" />真实项目入口</button> : null}
+    {config.realWorkspaceConfigured ? <button onClick={() => { openReal(); router.push("/real"); }} disabled={backendStatus !== "available"} className={activeSpace === "real" ? "active" : ""}><Database className="h-4 w-4" />真实项目入口</button> : null}
   </div>;
 }
 

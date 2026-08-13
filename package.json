@@ -1,11 +1,14 @@
 {
   "name": "cotton-ai-workbench",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "npm run dev:public",
     "dev:public": "cross-env NEXT_PUBLIC_BUILD_PROFILE=public_demo NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=false next dev",
     "dev:local": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true next dev",
+    "setup:integrated": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup-integrated.ps1",
+    "dev:integrated": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-integrated.ps1",
+    "test:backend": "backend\\.venv\\Scripts\\python.exe -m pytest backend\\tests -q",
     "build": "npm run build:public",
     "build:public": "cross-env NEXT_PUBLIC_BUILD_PROFILE=public_demo NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=false next build",
     "build:local": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true next build",
