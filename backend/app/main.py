@@ -239,6 +239,8 @@ def create_link(assumption_id: str, payload: LinkCreate, session: Session = Depe
         raise HTTPException(404, "Assumption或Evidence不存在")
     if assumption.project_id != evidence.project_id:
         raise HTTPException(422, "不能跨项目建立证据关系")
+    if session.scalar(select(EvidenceAssumptionLink.id).where(EvidenceAssumptionLink.evidence_id == evidence.id, EvidenceAssumptionLink.assumption_id == assumption.id, EvidenceAssumptionLink.direction == payload.direction)):
+        raise HTTPException(409, "相同Evidence、Assumption和方向的关系已存在")
     project = require_project(session, assumption.project_id)
     link = EvidenceAssumptionLink(assumption_id=assumption.id, **payload.model_dump())
     session.add(link)
