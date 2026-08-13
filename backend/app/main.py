@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from contextlib import asynccontextmanager
 
+import httpx
 from fastapi import Depends, FastAPI, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
@@ -101,7 +102,10 @@ def list_evidence(project_id: str, session: Session = Depends(get_session)):
 @app.post("/api/v1/projects/{project_id}/evidence/manual", response_model=EvidenceRead, status_code=201)
 def create_manual_evidence(project_id: str, payload: EvidenceCreate, session: Session = Depends(get_session)):
     project = require_project(session, project_id)
-    evidence = Evidence(project_id=project.id, source_type="manual", content_hash=content_hash(payload.raw_text), **payload.model_dump())
+    digest = content_hash(payload.raw_text)
+    if session.scalar(select(Evidence.id).where(Evidence.project_id == project.id, Evidence.content_hash == digest)):
+        raise HTTPException(409, "同一项目已存在内容相同的Evidence")
+    evidence = Evidence(project_id=project.id, source_type="manual", content_hash=digest, **payload.model_dump())
     session.add(evidence)
     invalidate_project(session, project, "新增手工Evidence")
     session.flush()
@@ -117,7 +121,10 @@ async def create_url_evidence(project_id: str, payload: UrlEvidenceCreate, sessi
         fetched = await fetch_public_url(str(payload.url))
     except (ValueError, httpx.HTTPError) as exc:  # type: ignore[name-defined]
         raise HTTPException(422, str(exc)) from exc
-    evidence = Evidence(project_id=project.id, source_type="url", source_url=fetched["final_url"], title=fetched["title"], publisher=fetched["publisher"], retrieved_at=utcnow(), raw_text=fetched["raw_text"], summary=payload.summary, content_hash=content_hash(fetched["raw_text"]))
+    digest = content_hash(fetched["raw_text"])
+    if session.scalar(select(Evidence.id).where(Evidence.project_id == project.id, Evidence.content_hash == digest)):
+        raise HTTPException(409, "同一项目已存在内容相同的Evidence")
+    evidence = Evidence(project_id=project.id, source_type="url", source_url=fetched["final_url"], title=fetched["title"], publisher=fetched["publisher"], retrieved_at=utcnow(), raw_text=fetched["raw_text"], summary=payload.summary, content_hash=digest)
     session.add(evidence)
     invalidate_project(session, project, "新增URL Evidence")
     session.flush()
@@ -371,4 +378,3 @@ def export_project(project_id: str, session: Session = Depends(get_session)):
         "decisions": [DecisionRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(Decision).where(Decision.project_id == project.id)).all()],
         "audit_events": [{"id": item.id, "entity_type": item.entity_type, "entity_id": item.entity_id, "action": item.action, "change_summary": item.change_summary, "created_at": item.created_at.isoformat()} for item in session.scalars(select(AuditEvent).where(AuditEvent.project_id == project.id).order_by(AuditEvent.created_at)).all()],
     }
-
