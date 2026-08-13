@@ -11,7 +11,7 @@ import httpx
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session, selectinload
 
-from .models import Assumption, AuditEvent, Decision, Evidence, GateEvaluation, Project, ValidationTest, utcnow
+from .models import Assumption, AuditEvent, Decision, Evidence, EvidenceAssumptionLink, GateEvaluation, Project, ValidationTest, utcnow
 
 
 def audit(session: Session, project_id: str | None, entity_type: str, entity_id: str, action: str, summary: str) -> None:
@@ -122,7 +122,7 @@ def evaluate_gate(session: Session, project: Project) -> GateEvaluation:
     assumptions = session.scalars(
         select(Assumption)
         .where(Assumption.project_id == project.id, Assumption.criticality >= 4)
-        .options(selectinload(Assumption.links).selectinload("evidence"), selectinload(Assumption.tests))
+        .options(selectinload(Assumption.links).selectinload(EvidenceAssumptionLink.evidence), selectinload(Assumption.tests))
     ).all()
     rules: list[dict] = []
     gaps: list[str] = []
@@ -173,6 +173,7 @@ def evaluate_gate(session: Session, project: Project) -> GateEvaluation:
     }
     gate = GateEvaluation(project_id=project.id, project_revision=project.revision, result=result, reasons=json.dumps(rules, ensure_ascii=False), evidence_gaps=json.dumps(gaps, ensure_ascii=False), snapshot=json.dumps(snapshot, ensure_ascii=False))
     session.add(gate)
+    session.flush()
     audit(session, project.id, "gate", gate.id, "evaluated", f"result={result}; revision={project.revision}")
     return gate
 
@@ -191,4 +192,3 @@ def decision_next_action(session: Session, project: Project, gate: GateEvaluatio
             test = tests[0]
             return f"优先执行 {test.name}（{test.id}）：预计成本 ¥{test.estimated_cost:g}，预计 {test.estimated_days} 天。"
     return "关键证据不足；请先为最高关键度的未满足假设设计验证。"
-
