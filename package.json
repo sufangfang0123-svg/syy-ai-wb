@@ -8,6 +8,7 @@
     "dev:local": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true next dev",
     "setup:integrated": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup-integrated.ps1",
     "dev:integrated": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-integrated.ps1",
+    "test:backend:serve": "node scripts/start-test-backend.mjs",
     "test:backend": "backend\\.venv\\Scripts\\python.exe -m pytest backend\\tests -q",
     "build": "npm run build:public",
     "build:public": "cross-env NEXT_PUBLIC_BUILD_PROFILE=public_demo NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=false next build",
@@ -18,7 +19,7 @@
     "test:unit": "vitest run tests/unit",
     "test:e2e": "npm run test:e2e:public",
     "test:e2e:public": "cross-env NEXT_PUBLIC_BUILD_PROFILE=public_demo NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=false TEST_BUILD_PROFILE=public_demo PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/phase1a0/playwright-public.json playwright test",
-    "test:e2e:local": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true TEST_BUILD_PROFILE=local_integrated PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/phase1a0/playwright-local.json playwright test tests/phase1a0.spec.ts --project=desktop-chromium",
+    "test:e2e:local": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true TEST_BUILD_PROFILE=local_integrated PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/phase1a0/playwright-local.json playwright test tests/phase1a0.spec.ts tests/real-workflow.spec.ts --project=desktop-chromium",
     "verify:phase1a0": "node scripts/verify-phase1a0.mjs",
     "check": "npm run verify:phase1a0"
   },

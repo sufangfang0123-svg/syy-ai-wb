@@ -13,7 +13,13 @@ $env:NEXT_PUBLIC_API_BASE_URL = "http://127.0.0.1:8000"
 $frontend = Start-Process -FilePath "npm.cmd" -ArgumentList "run","dev:local","--","--hostname","127.0.0.1","--port","3000" -WorkingDirectory $root -PassThru -WindowStyle Hidden
 try {
   $healthy = $false
-  1..40 | ForEach-Object { try { $response=Invoke-RestMethod http://127.0.0.1:8000/api/v1/health -TimeoutSec 1; if($response.status -eq "ok"){$healthy=$true;return} } catch {}; Start-Sleep -Milliseconds 500 }
+  for ($attempt = 1; $attempt -le 40; $attempt++) {
+    try {
+      $response = Invoke-RestMethod http://127.0.0.1:8000/api/v1/health -TimeoutSec 1
+      if ($response.status -eq "ok") { $healthy = $true; break }
+    } catch {}
+    Start-Sleep -Milliseconds 500
+  }
   if (-not $healthy -or $backend.HasExited -or $frontend.HasExited) { throw "Integrated startup failed. Check ports and installed dependencies." }
   Write-Host "Real workflow: http://127.0.0.1:3000/real"
   Write-Host "Backend health: http://127.0.0.1:8000/api/v1/health"
