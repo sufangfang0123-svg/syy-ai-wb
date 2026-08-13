@@ -90,3 +90,17 @@ def test_html_extraction_ignores_script_and_uses_real_title(monkeypatch):
     assert result["title"] == "真实标题"
     assert "可见正文" in result["raw_text"]
     assert "伪造内容" not in result["raw_text"]
+
+
+def test_request_is_pinned_to_validated_ip_to_prevent_dns_rebinding(monkeypatch):
+    from app.services import fetch_public_url
+    calls = []
+    monkeypatch.setattr(socket, "getaddrinfo", lambda host, port, type: [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", port))])
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(200, headers={"content-type": "text/plain"}, text="pinned response", request=request)
+    import asyncio
+    result = asyncio.run(fetch_public_url("https://public.example/report", httpx.MockTransport(handler)))
+    assert calls[0].headers["host"] == "public.example"
+    assert calls[0].extensions["validated_ip"] == "93.184.216.34"
+    assert result["final_url"] == "https://public.example/report"

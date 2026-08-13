@@ -1,4 +1,4 @@
-import { runtimeConfig } from "@/config/runtime";
+import { runtimeConfig } from "../config/runtime";
 
 export type Project = { id:string; name:string; description:string; product_category:string; target_user:string; decision_question:string; status:"active"|"archived"; revision:number; created_at:string; updated_at:string };
 export type Evidence = { id:string; project_id:string; source_type:"manual"|"url"; title:string; source_url:string|null; publisher:string; published_at:string|null; retrieved_at:string|null; raw_text:string; summary:string; content_hash:string; status:"draft"|"confirmed"; created_at:string; updated_at:string };
@@ -15,4 +15,3 @@ export async function api<T>(path:string, init?:RequestInit):Promise<T>{
   if(response.status===204)return undefined as T;
   return response.json() as Promise<T>;
 }
-

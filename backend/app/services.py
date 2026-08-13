@@ -60,7 +60,7 @@ class TextExtractor(HTMLParser):
         self.parts.append(value)
 
 
-def ensure_public_address(hostname: str, port: int | None = None) -> None:
+def ensure_public_address(hostname: str, port: int | None = None) -> str:
     lowered = hostname.rstrip(".").lower()
     if lowered in {"localhost", "localhost.localdomain"} or lowered.endswith(".localhost"):
         raise ValueError("拒绝本机地址")
@@ -74,6 +74,7 @@ def ensure_public_address(hostname: str, port: int | None = None) -> None:
         ip = ipaddress.ip_address(address.split("%")[0])
         if not ip.is_global:
             raise ValueError("拒绝内网、回环、链路本地或保留地址")
+    return sorted(addresses)[0]
 
 
 async def fetch_public_url(url: str, transport: httpx.AsyncBaseTransport | None = None) -> dict[str, str]:
@@ -85,8 +86,15 @@ async def fetch_public_url(url: str, transport: httpx.AsyncBaseTransport | None 
             parsed = urlsplit(current)
             if parsed.scheme not in {"http", "https"} or not parsed.hostname:
                 raise ValueError("仅允许公开的 http 或 https URL")
-            ensure_public_address(parsed.hostname, parsed.port)
-            async with client.stream("GET", current) as response:
+            pinned_ip = ensure_public_address(parsed.hostname, parsed.port)
+            port = parsed.port or (443 if parsed.scheme == "https" else 80)
+            host_header = parsed.hostname if parsed.port is None else f"{parsed.hostname}:{parsed.port}"
+            if transport is None:
+                ip_host = f"[{pinned_ip}]" if ":" in pinned_ip else pinned_ip
+                request_url = parsed._replace(netloc=f"{ip_host}:{port}").geturl()
+            else:
+                request_url = current
+            async with client.stream("GET", request_url, headers={"Host": host_header}, extensions={"sni_hostname": parsed.hostname, "validated_ip": pinned_ip}) as response:
                 if response.status_code in {301, 302, 303, 307, 308}:
                     location = response.headers.get("location")
                     if not location:
@@ -114,7 +122,7 @@ async def fetch_public_url(url: str, transport: httpx.AsyncBaseTransport | None 
                     raw_text = decoded.strip()
                 if not raw_text:
                     raise ValueError("页面没有可提取的公开文本")
-                return {"title": title[:300], "raw_text": raw_text[:1_000_000], "final_url": str(response.url), "publisher": parsed.hostname}
+                return {"title": title[:300], "raw_text": raw_text[:1_000_000], "final_url": current, "publisher": parsed.hostname}
     raise ValueError("重定向次数超过限制")
 
 
@@ -152,10 +160,11 @@ def evaluate_gate(session: Session, project: Project) -> GateEvaluation:
         if not passed:
             gaps.append(f"{assumption.id}: 缺少已完成且通过的验证")
             rules.append({"rule": "SUP-04", "assumption_id": assumption.id, "message": "缺少通过验证"})
-        inconclusive = [test for test in assumption.tests if test.result in {"pending", "inconclusive"}]
-        if inconclusive:
-            rules.append({"rule": "SUP-05", "assumption_id": assumption.id, "test_ids": [test.id for test in inconclusive], "message": "存在待完成或无法判断的验证"})
-        if result != "STOP" and (not confirmed_links or not support or not passed or inconclusive):
+        latest = max(assumption.tests, key=lambda item: item.updated_at) if assumption.tests else None
+        latest_inconclusive = latest is not None and latest.result in {"pending", "inconclusive"}
+        if latest_inconclusive:
+            rules.append({"rule": "SUP-05", "assumption_id": assumption.id, "test_ids": [latest.id], "message": "最新验证待完成或无法判断"})
+        if result != "STOP" and (not confirmed_links or not support or not passed or latest_inconclusive):
             result = "SUPPLEMENT"
     snapshot = {
         "project_id": project.id,
