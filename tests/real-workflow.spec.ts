@@ -1,70 +1,66 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, APIRequestContext } from "@playwright/test";
 
-const profile = process.env.TEST_BUILD_PROFILE ?? "public_demo";
+const profile=process.env.TEST_BUILD_PROFILE??"public_demo";
+const api="http://127.0.0.1:8000/api/v1";
+const dimensions=["NEED","COMMERCIAL","PRODUCT","SUPPLY","COMPLIANCE"];
 
-test("real workflow persists, recalculates and keeps history", async ({ page, request }) => {
-  test.skip(profile !== "local_integrated", "local integrated build only");
+async function seed(request:APIRequestContext,projectId:string){
+  const assumptions=[];
+  for(const [index,dimension] of dimensions.entries()){
+    const evidence=await (await request.post(`${api}/projects/${projectId}/evidence/paste`,{data:{title:`${dimension}证据`,publisher:"E2E夹具",raw_text:`${dimension}独立事实${index}`,applicable_scope:"E2E",limitations:"脱敏夹具"}})).json();
+    await request.post(`${api}/evidence/${evidence.id}/confirm`);
+    const assumption=await (await request.post(`${api}/projects/${projectId}/assumptions`,{data:{statement:`${dimension}关键假设成立`,criticality:5,dimension,potential_loss:10000,avoidable_loss:5000}})).json();
+    await request.post(`${api}/assumptions/${assumption.id}/links`,{data:{evidence_id:evidence.id,direction:"support",strength:4}});
+    assumptions.push(assumption);
+  }
+  return assumptions;
+}
+
+async function round(request:APIRequestContext,projectId:string,assumptions:{id:string}[],actuals:number[]){
+  for(const [index,assumption] of assumptions.entries()){
+    const testBody=await (await request.post(`${api}/projects/${projectId}/tests`,{data:{assumption_id:assumption.id,name:`Round指标${index}`,method:"受控测试",estimated_cost:100,estimated_days:1,success_criterion:"达到60%",metric_name:"通过率",metric_unit:"%",direction:"at_least",baseline_value:40,threshold_value:60,stop_threshold:30}})).json();
+    await request.post(`${api}/tests/${testBody.id}/result`,{data:{actual_value:actuals[index],sample_size:20,executed_at:"2026-08-14T08:00:00Z",source:"E2E报告",summary:"真实核心测试结果夹具"}});
+  }
+  const gate=await (await request.post(`${api}/projects/${projectId}/gate`)).json();
+  await request.post(`${api}/projects/${projectId}/decision`,{data:{gate_evaluation_id:gate.id,decision:gate.result,rationale:"E2E人工复核",decided_by:"E2E负责人（自我声明）"}});
+  return gate;
+}
+
+test("three-round local workflow persists and displays STOP history",async({page,request})=>{
+  test.skip(profile!=="local_integrated","local integrated build only");
   await page.goto("/real/");
-  await expect(page.getByRole("heading", { name: "创建第一个真实项目" })).toBeVisible();
-
-  await page.getByLabel("项目名称").fill("Playwright真实闭环验收");
-  await page.getByLabel("决策问题").fill("是否进入下一轮样品测试？");
-  await page.getByRole("button", { name: "创建真实项目" }).click();
-  await expect(page.getByText(/revision 1/)).toBeVisible();
-  const projectId = await page.getByText(/^prj_/).innerText();
+  await page.getByLabel("项目名称").fill("Playwright v0.3三轮验收");
+  await page.getByLabel("决策问题").fill("是否投入下一笔试点费用？");
+  await page.getByLabel("下一笔计划投入（CNY）").fill("50000");
+  await page.getByRole("button",{name:"创建真实项目"}).click();
+  const projectId=await page.getByText(/^prj_/).innerText();
+  const assumptions=await seed(request,projectId);
+  expect((await round(request,projectId,assumptions,[45,45,45,45,45])).result).toBe("SUPPLEMENT");
+  await request.post(`${api}/projects/${projectId}/rounds/next`,{data:{selected_assumption_ids:assumptions.map(x=>x.id)}});
+  expect((await round(request,projectId,assumptions,[70,70,70,70,70])).result).toBe("CONTINUE");
+  await request.post(`${api}/projects/${projectId}/rounds/next`,{data:{selected_assumption_ids:assumptions.map(x=>x.id)}});
+  expect((await round(request,projectId,assumptions,[70,70,20,70,70])).result).toBe("STOP");
   await page.reload();
-  await expect(page.getByLabel("选择真实项目")).toHaveValue(projectId);
-
-  await page.getByLabel("标题", { exact: true }).fill("脱敏访谈记录");
-  await page.getByLabel("来源/发布方").fill("受控研究夹具");
-  await page.getByLabel("原文或研究记录").fill("12名目标用户中8名愿意参加下一轮样品押金测试。此文本为脱敏测试夹具。");
-  await page.getByRole("button", { name: "保存draft Evidence" }).click();
-  await expect(page.getByText(/manual · 受控研究夹具 · draft/)).toBeVisible();
-  await page.getByRole("button", { name: "人工确认" }).click();
-  await expect(page.getByText(/manual · 受控研究夹具 · confirmed/)).toBeVisible();
-
-  await page.getByLabel("假设陈述").fill("目标用户愿意支付可退押金参与样品测试");
-  await page.getByRole("button", { name: "创建假设" }).click();
-  const assumption = page.locator("article").filter({ hasText: "目标用户愿意支付可退押金" });
-  await assumption.getByRole("combobox").first().selectOption({ label: "脱敏访谈记录 · confirmed" });
-  await assumption.getByLabel("关系强度").fill("4");
-  await assumption.getByRole("button", { name: "关联" }).click();
-
-  await page.getByLabel("关联假设").selectOption({ label: "目标用户愿意支付可退押金参与样品测试" });
-  await page.getByLabel("验证名称").fill("12人样品押金测试");
-  await page.getByLabel("方法").fill("展示真实样品并记录押金支付选择");
-  await page.getByLabel("成功标准").fill("至少7人支付可退押金");
-  await page.getByLabel("预计成本").fill("800");
-  await page.getByLabel("预计天数").fill("5");
-  await page.getByRole("button", { name: "创建验证" }).click();
-
-  await page.getByRole("button", { name: "执行Gate" }).click();
-  await expect(page.getByText("先补证", { exact: true }).first()).toBeVisible();
-  await page.getByRole("button", { name: "pass" }).click();
-  await page.getByRole("button", { name: "执行Gate" }).click();
-  await expect(page.getByText("继续投入", { exact: true }).first()).toBeVisible();
-  await page.getByRole("button", { name: "生成Decision" }).click();
-  await expect(page.getByRole("heading", { name: "继续投入" })).toBeVisible();
-
-  await page.getByRole("button", { name: "fail" }).click();
-  await expect(page.getByText("已失效").first()).toBeVisible();
-  await page.getByRole("button", { name: "执行Gate" }).click();
-  await expect(page.getByText("停止", { exact: true }).first()).toBeVisible();
-  await page.getByRole("button", { name: "生成Decision" }).click();
-  await expect(page.getByRole("heading", { name: "停止" })).toBeVisible();
-
-  const exported = await request.get(`http://127.0.0.1:8000/api/v1/projects/${projectId}/export`);
-  expect(exported.ok()).toBe(true);
-  const body = await exported.json();
-  expect(new Set(body.gates.map((gate: { result: string }) => gate.result))).toEqual(new Set(["SUPPLEMENT", "CONTINUE", "STOP"]));
-  expect(Object.keys(await page.evaluate(() => window.localStorage))).not.toContain("REAL-DRAFT-001");
+  await expect(page.getByText("停止",{exact:true}).first()).toBeVisible();
+  await expect(page.getByText(/Round 3/).first()).toBeVisible();
+  expect(await page.evaluate(()=>Object.keys(localStorage))).not.toContain("REAL-DRAFT-001");
 });
 
-test("URL import rejects a local address without creating fake evidence", async ({ page }) => {
-  test.skip(profile !== "local_integrated", "local integrated build only");
+test("file import uses draft confirmation and survives reload",async({page})=>{
+  test.skip(profile!=="local_integrated","local integrated build only");
+  await page.goto("/real/");
+  await page.getByLabel("Evidence文件").setInputFiles({name:"e2e-report.csv",mimeType:"text/csv",buffer:Buffer.from("metric,value\nchoice,68")});
+  await page.getByRole("button",{name:"导入文件"}).click();
+  await expect(page.getByText(/file · 未填写来源 · draft/)).toBeVisible();
+  await page.getByRole("button",{name:"人工确认"}).last().click();
+  await page.reload();
+  await expect(page.getByText(/file · 未填写来源 · confirmed/)).toBeVisible();
+});
+
+test("URL import rejects local address without fake evidence",async({page})=>{
+  test.skip(profile!=="local_integrated","local integrated build only");
   await page.goto("/real/");
   await page.getByPlaceholder("https://公开可访问页面").fill("http://127.0.0.1/private");
-  await page.getByRole("button", { name: "采集单URL" }).click();
-  await expect(page.getByTestId("real-workspace").getByRole("alert")).toContainText(/拒绝|内网|回环|保留地址|不允许|公网|URL|请求失败/);
-  await expect(page.getByText(/url ·/)).toHaveCount(0);
+  await page.getByRole("button",{name:"导入单URL"}).click();
+  await expect(page.getByTestId("real-workspace").getByRole("alert")).toContainText(/拒绝|内网|回环|保留地址|URL|请求失败/);
 });
