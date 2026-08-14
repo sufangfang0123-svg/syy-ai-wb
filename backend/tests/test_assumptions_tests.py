@@ -19,6 +19,7 @@ def test_assumption_create_update_delete_and_revision(client, project):
 
 def test_link_create_duplicate_reject_delete_and_cross_project_isolation(client, project):
     evidence = add_evidence(client, project["id"])
+    client.post(f"/api/v1/evidence/{evidence['id']}/confirm")
     assumption = add_assumption(client, project["id"])
     payload = {"evidence_id": evidence["id"], "direction": "support", "strength": 4}
     created = client.post(f"/api/v1/assumptions/{assumption['id']}/links", json=payload)
@@ -41,9 +42,9 @@ def test_validation_create_update_result_and_project_ownership(client, project):
     assert item["status"] == "planned" and item["result"] == "pending"
     running = client.patch(f"/api/v1/tests/{item['id']}", json={"status": "running"})
     assert running.json()["status"] == "running"
-    completed = client.patch(f"/api/v1/tests/{item['id']}", json={"result": "pass", "result_notes": "15/24选择目标方案"})
-    assert completed.json()["status"] == "completed"
-    assert completed.json()["result"] == "pass"
+    completed = client.post(f"/api/v1/tests/{item['id']}/result", json={"actual_value": 2, "sample_size": 24, "executed_at": "2026-08-14T08:00:00Z", "source": "受控记录", "summary": "15/24选择目标方案"})
+    assert completed.json()["derived_outcome"] == "pass"
+    assert client.get(f"/api/v1/projects/{project['id']}/tests").json()[0]["status"] == "completed"
     other = client.post("/api/v1/projects", json={"name": "项目B", "decision_question": "是否继续？"}).json()
     assert client.post(f"/api/v1/projects/{other['id']}/tests", json=payload).status_code == 422
 
@@ -52,6 +53,7 @@ def test_server_validation_rejects_invalid_criticality_strength_and_estimates(cl
     assert client.post(f"/api/v1/projects/{project['id']}/assumptions", json={"statement": "超出范围假设", "criticality": 6}).status_code == 422
     assumption = add_assumption(client, project["id"])
     evidence = add_evidence(client, project["id"])
+    client.post(f"/api/v1/evidence/{evidence['id']}/confirm")
     assert client.post(f"/api/v1/assumptions/{assumption['id']}/links", json={"evidence_id": evidence["id"], "direction": "support", "strength": 9}).status_code == 422
     invalid = {"assumption_id": assumption["id"], "name": "错误", "method": "测试", "estimated_cost": -1, "estimated_days": -2, "success_criterion": "标准"}
     assert client.post(f"/api/v1/projects/{project['id']}/tests", json=invalid).status_code == 422

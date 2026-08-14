@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 def test_health_database_and_version(client):
     payload = client.get("/api/v1/health").json()
-    assert payload == {"status": "ok", "version": "0.2.0", "database": "ready", "schema_version": 1}
+    assert payload == {"status": "ok", "version": "0.3.0", "database": "ready", "schema_version": 2}
 
 
 def test_create_update_archive_and_revision(client, project):
@@ -30,10 +30,30 @@ def test_two_projects_are_isolated(client, project):
 def test_migration_is_repeatable(tmp_path):
     from app.database import make_engine, run_migrations
     engine = make_engine(f"sqlite:///{(tmp_path / 'repeat.sqlite3').as_posix()}")
-    assert run_migrations(engine) == 1
-    assert run_migrations(engine) == 1
+    assert run_migrations(engine) == 2
+    assert run_migrations(engine) == 2
     with engine.connect() as connection:
         assert connection.exec_driver_sql("SELECT COUNT(*) FROM schema_migrations").scalar_one() == 1
+
+
+def test_v02_database_migrates_forward_without_losing_project(tmp_path):
+    from app.database import make_engine, run_migrations
+    engine = make_engine(f"sqlite:///{(tmp_path / 'legacy.sqlite3').as_posix()}")
+    with engine.begin() as connection:
+        connection.exec_driver_sql("CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL)")
+        connection.exec_driver_sql("INSERT INTO schema_migrations VALUES (1, CURRENT_TIMESTAMP)")
+        connection.exec_driver_sql("CREATE TABLE projects (id VARCHAR(32) PRIMARY KEY, name VARCHAR(160), revision INTEGER, created_at DATETIME, updated_at DATETIME)")
+        connection.exec_driver_sql("CREATE TABLE evidence (id VARCHAR(32) PRIMARY KEY, project_id VARCHAR(32), created_at DATETIME)")
+        connection.exec_driver_sql("CREATE TABLE assumptions (id VARCHAR(32) PRIMARY KEY, project_id VARCHAR(32))")
+        connection.exec_driver_sql("CREATE TABLE validation_tests (id VARCHAR(32) PRIMARY KEY, project_id VARCHAR(32), assumption_id VARCHAR(32))")
+        connection.exec_driver_sql("CREATE TABLE gate_evaluations (id VARCHAR(32) PRIMARY KEY, project_id VARCHAR(32))")
+        connection.exec_driver_sql("CREATE TABLE decisions (id VARCHAR(32) PRIMARY KEY, project_id VARCHAR(32), gate_evaluation_id VARCHAR(32))")
+        connection.exec_driver_sql("INSERT INTO projects(id,name,revision,created_at,updated_at) VALUES ('legacy','v0.2保留项目',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)")
+    assert run_migrations(engine) == 2
+    with engine.connect() as connection:
+        assert connection.exec_driver_sql("SELECT name FROM projects WHERE id='legacy'").scalar_one() == "v0.2保留项目"
+        assert connection.exec_driver_sql("SELECT current_round FROM projects WHERE id='legacy'").scalar_one() == 1
+        assert connection.exec_driver_sql("SELECT COUNT(*) FROM schema_migrations").scalar_one() == 2
 
 
 def test_file_database_survives_engine_restart(tmp_path):
