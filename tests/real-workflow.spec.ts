@@ -65,6 +65,6 @@ test("URL import rejects a local address without creating fake evidence", async 
   await page.goto("/real/");
   await page.getByPlaceholder("https://公开可访问页面").fill("http://127.0.0.1/private");
   await page.getByRole("button", { name: "采集单URL" }).click();
-  await expect(page.getByTestId("real-workspace").getByRole("alert")).toContainText(/不允许|公网|URL|请求失败/);
+  await expect(page.getByTestId("real-workspace").getByRole("alert")).toContainText(/拒绝|内网|回环|保留地址|不允许|公网|URL|请求失败/);
   await expect(page.getByText(/url ·/)).toHaveCount(0);
 });
