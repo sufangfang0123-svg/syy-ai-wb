@@ -11,8 +11,9 @@ test("real workflow persists, recalculates and keeps history", async ({ page, re
   await page.getByLabel("决策问题").fill("是否进入下一轮样品测试？");
   await page.getByRole("button", { name: "创建真实项目" }).click();
   await expect(page.getByText(/revision 1/)).toBeVisible();
+  const projectId = await page.getByText(/^prj_/).innerText();
   await page.reload();
-  await expect(page.getByRole("option", { name: /Playwright真实闭环验收/ })).toBeVisible();
+  await expect(page.getByLabel("选择真实项目")).toHaveValue(projectId);
 
   await page.getByLabel("标题", { exact: true }).fill("脱敏访谈记录");
   await page.getByLabel("来源/发布方").fill("受控研究夹具");
@@ -52,7 +53,6 @@ test("real workflow persists, recalculates and keeps history", async ({ page, re
   await page.getByRole("button", { name: "生成Decision" }).click();
   await expect(page.getByRole("heading", { name: "停止投入" })).toBeVisible();
 
-  const projectId = await page.getByText(/^prj_/).innerText();
   const exported = await request.get(`http://127.0.0.1:8000/api/v1/projects/${projectId}/export`);
   expect(exported.ok()).toBe(true);
   const body = await exported.json();
@@ -65,6 +65,6 @@ test("URL import rejects a local address without creating fake evidence", async 
   await page.goto("/real/");
   await page.getByPlaceholder("https://公开可访问页面").fill("http://127.0.0.1/private");
   await page.getByRole("button", { name: "采集单URL" }).click();
-  await expect(page.getByRole("alert")).toContainText(/不允许|公网|URL|请求失败/);
+  await expect(page.getByTestId("real-workspace").getByRole("alert")).toContainText(/不允许|公网|URL|请求失败/);
   await expect(page.getByText(/url ·/)).toHaveCount(0);
 });
