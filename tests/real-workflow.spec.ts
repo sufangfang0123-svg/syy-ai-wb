@@ -39,7 +39,7 @@ test("real workflow persists, recalculates and keeps history", async ({ page, re
   await page.getByRole("button", { name: "创建验证" }).click();
 
   await page.getByRole("button", { name: "执行Gate" }).click();
-  await expect(page.getByText("补充证据", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("先补证", { exact: true }).first()).toBeVisible();
   await page.getByRole("button", { name: "pass" }).click();
   await page.getByRole("button", { name: "执行Gate" }).click();
   await expect(page.getByText("继续投入", { exact: true }).first()).toBeVisible();
@@ -49,9 +49,9 @@ test("real workflow persists, recalculates and keeps history", async ({ page, re
   await page.getByRole("button", { name: "fail" }).click();
   await expect(page.getByText("已失效").first()).toBeVisible();
   await page.getByRole("button", { name: "执行Gate" }).click();
-  await expect(page.getByText("停止投入", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("停止", { exact: true }).first()).toBeVisible();
   await page.getByRole("button", { name: "生成Decision" }).click();
-  await expect(page.getByRole("heading", { name: "停止投入" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "停止" })).toBeVisible();
 
   const exported = await request.get(`http://127.0.0.1:8000/api/v1/projects/${projectId}/export`);
   expect(exported.ok()).toBe(true);
