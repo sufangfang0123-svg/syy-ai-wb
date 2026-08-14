@@ -37,7 +37,7 @@ export default function ProductSite() {
 
     <section id="versions" className="page-frame"><div className="text-center"><p className="section-kicker">Implementation status</p><h2 className="mt-3 text-3xl font-semibold">当前能力与明确边界</h2></div><div className="mx-auto mt-8 grid max-w-5xl gap-5 md:grid-cols-3">
       <StatusCard icon={PackageCheck} title="公开展示构建" status="当前可用" items={["产品说明", "模拟研究实验室", "真实项目入口关闭"]} />
-      <StatusCard icon={CheckCircle2} title="本地集成构建" status="1A-0边界" items={["后端健康检查", "可用状态提示", "不保存真实项目"]} />
+      <StatusCard icon={CheckCircle2} title="本地集成构建" status="v0.3.0封闭试点" items={["FastAPI与SQLite", "企业材料与五维Gate", "本机数据持久化"]} />
       <StatusCard icon={ShieldAlert} title="本地真实项目闭环" status="仅local_integrated" items={["SQLite与恢复", "材料导入与确定性Gate", "人工决策与三轮追溯"]} />
     </div><div className="mt-10 text-center"><Link href="/workspace" className="primary-action px-6 py-3">{workspaceLabel}<ArrowRight className="h-4 w-4" /></Link></div></section>
   </div>;
