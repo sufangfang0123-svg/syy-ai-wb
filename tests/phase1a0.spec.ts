@@ -30,7 +30,7 @@ test("local_integrated keeps the real entry closed when health check fails", asy
   await expect(page.getByTestId("real-service-boundary")).toHaveCount(0);
 });
 
-test("local_integrated opens only the boundary after a valid health response", async ({ page }) => {
+test("local_integrated opens the real workspace only after a valid health response", async ({ page }) => {
   test.skip(profile !== "local_integrated", "local_integrated build only");
   await page.route(healthUrl, (route) => route.fulfill({
     status: 200,
@@ -42,8 +42,9 @@ test("local_integrated opens only the boundary after a valid health response", a
   await closeGuide(page);
   await expect(page.getByTestId("service-status-available")).toContainText("本地真实服务可用");
   await page.getByRole("button", { name: "真实项目入口" }).click();
-  await expect(page.getByTestId("real-service-boundary")).toBeVisible();
-  await expect(page.getByText("当前切片不创建、不读取、不缓存任何真实项目。")).toBeVisible();
+  await expect(page).toHaveURL(/\/real\/$/);
+  await expect(page.getByTestId("real-workspace")).toBeVisible();
+  await expect(page.getByText("所有真实记录只写入FastAPI连接的SQLite")).toBeVisible();
   await expect(page.getByLabel("想做什么新品")).toHaveCount(0);
   const keys = await page.evaluate(() => Object.keys(window.localStorage));
   expect(keys.some((key) => key.includes("decision-real") || key.includes("active-mode"))).toBe(false);

@@ -4,7 +4,7 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, 
 import { isHealthyPayload, runtimeConfig } from "@/config/runtime";
 
 export type BackendStatus = "disabled" | "checking" | "available" | "unavailable";
-export type ActiveSpace = "demo" | "real-boundary";
+export type ActiveSpace = "demo" | "real";
 
 interface RuntimeBoundaryContextValue {
   config: typeof runtimeConfig;
@@ -13,7 +13,7 @@ interface RuntimeBoundaryContextValue {
   lastCheckedAt: string | null;
   checkBackend: () => Promise<void>;
   openDemo: () => void;
-  openRealBoundary: () => void;
+  openReal: () => void;
 }
 
 const RuntimeBoundaryContext = createContext<RuntimeBoundaryContextValue | null>(null);
@@ -60,8 +60,8 @@ export function RuntimeBoundaryProvider({ children }: { children: ReactNode }) {
   }, [checkBackend]);
 
   const openDemo = useCallback(() => setActiveSpace("demo"), []);
-  const openRealBoundary = useCallback(() => {
-    if (backendStatus === "available") setActiveSpace("real-boundary");
+  const openReal = useCallback(() => {
+    if (backendStatus === "available") setActiveSpace("real");
   }, [backendStatus]);
 
   const value = useMemo(() => ({
@@ -71,8 +71,8 @@ export function RuntimeBoundaryProvider({ children }: { children: ReactNode }) {
     lastCheckedAt,
     checkBackend,
     openDemo,
-    openRealBoundary,
-  }), [activeSpace, backendStatus, checkBackend, lastCheckedAt, openDemo, openRealBoundary]);
+    openReal,
+  }), [activeSpace, backendStatus, checkBackend, lastCheckedAt, openDemo, openReal]);
 
   return <RuntimeBoundaryContext.Provider value={value}>{children}</RuntimeBoundaryContext.Provider>;
 }

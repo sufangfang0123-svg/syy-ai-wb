@@ -56,7 +56,7 @@ export default function DecisionPage() {
       </form>
       <footer><div><Clock3 className="h-4 w-4" /><span>模拟人工决定：{decision.humanDecision === "pending" ? "待演示确认" : `${recommendationLabel[decision.humanDecision]} · ${decision.humanDecidedAt ? new Date(decision.humanDecidedAt).toLocaleString("zh-CN") : "时间未记录"}`}</span></div><p>本页只演示人工确认交互，不改变真实预算、订单或审批状态。</p></footer>
     </article>
-    <div className="mt-6 flex justify-end"><Link href="/results" className="primary-action">回填真实结果<ArrowRight className="h-4 w-4" /></Link></div>
+    <div className="mt-6 flex justify-end"><Link href="/results" className="primary-action">查看模拟结果回流<ArrowRight className="h-4 w-4" /></Link></div>
   </div>;
 }
 
