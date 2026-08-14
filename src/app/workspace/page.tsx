@@ -28,7 +28,7 @@ export default function WorkspacePage() {
       </section>
       <aside className="space-y-5">
         <section className="decision-summary-card"><p className="section-kicker text-white/55">Current gate</p><div className="mt-3 flex items-center justify-between gap-3"><h2>{recommendationLabel[state.decision.recommendation]}</h2><ShieldAlert className="h-6 w-6" /></div><p className="mt-4 text-sm leading-6 text-white/70">{state.decision.confidenceLimit}</p><div className="mt-5 border-t border-white/10 pt-4"><span>下一笔投入</span><strong>{p.nextInvestmentAmount === null ? "待填写" : `¥${p.nextInvestmentAmount.toLocaleString("zh-CN")}`}</strong><small>{p.nextAction || "尚未填写具体动作"}</small></div></section>
-        <section className="panel-surface"><p className="section-kicker">Current boundary</p><h2 className="mt-1 text-lg font-semibold">当前仅提供流程演示</h2><p className="mt-4 text-xs leading-5 text-[#6F7D77]">账号、多人协作、权限、可信身份审计、数据库和真实规则计算均未在1A-0实现，页面不会把这些规划能力表述为当前可用。</p></section>
+        <section className="panel-surface"><p className="section-kicker">Current boundary</p><h2 className="mt-1 text-lg font-semibold">此页仅提供流程演示</h2><p className="mt-4 text-xs leading-5 text-[#6F7D77]">公开构建不创建真实项目；本地集成构建另行提供SQLite持久化与确定性Gate。账号、多人协作、权限和可信身份审计仍未实现。</p></section>
         <section className="panel-surface"><CircleDollarSign className="h-5 w-5 text-[#5B8C5A]" /><h2 className="mt-3 text-lg font-semibold">当前P0闭环</h2><p className="mt-2 text-xs leading-5 text-[#6F7D77]">建项 → 证据 → 风险假设 → 下一验证 → 投前决策单 → 结果回流</p><Link href="/opportunities" className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-[#315C46]"><FileSearch className="h-4 w-4" />打开保留的研究实验室</Link></section>
       </aside>
     </div>
