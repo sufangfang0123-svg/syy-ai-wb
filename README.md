@@ -1,97 +1,62 @@
-# Evolution Lab｜新品投前决策与下一证据引擎
+# 棉生万物 Next-Dollar Gate
 
-> v0.2.0 提供公开模拟演示站，以及单用户本地真实闭环MVP。
+> v0.3.0 单企业封闭试点版：在下一笔不可逆新品费用发生前，把企业已有材料转成可追溯证据，并由确定性规则输出 `CONTINUE`、`SUPPLEMENT` 或 `STOP`，最终决定仍由负责人确认。
 
-Evolution Lab 围绕 Next-Dollar Gate 方法组织信息：在投入打样、开模、备货、测试或推广费用前，明确风险假设、证据缺口和下一项验证。当前页面中的项目、证据、评分和结论均为模拟夹具，不是实际市场研究结果。
+## 两种严格隔离的构建
 
-## 当前能力边界
-
-| 构建配置 | 可用能力 | 不可用能力 |
+| 构建 | 能力 | 数据 |
 | --- | --- | --- |
-| `public_demo` | 展示站、独立模拟研究实验室 | 真实项目入口、后端连接、真实数据保存 |
-| `local_integrated` | FastAPI、SQLite、真实项目、Evidence导入、Assumption、Validation、Gate、Decision、历史与导出 | 多用户、RBAC、企业审批、云托管 |
+| `public_demo` | 展示站、独立模拟研究实验室 | 固定模拟夹具；无真实入口、FastAPI或SQLite |
+| `local_integrated` | 单企业本地试点：材料导入、证据确认、五维假设、验证结果、Gate、人工Decision、下一轮与导出 | 本机SQLite及非公开附件目录 |
 
-GitHub Pages 必须使用 `public_demo`。即使错误设置 `NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true`，公开构建也不会渲染真实项目入口。
+GitHub Pages只执行`public_demo`。公开`/real/`不会伪装后端能力；后端不健康时不回退到localStorage。
 
-## 路由
+## 安装与启动
 
-- `/`：产品展示站。
-- `/workspace` 至 `/results`：模拟决策流程。
-- `/radar`、`/insights`、`/opportunities`、`/evolution`、`/launch`、`/content`：独立模拟研究实验室。
-
-模拟数据只使用 `evolution-lab:decision-demo:v1` 等演示存储键。仓库不再创建真实项目 `localStorage`，后端不可用时也不会回退到浏览器存储。
-
-## 启动方式
-
-公开演示配置：
+Windows首次运行：
 
 ```powershell
-npm ci
-npm run dev:public
-```
-
-首次运行（Windows）：
-
-```powershell
+npm.cmd ci
 npm.cmd run setup:integrated
 npm.cmd run dev:integrated
 ```
 
-日常只需第二条命令。启动后打开 `http://127.0.0.1:3000/real`；按 `Ctrl+C` 同时停止前后端。健康检查为 `http://127.0.0.1:8000/api/v1/health`。
+打开`http://127.0.0.1:3000/real/`；健康检查为`http://127.0.0.1:8000/api/v1/health`。公开模拟站使用`npm.cmd run dev:public`。
 
-SQLite默认位于 `backend/data/next-dollar-gate.sqlite3`。停止服务后复制该文件即可备份；恢复时停止服务并用备份文件替换它。单项目JSON由真实工作区“导出JSON”按钮下载。
+## v0.3.0真实闭环
 
-本地集成构建会请求：
+`建立项目 → 导入材料 → 确认证据 → 建立五维假设与关系 → 设计阈值验证 → 回填原始结果 → 单一Gate → 人工决定 → 旧结论stale → 创建下一轮 → 导出JSON/打印`
 
-```text
-GET {NEXT_PUBLIC_API_BASE_URL}/api/v1/health
-```
+支持粘贴文本、单个公开URL，以及不超过5MB的UTF-8 `.txt`、`.md`、`.csv`和文本型`.pdf`。扫描PDF/OCR、登录抓取、社交平台爬虫和付费墙绕过不支持。文件按扩展名与MIME双检，记录SHA-256并保存到私有数据目录；未确认Evidence不能关联Assumption或参与Gate。
 
-只有后端健康检查成功时真实入口才开放；失败时不会回退到localStorage。
+Gate规则版本为`NDG_GATE_V0.3.0`，汇总`NEED / COMMERCIAL / PRODUCT / SUPPLY / COMPLIANCE`五项检查。停止阈值优先；未触发停止但证据、有效验证或维度不完整时为`SUPPLEMENT`；所有关键假设满足才为`CONTINUE`。AI不参与Gate。
 
-## 构建与测试
+经济性字段与公式：
 
-```powershell
-npm run lint
-npm run typecheck
-npm run test:unit
-npm run build:public
-npm run build:local
-npm run test:e2e:public
-npm run test:e2e:local
-npm run verify:phase1a0
-```
+- 验证成本=`当前轮ValidationTest.estimated_cost之和`；
+- 验证成本占计划投入=`validation_cost / planned_investment`；
+- 盈亏平衡信息价值概率=`validation_cost / avoidable_loss`，仅`avoidable_loss > 0`时计算；
+- 缺失金额返回`null`和`missing_fields`，不以0伪装，不输出ROI、销量或成功概率预测。
 
-GitHub Pages 子路径构建：
+## 数据、备份与恢复
+
+默认数据目录为`backend/data/`：数据库`next-dollar-gate.sqlite3`，附件快照在`uploads/`。可用`NDG_DATA_DIR`整体改址，或用`NDG_DATABASE_URL`指定数据库。停止服务后同时复制SQLite和`uploads/`完成备份；恢复时停止服务并原样放回。数据目录、上传文件、测试结果和缓存均被排除出Git。
+
+详情见[数据备份与恢复](docs/data-backup-recovery.md)、[API与Schema](docs/api-schema-v0.3.0.md)及[限制说明](KNOWN-LIMITATIONS.md)。
+
+## 测试
 
 ```powershell
-$env:NEXT_PUBLIC_BASE_PATH="/syy-ai-wb"
-npm run build:public
+npm.cmd run test:backend
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd run test:unit
+npm.cmd run build:public
+npm.cmd run build:local
+npm.cmd run test:e2e:public
+npm.cmd run test:e2e:local
+npm.cmd run verify:phase1a0
+git diff --check
 ```
 
-机器可读验收报告写入 `test-results/phase1a0/`，该目录不进入版本库。
-
-## 环境变量
-
-| 变量 | `public_demo` | `local_integrated` |
-| --- | --- | --- |
-| `NEXT_PUBLIC_BUILD_PROFILE` | `public_demo` | `local_integrated` |
-| `NEXT_PUBLIC_REAL_WORKSPACE_ENABLED` | 必须为 `false` | 必须为 `true` 才执行健康检查 |
-| `NEXT_PUBLIC_API_BASE_URL` | 不使用 | 默认 `http://127.0.0.1:8000` |
-| `NEXT_PUBLIC_BASE_PATH` | GitHub Pages 使用 `/syy-ai-wb` | 通常留空 |
-
-## 技术栈
-
-- Next.js 15.5、React 19、TypeScript 5；
-- Tailwind CSS、Radix UI、Lucide React；
-- Vitest 与 Playwright；
-- GitHub Actions 与 GitHub Pages。
-
-## 实施基线
-
-- [Phase 1A-0 实施基线与 Rule Catalog 勘误](docs/phase-1a0-implementation-baseline.md)
-- [验收强化记录](docs/audit/acceptance-hardening/README.md)
-
-## 免责声明
-
-本地版本可保存用户主动录入的数据并采集单个公开URL，使用确定性规则计算Gate。它不是多用户生产系统，不提供账号、RBAC、企业审批、真实AI分析、全网搜索或社交平台爬取，也不构成销量、成功率、医疗、法律、合规或投资承诺。常见错误：端口3000/8000冲突时关闭占用程序；后端不可用时先重跑setup并检查health；数据库备份和恢复必须在服务停止后进行。
+技术栈：Next.js 15.5、React 19、TypeScript、FastAPI、SQLAlchemy、Pydantic、SQLite（WAL/外键）、Vitest、Playwright、GitHub Actions和GitHub Pages。
