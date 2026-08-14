@@ -4,16 +4,17 @@ import json
 from contextlib import asynccontextmanager
 
 import httpx
-from fastapi import Depends, FastAPI, HTTPException, Response, status
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Response, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .database import APP_VERSION, SCHEMA_VERSION, engine, get_session, run_migrations
-from .models import Assumption, AuditEvent, Decision, Evidence, EvidenceAssumptionLink, GateEvaluation, Project, ValidationTest, utcnow
-from .schemas import AssumptionCreate, AssumptionRead, AssumptionUpdate, DecisionRead, EvidenceCreate, EvidenceRead, EvidenceUpdate, GateRead, LinkCreate, LinkRead, ProjectCreate, ProjectRead, ProjectUpdate, TestCreate, TestRead, TestUpdate, UrlEvidenceCreate
-from .services import audit, content_hash, decision_next_action, evaluate_gate, fetch_public_url, invalidate_project
+from .materials import extract_upload, store_snapshot
+from .models import Assumption, AuditEvent, Decision, Evidence, EvidenceAssumptionLink, EvidenceRelation, GateEvaluation, IterationRound, Project, ValidationResult, ValidationTest, utcnow
+from .schemas import AssumptionCreate, AssumptionRead, AssumptionUpdate, DecisionCreate, DecisionRead, EvidenceCreate, EvidenceRead, EvidenceRelationCreate, EvidenceRelationRead, EvidenceUpdate, GateRead, IterationRoundRead, LinkCreate, LinkRead, NextRoundCreate, PasteEvidenceCreate, ProjectCreate, ProjectRead, ProjectUpdate, TestCreate, TestRead, TestUpdate, UrlEvidenceCreate, ValidationResultCreate, ValidationResultRead
+from .services import audit, content_hash, decision_next_action, derive_validation_outcome, economics_snapshot, evaluate_gate, fetch_public_url, invalidate_project
 
 
 @asynccontextmanager
@@ -23,7 +24,7 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="Next-Dollar Gate API", version=APP_VERSION, lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=["http://127.0.0.1:3000", "http://localhost:3000"], allow_credentials=False, allow_methods=["GET", "POST", "PATCH", "DELETE"], allow_headers=["Content-Type", "If-Match"])
+app.add_middleware(CORSMiddleware, allow_origins=["http://127.0.0.1:3000", "http://localhost:3000"], allow_credentials=False, allow_methods=["GET", "POST", "PATCH", "DELETE"], allow_headers=["Content-Type", "If-Match", "Idempotency-Key"])
 
 
 def require_project(session: Session, project_id: str) -> Project:
@@ -52,6 +53,7 @@ def create_project(payload: ProjectCreate, session: Session = Depends(get_sessio
     project = Project(**payload.model_dump())
     session.add(project)
     session.flush()
+    session.add(IterationRound(project_id=project.id, round_number=1, base_revision=project.revision, selected_assumption_ids="[]"))
     audit(session, project.id, "project", project.id, "created", "创建真实项目")
     commit(session)
     return project
@@ -105,11 +107,48 @@ def create_manual_evidence(project_id: str, payload: EvidenceCreate, session: Se
     digest = content_hash(payload.raw_text)
     if session.scalar(select(Evidence.id).where(Evidence.project_id == project.id, Evidence.content_hash == digest)):
         raise HTTPException(409, "同一项目已存在内容相同的Evidence")
-    evidence = Evidence(project_id=project.id, source_type="manual", content_hash=digest, **payload.model_dump())
+    evidence = Evidence(project_id=project.id, source_type="manual", origin_kind="manual", content_hash=digest, **payload.model_dump())
     session.add(evidence)
     invalidate_project(session, project, "新增手工Evidence")
     session.flush()
     audit(session, project.id, "evidence", evidence.id, "created", "手工录入，状态=draft")
+    commit(session)
+    return evidence
+
+
+@app.post("/api/v1/projects/{project_id}/evidence/paste", response_model=EvidenceRead, status_code=201)
+def create_paste_evidence(project_id: str, payload: PasteEvidenceCreate, session: Session = Depends(get_session)):
+    project = require_project(session, project_id)
+    digest = content_hash(payload.raw_text)
+    if session.scalar(select(Evidence.id).where(Evidence.project_id == project.id, Evidence.content_hash == digest)):
+        raise HTTPException(409, "同一项目已存在内容相同的Evidence")
+    evidence = Evidence(project_id=project.id, source_type="manual", origin_kind="paste", content_hash=digest, snapshot_ref="database:raw_text", **payload.model_dump())
+    session.add(evidence)
+    invalidate_project(session, project, "新增粘贴文本Evidence")
+    session.flush()
+    audit(session, project.id, "evidence", evidence.id, "paste_imported", f"sha256={digest}")
+    commit(session)
+    return evidence
+
+
+@app.post("/api/v1/projects/{project_id}/evidence/file", response_model=EvidenceRead, status_code=201)
+async def create_file_evidence(project_id: str, title: str = Form(...), publisher: str = Form(""), summary: str = Form(""), applicable_scope: str = Form(""), limitations: str = Form(""), file: UploadFile = File(...), session: Session = Depends(get_session)):
+    project = require_project(session, project_id)
+    try:
+        data = await file.read(5 * 1024 * 1024 + 1)
+        extracted = extract_upload(file.filename or "", file.content_type, data)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    digest = content_hash(str(extracted["raw_text"]))
+    duplicate = session.scalar(select(Evidence.id).where(Evidence.project_id == project.id, (Evidence.content_hash == digest) | (Evidence.file_sha256 == extracted["sha256"])))
+    if duplicate:
+        raise HTTPException(409, {"message": "同一项目已存在重复文件或内容", "evidence_id": duplicate})
+    snapshot = store_snapshot(project.id, str(extracted["sha256"]), str(extracted["suffix"]), data)
+    evidence = Evidence(project_id=project.id, source_type="manual", origin_kind="file", title=title, publisher=publisher, summary=summary, applicable_scope=applicable_scope, limitations=limitations, raw_text=extracted["raw_text"], content_hash=digest, original_filename=file.filename, mime_type=extracted["mime_type"], size_bytes=extracted["size_bytes"], file_sha256=extracted["sha256"], snapshot_ref=snapshot)
+    session.add(evidence)
+    invalidate_project(session, project, "新增文件Evidence")
+    session.flush()
+    audit(session, project.id, "evidence", evidence.id, "file_imported", f"sha256={evidence.file_sha256}; snapshot={snapshot}")
     commit(session)
     return evidence
 
@@ -124,7 +163,7 @@ async def create_url_evidence(project_id: str, payload: UrlEvidenceCreate, sessi
     digest = content_hash(fetched["raw_text"])
     if session.scalar(select(Evidence.id).where(Evidence.project_id == project.id, Evidence.content_hash == digest)):
         raise HTTPException(409, "同一项目已存在内容相同的Evidence")
-    evidence = Evidence(project_id=project.id, source_type="url", source_url=fetched["final_url"], title=fetched["title"], publisher=fetched["publisher"], retrieved_at=utcnow(), raw_text=fetched["raw_text"], summary=payload.summary, content_hash=digest)
+    evidence = Evidence(project_id=project.id, source_type="url", origin_kind="url", source_url=fetched["final_url"], title=fetched["title"], publisher=fetched["publisher"], retrieved_at=utcnow(), raw_text=fetched["raw_text"], summary=payload.summary, applicable_scope=payload.applicable_scope, limitations=payload.limitations, content_hash=digest)
     session.add(evidence)
     invalidate_project(session, project, "新增URL Evidence")
     session.flush()
@@ -178,6 +217,30 @@ def set_evidence_status(evidence_id: str, target: str, session: Session):
     audit(session, project.id, "evidence", evidence.id, target, f"status={target}")
     commit(session)
     return evidence
+
+
+@app.get("/api/v1/projects/{project_id}/evidence-relations", response_model=list[EvidenceRelationRead])
+def list_evidence_relations(project_id: str, session: Session = Depends(get_session)):
+    require_project(session, project_id)
+    return session.scalars(select(EvidenceRelation).where(EvidenceRelation.project_id == project_id).order_by(EvidenceRelation.created_at)).all()
+
+
+@app.post("/api/v1/projects/{project_id}/evidence-relations", response_model=EvidenceRelationRead, status_code=201)
+def create_evidence_relation(project_id: str, payload: EvidenceRelationCreate, session: Session = Depends(get_session)):
+    project = require_project(session, project_id)
+    source = session.get(Evidence, payload.source_evidence_id)
+    target = session.get(Evidence, payload.target_evidence_id)
+    if not source or not target or source.project_id != project.id or target.project_id != project.id:
+        raise HTTPException(422, "关系两端必须是当前项目的Evidence")
+    if source.id == target.id:
+        raise HTTPException(422, "Evidence不能与自身建立关系")
+    relation = EvidenceRelation(project_id=project.id, **payload.model_dump())
+    session.add(relation)
+    invalidate_project(session, project, "新增EvidenceRelation")
+    session.flush()
+    audit(session, project.id, "evidence_relation", relation.id, "created", payload.relation_type)
+    commit(session)
+    return relation
 
 
 @app.get("/api/v1/projects/{project_id}/assumptions", response_model=list[AssumptionRead])
@@ -239,6 +302,8 @@ def create_link(assumption_id: str, payload: LinkCreate, session: Session = Depe
         raise HTTPException(404, "Assumption或Evidence不存在")
     if assumption.project_id != evidence.project_id:
         raise HTTPException(422, "不能跨项目建立证据关系")
+    if evidence.status != "confirmed":
+        raise HTTPException(422, "只有已确认Evidence可以关联Assumption")
     if session.scalar(select(EvidenceAssumptionLink.id).where(EvidenceAssumptionLink.evidence_id == evidence.id, EvidenceAssumptionLink.assumption_id == assumption.id, EvidenceAssumptionLink.direction == payload.direction)):
         raise HTTPException(409, "相同Evidence、Assumption和方向的关系已存在")
     project = require_project(session, assumption.project_id)
@@ -277,7 +342,11 @@ def create_test(project_id: str, payload: TestCreate, session: Session = Depends
     assumption = session.get(Assumption, payload.assumption_id)
     if not assumption or assumption.project_id != project.id:
         raise HTTPException(422, "验证必须关联当前项目的Assumption")
-    test = ValidationTest(project_id=project.id, **payload.model_dump())
+    if payload.direction == "at_least" and payload.stop_threshold is not None and payload.stop_threshold >= payload.threshold_value:
+        raise HTTPException(422, "at_least的停止阈值必须小于通过阈值")
+    if payload.direction == "at_most" and payload.stop_threshold is not None and payload.stop_threshold <= payload.threshold_value:
+        raise HTTPException(422, "at_most的停止阈值必须大于通过阈值")
+    test = ValidationTest(project_id=project.id, round_number=project.current_round, **payload.model_dump())
     session.add(test)
     invalidate_project(session, project, "新增ValidationTest")
     session.flush()
@@ -293,14 +362,44 @@ def update_test(test_id: str, payload: TestUpdate, session: Session = Depends(ge
         raise HTTPException(404, "ValidationTest不存在")
     project = require_project(session, test.project_id)
     changes = payload.model_dump(exclude_none=True)
-    if changes.get("result") in {"pass", "fail", "inconclusive"}:
-        changes["status"] = "completed"
     for key, value in changes.items():
         setattr(test, key, value)
     invalidate_project(session, project, "修改ValidationTest或结果")
     audit(session, project.id, "validation_test", test.id, "updated", json.dumps(changes, ensure_ascii=False))
     commit(session)
     return test
+
+
+@app.post("/api/v1/tests/{test_id}/result", response_model=ValidationResultRead, status_code=201)
+def create_validation_result(test_id: str, payload: ValidationResultCreate, session: Session = Depends(get_session)):
+    test = session.get(ValidationTest, test_id)
+    if not test:
+        raise HTTPException(404, "ValidationTest不存在")
+    if test.validation_result:
+        raise HTTPException(409, "该验证已有结果；修改阈值或重新验证请进入下一轮")
+    project = require_project(session, test.project_id)
+    outcome, snapshot = derive_validation_outcome(test, payload.actual_value)
+    result = ValidationResult(project_id=project.id, validation_test_id=test.id, round_number=test.round_number, derived_outcome=outcome, calculation_snapshot=json.dumps(snapshot, ensure_ascii=False), **payload.model_dump())
+    test.status = "completed"
+    test.result = "pass" if outcome == "pass" else ("fail" if outcome == "stop" else "inconclusive")
+    test.result_notes = payload.summary
+    session.add(result)
+    invalidate_project(session, project, "回填ValidationResult并按阈值派生结论")
+    session.flush()
+    audit(session, project.id, "validation_result", result.id, "derived", json.dumps(snapshot, ensure_ascii=False))
+    commit(session)
+    return result
+
+
+@app.get("/api/v1/projects/{project_id}/results", response_model=list[ValidationResultRead])
+def list_validation_results(project_id: str, session: Session = Depends(get_session)):
+    require_project(session, project_id)
+    return session.scalars(select(ValidationResult).where(ValidationResult.project_id == project_id).order_by(ValidationResult.created_at)).all()
+
+
+@app.get("/api/v1/projects/{project_id}/economics")
+def get_economics(project_id: str, session: Session = Depends(get_session)):
+    return economics_snapshot(session, require_project(session, project_id))
 
 
 @app.post("/api/v1/projects/{project_id}/gate", response_model=GateRead, status_code=201)
@@ -327,17 +426,43 @@ def gate_history(project_id: str, session: Session = Depends(get_session)):
 
 
 @app.post("/api/v1/projects/{project_id}/decision", response_model=DecisionRead, status_code=201)
-def generate_decision(project_id: str, session: Session = Depends(get_session)):
+def create_decision(project_id: str, payload: DecisionCreate, session: Session = Depends(get_session)):
     project = require_project(session, project_id)
-    gate = session.scalar(select(GateEvaluation).where(GateEvaluation.project_id == project.id, GateEvaluation.project_revision == project.revision, GateEvaluation.is_stale.is_(False)).order_by(GateEvaluation.evaluated_at.desc()))
-    if not gate:
-        raise HTTPException(409, "必须先生成当前revision的有效Gate")
-    decision = Decision(project_id=project.id, gate_evaluation_id=gate.id, project_revision=project.revision, decision=gate.result, key_reasons=gate.reasons, evidence_gaps=gate.evidence_gaps, next_action=decision_next_action(session, project, gate))
+    gate = session.get(GateEvaluation, payload.gate_evaluation_id)
+    if not gate or gate.project_id != project.id or gate.project_revision != project.revision or gate.is_stale:
+        raise HTTPException(409, "必须基于当前revision的有效Gate进行人工决策")
+    ranks = {"STOP": 0, "SUPPLEMENT": 1, "CONTINUE": 2}
+    if ranks[payload.decision] > ranks[gate.result]:
+        raise HTTPException(422, "人工决策不得比规则Gate更激进")
+    next_action = payload.next_action or decision_next_action(session, project, gate)
+    decision = Decision(project_id=project.id, gate_evaluation_id=gate.id, project_revision=project.revision, round_number=project.current_round, decision=payload.decision, key_reasons=gate.reasons, evidence_gaps=gate.evidence_gaps, next_action=next_action, rationale=payload.rationale, decided_by=payload.decided_by)
     session.add(decision)
     session.flush()
-    audit(session, project.id, "decision", decision.id, "generated", f"decision={decision.decision}")
+    audit(session, project.id, "decision", decision.id, "human_confirmed", f"decision={decision.decision}; decided_by={decision.decided_by}")
     commit(session)
     return decision
+
+
+@app.post("/api/v1/projects/{project_id}/rounds/next", response_model=IterationRoundRead, status_code=201)
+def create_next_round(project_id: str, payload: NextRoundCreate, session: Session = Depends(get_session)):
+    project = require_project(session, project_id)
+    assumptions = session.scalars(select(Assumption).where(Assumption.project_id == project.id, Assumption.id.in_(payload.selected_assumption_ids))).all()
+    if len(assumptions) != len(set(payload.selected_assumption_ids)):
+        raise HTTPException(422, "存在不属于当前项目的Assumption")
+    project.current_round += 1
+    invalidate_project(session, project, "创建下一轮验证")
+    iteration = IterationRound(project_id=project.id, round_number=project.current_round, base_revision=project.revision, selected_assumption_ids=json.dumps(payload.selected_assumption_ids))
+    session.add(iteration)
+    session.flush()
+    audit(session, project.id, "iteration_round", iteration.id, "created", iteration.selected_assumption_ids)
+    commit(session)
+    return iteration
+
+
+@app.get("/api/v1/projects/{project_id}/rounds", response_model=list[IterationRoundRead])
+def list_rounds(project_id: str, session: Session = Depends(get_session)):
+    require_project(session, project_id)
+    return session.scalars(select(IterationRound).where(IterationRound.project_id == project_id).order_by(IterationRound.round_number)).all()
 
 
 @app.get("/api/v1/projects/{project_id}/decision/current", response_model=DecisionRead)
@@ -375,7 +500,11 @@ def export_project(project_id: str, session: Session = Depends(get_session)):
         "evidence": [EvidenceRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(Evidence).where(Evidence.project_id == project.id)).all()],
         "assumptions": [AssumptionRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(Assumption).where(Assumption.project_id == project.id)).all()],
         "links": [LinkRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(EvidenceAssumptionLink).join(Assumption).where(Assumption.project_id == project.id)).all()],
+        "evidence_relations": [EvidenceRelationRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(EvidenceRelation).where(EvidenceRelation.project_id == project.id)).all()],
         "tests": [TestRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(ValidationTest).where(ValidationTest.project_id == project.id)).all()],
+        "validation_results": [ValidationResultRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(ValidationResult).where(ValidationResult.project_id == project.id)).all()],
+        "rounds": [IterationRoundRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(IterationRound).where(IterationRound.project_id == project.id)).all()],
+        "economics": economics_snapshot(session, project),
         "gates": [GateRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(GateEvaluation).where(GateEvaluation.project_id == project.id)).all()],
         "decisions": [DecisionRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(Decision).where(Decision.project_id == project.id)).all()],
         "audit_events": [{"id": item.id, "entity_type": item.entity_type, "entity_id": item.entity_id, "action": item.action, "change_summary": item.change_summary, "created_at": item.created_at.isoformat()} for item in session.scalars(select(AuditEvent).where(AuditEvent.project_id == project.id).order_by(AuditEvent.created_at)).all()],

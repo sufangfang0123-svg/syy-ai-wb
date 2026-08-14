@@ -13,6 +13,7 @@ sys.path.insert(0, str(BACKEND))
 def client(tmp_path, monkeypatch):
     db_path = tmp_path / "test.sqlite3"
     monkeypatch.setenv("NDG_DATABASE_URL", f"sqlite:///{db_path.as_posix()}")
+    monkeypatch.setenv("NDG_DATA_DIR", str(tmp_path / "data"))
     from app import database
     from app.main import app
 

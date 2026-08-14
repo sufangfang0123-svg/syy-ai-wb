@@ -11,7 +11,10 @@ import httpx
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session, selectinload
 
-from .models import Assumption, AuditEvent, Decision, Evidence, EvidenceAssumptionLink, GateEvaluation, Project, ValidationTest, utcnow
+from .models import Assumption, AuditEvent, Decision, Evidence, EvidenceAssumptionLink, EvidenceRelation, GateEvaluation, Project, ValidationResult, ValidationTest, utcnow
+
+RULE_VERSION = "NDG_GATE_V0.3.0"
+DIMENSIONS = ("NEED", "COMMERCIAL", "PRODUCT", "SUPPLY", "COMPLIANCE")
 
 
 def audit(session: Session, project_id: str | None, entity_type: str, entity_id: str, action: str, summary: str) -> None:
@@ -80,7 +83,7 @@ def ensure_public_address(hostname: str, port: int | None = None) -> str:
 async def fetch_public_url(url: str, transport: httpx.AsyncBaseTransport | None = None) -> dict[str, str]:
     current = url
     max_bytes = 1_000_000
-    headers = {"User-Agent": "NextDollarGate/0.2 evidence-import", "Accept": "text/html,text/plain;q=0.9"}
+    headers = {"User-Agent": "NextDollarGate/0.3 evidence-import", "Accept": "text/html,text/plain;q=0.9"}
     async with httpx.AsyncClient(transport=transport, follow_redirects=False, timeout=httpx.Timeout(8.0, connect=4.0), headers=headers) as client:
         for _redirect in range(6):
             parsed = urlsplit(current)
@@ -126,6 +129,31 @@ async def fetch_public_url(url: str, transport: httpx.AsyncBaseTransport | None 
     raise ValueError("重定向次数超过限制")
 
 
+def derive_validation_outcome(test: ValidationTest, actual_value: float) -> tuple[str, dict]:
+    if test.direction == "at_least":
+        outcome = "pass" if actual_value >= test.threshold_value else ("stop" if test.stop_threshold is not None and actual_value <= test.stop_threshold else "supplement")
+    else:
+        outcome = "pass" if actual_value <= test.threshold_value else ("stop" if test.stop_threshold is not None and actual_value >= test.stop_threshold else "supplement")
+    return outcome, {"algorithm": "threshold_v1", "metric": test.metric_name, "unit": test.metric_unit, "direction": test.direction, "baseline": test.baseline_value, "pass_threshold": test.threshold_value, "stop_threshold": test.stop_threshold, "actual": actual_value, "derived_outcome": outcome}
+
+
+def economics_snapshot(session: Session, project: Project) -> dict:
+    assumptions = session.scalars(select(Assumption).where(Assumption.project_id == project.id)).all()
+    tests = session.scalars(select(ValidationTest).where(ValidationTest.project_id == project.id, ValidationTest.round_number == project.current_round)).all()
+    validation_cost = sum(item.estimated_cost for item in tests)
+    potential_values = [item.potential_loss for item in assumptions if item.potential_loss is not None]
+    avoidable_values = [item.avoidable_loss for item in assumptions if item.avoidable_loss is not None]
+    potential_loss = sum(potential_values) if potential_values else None
+    avoidable_loss = sum(avoidable_values) if avoidable_values else None
+    investment_ratio = validation_cost / project.planned_investment if project.planned_investment and project.planned_investment > 0 else None
+    break_even = validation_cost / avoidable_loss if avoidable_loss and avoidable_loss > 0 else None
+    gaps = []
+    if project.planned_investment is None: gaps.append("planned_investment")
+    if potential_loss is None: gaps.append("potential_loss")
+    if avoidable_loss is None: gaps.append("avoidable_loss")
+    return {"currency": project.currency, "planned_investment": project.planned_investment, "validation_cost": validation_cost, "potential_loss": potential_loss, "avoidable_loss": avoidable_loss, "validation_to_planned_investment_ratio": investment_ratio, "validation_to_avoidable_loss_ratio": break_even, "break_even_probability": break_even, "path_comparison": {"direct_investment": {"immediate_cost": project.planned_investment, "loss_exposure": potential_loss}, "validate_first": {"immediate_cost": validation_cost, "potentially_avoidable_loss": avoidable_loss}}, "formulas": {"validation_cost": "sum(current_round estimated_cost)", "validation_to_planned_investment_ratio": "validation_cost / planned_investment", "break_even_probability": "validation_cost / avoidable_loss"}, "rounding": "API保留IEEE-754原值；界面最多展示4位小数", "input_sources": {"planned_investment": "Project", "validation_cost": "ValidationTest.estimated_cost", "potential_loss": "Assumption.potential_loss", "avoidable_loss": "Assumption.avoidable_loss"}, "missing_fields": gaps}
+
+
 def evaluate_gate(session: Session, project: Project) -> GateEvaluation:
     assumptions = session.scalars(
         select(Assumption)
@@ -134,6 +162,7 @@ def evaluate_gate(session: Session, project: Project) -> GateEvaluation:
     ).all()
     rules: list[dict] = []
     gaps: list[str] = []
+    dimension_states: dict[str, str] = {dimension: "SUPPLEMENT" for dimension in DIMENSIONS}
     result = "CONTINUE"
     if not assumptions:
         result = "SUPPLEMENT"
@@ -142,15 +171,18 @@ def evaluate_gate(session: Session, project: Project) -> GateEvaluation:
     for assumption in assumptions:
         confirmed_links = [link for link in assumption.links if link.evidence.status == "confirmed"]
         contradict = [link for link in confirmed_links if link.direction == "contradict" and link.strength >= 4]
-        failed = [test for test in assumption.tests if test.status == "completed" and test.result == "fail"]
+        current_tests = [test for test in assumption.tests if test.round_number == project.current_round]
+        stopped = [test for test in current_tests if test.status == "completed" and test.validation_result and test.validation_result.derived_outcome == "stop"]
         if contradict:
             result = "STOP"
             rules.append({"rule": "STOP-01", "assumption_id": assumption.id, "evidence_ids": [link.evidence_id for link in contradict], "message": "关键假设存在强反对证据"})
-        if failed:
+        if stopped:
             result = "STOP"
-            rules.append({"rule": "STOP-02", "assumption_id": assumption.id, "test_ids": [test.id for test in failed], "message": "关键假设存在失败验证"})
+            dimension_states[assumption.dimension] = "STOP"
+            rules.append({"rule": "STOP-02", "assumption_id": assumption.id, "dimension": assumption.dimension, "test_ids": [test.id for test in stopped], "message": "关键假设指标进入停止阈值"})
         support = [link for link in confirmed_links if link.direction == "support" and link.strength >= 3]
-        passed = [test for test in assumption.tests if test.status == "completed" and test.result == "pass"]
+        passed = [test for test in current_tests if test.status == "completed" and test.validation_result and test.validation_result.derived_outcome == "pass"]
+        supplemented = [test for test in current_tests if test.status == "completed" and test.validation_result and test.validation_result.derived_outcome == "supplement"]
         if not confirmed_links:
             gaps.append(f"{assumption.id}: 缺少已确认Evidence")
             rules.append({"rule": "SUP-02", "assumption_id": assumption.id, "message": "关键假设没有已确认Evidence"})
@@ -160,27 +192,45 @@ def evaluate_gate(session: Session, project: Project) -> GateEvaluation:
         if not passed:
             gaps.append(f"{assumption.id}: 缺少已完成且通过的验证")
             rules.append({"rule": "SUP-04", "assumption_id": assumption.id, "message": "缺少通过验证"})
-        latest = max(assumption.tests, key=lambda item: item.updated_at) if assumption.tests else None
+        latest = max(current_tests, key=lambda item: item.updated_at) if current_tests else None
         latest_inconclusive = latest is not None and latest.result in {"pending", "inconclusive"}
         if latest_inconclusive:
             rules.append({"rule": "SUP-05", "assumption_id": assumption.id, "test_ids": [latest.id], "message": "最新验证待完成或无法判断"})
-        if result != "STOP" and (not confirmed_links or not support or not passed or latest_inconclusive):
+        if result != "STOP" and (not confirmed_links or not support or not passed or supplemented or latest_inconclusive):
             result = "SUPPLEMENT"
+        if dimension_states[assumption.dimension] != "STOP":
+            dimension_states[assumption.dimension] = "CONTINUE" if confirmed_links and support and passed and not supplemented and not latest_inconclusive else "SUPPLEMENT"
+    relations = session.scalars(select(EvidenceRelation).where(EvidenceRelation.project_id == project.id)).all()
+    conflicts = [item for item in relations if item.relation_type == "conflicts"]
+    if conflicts and result != "STOP":
+        result = "SUPPLEMENT"
+        gaps.append("存在尚未解决的证据冲突")
+        rules.append({"rule": "SUP-06", "relation_ids": [item.id for item in conflicts], "message": "存在证据冲突，需人工复核"})
+    for dimension, state in dimension_states.items():
+        if not any(item.dimension == dimension for item in assumptions):
+            gaps.append(f"{dimension}: 缺少关键假设")
+            rules.append({"rule": "DIM-01", "dimension": dimension, "message": "该维度缺少关键假设"})
+            if result != "STOP": result = "SUPPLEMENT"
     snapshot = {
         "project_id": project.id,
         "project_revision": project.revision,
+        "round_number": project.current_round,
+        "rule_version": RULE_VERSION,
+        "dimension_states": dimension_states,
+        "economics": economics_snapshot(session, project),
         "assumptions": [
             {
                 "id": assumption.id,
                 "criticality": assumption.criticality,
                 "links": [{"id": link.id, "evidence_id": link.evidence_id, "status": link.evidence.status, "direction": link.direction, "strength": link.strength} for link in assumption.links],
-                "tests": [{"id": test.id, "status": test.status, "result": test.result} for test in assumption.tests],
+                "dimension": assumption.dimension,
+                "tests": [{"id": test.id, "round": test.round_number, "status": test.status, "derived_outcome": test.validation_result.derived_outcome if test.validation_result else None} for test in assumption.tests],
             }
             for assumption in assumptions
         ],
         "triggered_rules": rules,
     }
-    gate = GateEvaluation(project_id=project.id, project_revision=project.revision, result=result, reasons=json.dumps(rules, ensure_ascii=False), evidence_gaps=json.dumps(gaps, ensure_ascii=False), snapshot=json.dumps(snapshot, ensure_ascii=False))
+    gate = GateEvaluation(project_id=project.id, project_revision=project.revision, round_number=project.current_round, rule_version=RULE_VERSION, result=result, reasons=json.dumps(rules, ensure_ascii=False), evidence_gaps=json.dumps(gaps, ensure_ascii=False), snapshot=json.dumps(snapshot, ensure_ascii=False))
     session.add(gate)
     session.flush()
     audit(session, project.id, "gate", gate.id, "evaluated", f"result={result}; revision={project.revision}")

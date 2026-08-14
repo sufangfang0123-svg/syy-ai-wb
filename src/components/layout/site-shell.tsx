@@ -28,12 +28,12 @@ export function SiteShell({ children }: { children: ReactNode }) {
     return <div className="min-h-screen bg-[#FAF8F5] text-[#2D3436]">
       <header className="site-header"><div className="mx-auto flex h-[72px] max-w-[1360px] items-center gap-5 px-4 sm:px-6 lg:px-8">
         <Brand />
-        <span className="enterprise-preview-badge hidden sm:inline-flex">v0.1.1 · 企业试点演示版</span>
+        <span className="enterprise-preview-badge hidden sm:inline-flex">v0.3.0 · 公开模拟演示</span>
         <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="展示站导航"><a href="#mechanism" className="nav-link">工作原理</a><a href="#case" className="nav-link">棉品模拟案例</a><a href="#versions" className="nav-link">实施状态</a></nav>
         <Link href="/workspace" className="primary-action ml-1"><span className="hidden sm:inline">{config.isPublicDemo ? "进入模拟研究实验室" : "打开本地集成工作区"}</span><span className="sm:hidden">开始体验</span></Link>
       </div></header>
       <main>{children}</main>
-      <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-5 py-6 text-center text-xs leading-6 text-[#636E72]">v0.1.1 Enterprise Preview · Phase 1A-0。当前公开站仅提供方法展示与独立模拟研究实验室，不执行真实采集、真实AI分析或真实项目决策。</footer>
+      <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-5 py-6 text-center text-xs leading-6 text-[#636E72]">v0.3.0 Public Demo。当前公开站仅提供方法展示与独立模拟研究实验室；真实闭环仅在本地集成构建运行。</footer>
     </div>;
   }
 
@@ -52,7 +52,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       {menuOpen && !realOpen ? <nav id="simulation-nav" className="mobile-workflow-nav" aria-label="移动端模拟决策流程">{appNav.map(({ href, label, phase, icon: Icon }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} className={`nav-link justify-start ${pathname.startsWith(href) ? "nav-link-active" : ""}`}><span className="nav-phase">{phase}</span><Icon className="h-4 w-4" />{label}</Link>)}</nav> : null}
     </header>
     <main>{children}</main>
-    <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-4 py-3 text-center text-xs leading-5 text-[#636E72]">{realOpen ? "v0.2.0 Real Vertical Slice MVP · 单用户本地系统，不是多用户生产或企业审批平台。" : "v0.1.1 Enterprise Preview · 独立模拟研究实验室。所有记录均为演示数据，只保存在当前浏览器，不用于生产、投资或经营决策。"}</footer>
+    <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-4 py-3 text-center text-xs leading-5 text-[#636E72]">{realOpen ? "v0.3.0 单企业封闭试点版 · 本地单用户系统，不是多用户生产或企业审批平台。" : "v0.3.0 Public Demo · 独立模拟研究实验室。所有记录均为演示数据，不用于生产、投资或经营决策。"}</footer>
     {!realOpen ? <><NewcomerGuide /><AuditDrawer open={auditOpen} onClose={() => setAuditOpen(false)} /></> : null}
   </div>;
 }
