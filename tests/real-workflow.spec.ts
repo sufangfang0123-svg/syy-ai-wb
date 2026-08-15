@@ -68,6 +68,7 @@ test("URL import rejects local address without fake evidence",async({page})=>{
 
 test("STEP 04B and step navigation fit desktop and mobile viewports",async({page,request},testInfo)=>{
   test.skip(profile!=="local_integrated","local integrated build only");
+  if(!testInfo.project.name.includes("mobile"))await page.setViewportSize({width:1440,height:900});
   const project=await (await request.post(`${api}/projects`,{data:{name:`04B布局-${testInfo.project.name}`,decision_question:"关系表单是否完整可用？",planned_investment:12000,currency:"CNY"}})).json();
   for(const title of ["来源Evidence","目标Evidence"]){
     await request.post(`${api}/projects/${project.id}/evidence/paste`,{data:{title,publisher:"E2E夹具",raw_text:`${title}结构化内容`,applicable_scope:"布局验收",limitations:"脱敏夹具"}});
