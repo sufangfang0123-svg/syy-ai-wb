@@ -24,7 +24,7 @@ export default function WorkspacePage() {
           <label className="form-field"><span>计划投入金额</span><input type="number" value={p.nextInvestmentAmount ?? ""} onChange={(e) => updateProject({ nextInvestmentAmount: e.target.value ? Number(e.target.value) : null })} /></label>
           <label className="form-field"><span>负责人</span><input value={p.owner} onChange={(e) => updateProject({ owner: e.target.value })} /></label>
         </div>
-        <div className="mt-6 flex flex-wrap items-center gap-3"><Link href="/evidence" className="primary-action">保存演示草稿并进入证据库<ArrowRight className="h-4 w-4" /></Link><span className="save-status" role="status" aria-live="polite"><CheckCircle2 className="h-4 w-4" />仅演示草稿保存在当前浏览器</span></div>
+        <div className="mt-6 flex flex-wrap items-center gap-3"><Link href="/evidence" className="primary-action">保存演示草稿并进入证据库<ArrowRight className="h-4 w-4" /></Link><span className="demo-save-badge" role="status" aria-label="保存状态：演示草稿仅保存在当前浏览器"><CheckCircle2 className="h-4 w-4" /><span><strong>保存状态</strong> · 演示草稿仅保存在当前浏览器</span></span></div>
       </section>
       <aside className="space-y-5">
         <section className="decision-summary-card"><p className="section-kicker text-white/55">Current gate</p><div className="mt-3 flex items-center justify-between gap-3"><h2>{recommendationLabel[state.decision.recommendation]}</h2><ShieldAlert className="h-6 w-6" /></div><p className="mt-4 text-sm leading-6 text-white/70">{state.decision.confidenceLimit}</p><div className="mt-5 border-t border-white/10 pt-4"><span>下一笔投入</span><strong>{p.nextInvestmentAmount === null ? "待填写" : `¥${p.nextInvestmentAmount.toLocaleString("zh-CN")}`}</strong><small>{p.nextAction || "尚未填写具体动作"}</small></div></section>

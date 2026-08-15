@@ -1,8 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, Check, Clock3, Download, ShieldAlert, UserCheck } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, Clock3, Printer, ShieldAlert, UserCheck } from "lucide-react";
 import { useDecision } from "@/components/decision/decision-provider";
 import { DataBoundary, WorkspaceHeading, recommendationLabel } from "@/components/decision/workspace-ui";
 import { DecisionRecommendation } from "@/domain/decision-types";
@@ -10,13 +10,20 @@ import { DecisionRecommendation } from "@/domain/decision-types";
 const choices: DecisionRecommendation[] = ["continue", "supplement", "stop"];
 
 export default function DecisionPage() {
-  const { state, confirmDecision } = useDecision();
+  const { state, isHydrated, confirmDecision } = useDecision();
   const { decision, project } = state;
   const test = state.tests.find((item) => item.id === decision.testId);
   const risks = state.assumptions.filter((item) => decision.dangerousAssumptionIds.includes(item.id));
   const [choice, setChoice] = useState<"pending" | DecisionRecommendation>(decision.humanDecision);
   const [note, setNote] = useState(decision.humanNote === "等待责任人确认。" ? "" : decision.humanNote);
   const [message, setMessage] = useState(decision.humanDecision === "pending" ? "" : "已读取负责人最近一次确认");
+  const [printMessage, setPrintMessage] = useState("");
+  useEffect(() => {
+    if (!isHydrated) return;
+    setChoice(decision.humanDecision);
+    setNote(decision.humanNote === "等待责任人确认。" ? "" : decision.humanNote);
+    setMessage((current) => current || (decision.humanDecision === "pending" ? "" : "已读取负责人最近一次确认"));
+  }, [isHydrated, decision.humanDecision, decision.humanNote, decision.humanDecidedAt]);
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (choice === "pending" || !note.trim()) return;
@@ -24,11 +31,15 @@ export default function DecisionPage() {
     setMessage(`已记录“${recommendationLabel[choice]}”，系统建议未被覆盖`);
   };
   const differs = choice !== "pending" && choice !== decision.recommendation;
+  const printDecision = () => {
+    setPrintMessage("已打开系统打印窗口，可选择“另存为PDF”。");
+    window.print();
+  };
 
   return <div className="page-frame">
-    <WorkspaceHeading eyebrow="Pre-investment brief" title="新品投前决策单" description="一页内说明这笔钱该不该花、依据是什么、限制在哪里，以及负责人最终作出了什么决定。" actions={<button className="secondary-action" disabled><Download className="h-4 w-4" />导出（规划）</button>} />
+    <WorkspaceHeading eyebrow="Pre-investment brief" title="新品投前决策单" description="一页内说明这笔钱该不该花、依据是什么、限制在哪里，以及负责人最终作出了什么决定。" actions={<div className="decision-print-actions"><button type="button" className="secondary-action" onClick={printDecision} aria-describedby="decision-print-status"><Printer className="h-4 w-4" />打印 / 保存为PDF</button><span id="decision-print-status" role="status" aria-live="polite">{printMessage}</span></div>} />
     <DataBoundary />
-    <article className="decision-sheet">
+    <article className="decision-sheet" data-print-content>
       <header>
         <div><span className="simulation-chip">模拟决策单 · {decision.id}</span><h2>{project.name}</h2><p>{project.stage} · 演示建议日期 {decision.decidedAt}</p></div>
         <div className="min-w-[160px] space-y-2"><div className={`decision-verdict ${decision.recommendation}`} data-guide="decision-verdict"><span>系统建议（只读）</span><strong>{recommendationLabel[decision.recommendation]}</strong><small>置信程度：{decision.confidence === "high" ? "较高" : decision.confidence === "medium" ? "中等" : "较低"}</small></div><a href="#human-decision" className="secondary-action w-full" data-guide="decision-confirm"><UserCheck className="h-4 w-4" />前往人工确认</a></div>
