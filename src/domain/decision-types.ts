@@ -25,6 +25,7 @@ export interface DecisionEvidence {
   id: string;
   title: string;
   source: string;
+  sourceUrl?: string;
   level: EvidenceLevel;
   observedAt: string;
   sample: string;
@@ -34,6 +35,16 @@ export interface DecisionEvidence {
   conflictsWith?: string;
   projectId: string;
   isDemo: boolean;
+}
+
+export interface DecisionAuditLog {
+  id: string;
+  action: string;
+  object: string;
+  summary: string;
+  createdAt: string;
+  source: "模拟决策流程";
+  isDemo: true;
 }
 
 export interface CriticalAssumption {
@@ -108,6 +119,7 @@ export interface DecisionEngineState {
   tests: NextBestTest[];
   decision: PreInvestmentDecision;
   results: ResultFeedback[];
+  auditLogs: DecisionAuditLog[];
   onboardingStep: number | null;
   onboardingCompleted: boolean;
 }

@@ -26,8 +26,9 @@ async function round(request:APIRequestContext,projectId:string,assumptions:{id:
   return gate;
 }
 
-test("three-round local workflow persists and displays STOP history",async({page,request})=>{
+test("three-round local workflow persists and displays STOP history",async({page,request},testInfo)=>{
   test.skip(profile!=="local_integrated","local integrated build only");
+  test.skip(testInfo.project.name.includes("mobile"),"workflow semantics remain a desktop regression; mobile layout is covered independently");
   await page.goto("/real/");
   await page.getByLabel("项目名称").fill("Playwright v0.3三轮验收");
   await page.getByLabel("决策问题").fill("是否投入下一笔试点费用？");
@@ -63,4 +64,41 @@ test("URL import rejects local address without fake evidence",async({page})=>{
   await page.getByPlaceholder("https://公开可访问页面").fill("http://127.0.0.1/private");
   await page.getByRole("button",{name:"导入单URL"}).click();
   await expect(page.getByTestId("real-workspace").getByRole("alert")).toContainText(/拒绝|内网|回环|保留地址|URL|请求失败/);
+});
+
+test("STEP 04B and step navigation fit desktop and mobile viewports",async({page,request},testInfo)=>{
+  test.skip(profile!=="local_integrated","local integrated build only");
+  const project=await (await request.post(`${api}/projects`,{data:{name:`04B布局-${testInfo.project.name}`,decision_question:"关系表单是否完整可用？",planned_investment:12000,currency:"CNY"}})).json();
+  for(const title of ["来源Evidence","目标Evidence"]){
+    await request.post(`${api}/projects/${project.id}/evidence/paste`,{data:{title,publisher:"E2E夹具",raw_text:`${title}结构化内容`,applicable_scope:"布局验收",limitations:"脱敏夹具"}});
+  }
+  await page.goto("/real/");
+  await page.getByLabel("选择真实项目").selectOption(project.id);
+  const stepLink=page.getByRole("link",{name:"STEP 04B 关系"});
+  await stepLink.click();
+  await expect(stepLink).toHaveAttribute("aria-current","step");
+  await expect(page).toHaveURL(/#real-step-04b$/);
+  const form=page.locator(".evidence-relation-form");
+  await expect(form).toBeVisible();
+  for(const name of ["来源Evidence","目标Evidence","Evidence关系","关系说明"]){await expect(form.getByLabel(name)).toBeVisible();}
+  await expect(form.getByLabel("Evidence关系").locator("option")).toHaveText(["支持","冲突","重复"]);
+  await expect(form.getByRole("button",{name:"记录关系"})).toBeVisible();
+  expect(await page.evaluate(()=>({documentWidth:document.documentElement.scrollWidth,viewportWidth:window.innerWidth}))).toEqual(expect.objectContaining({documentWidth:page.viewportSize()!.width,viewportWidth:page.viewportSize()!.width}));
+});
+
+test("new real Evidence remains unlinked until an explicit human relation",async({page,request},testInfo)=>{
+  test.skip(profile!=="local_integrated","local integrated build only");
+  const project=await (await request.post(`${api}/projects`,{data:{name:`无自动关联-${testInfo.project.name}`,decision_question:"Evidence是否保持未关联？",planned_investment:8000,currency:"CNY"}})).json();
+  const evidence=await (await request.post(`${api}/projects/${project.id}/evidence/paste`,{data:{title:"待人工关联Evidence",publisher:"E2E夹具",raw_text:"新增Evidence不应自动建立因果关系",applicable_scope:"关系验收",limitations:"脱敏夹具"}})).json();
+  await request.post(`${api}/evidence/${evidence.id}/confirm`);
+  await request.post(`${api}/projects/${project.id}/assumptions`,{data:{statement:"待人工判断的关键假设",criticality:5,dimension:"NEED",potential_loss:1000,avoidable_loss:500}});
+  const links=await (await request.get(`${api}/projects/${project.id}/links`)).json();
+  expect(links).toEqual([]);
+  await page.goto("/real/");
+  await page.getByLabel("选择真实项目").selectOption(project.id);
+  const draft=await (await request.post(`${api}/projects/${project.id}/evidence/paste`,{data:{title:"页面提示Evidence",publisher:"E2E夹具",raw_text:"用于页面提示断言",applicable_scope:"关系验收",limitations:"脱敏夹具"}})).json();
+  await page.reload();
+  await page.locator(`#${draft.id}`).getByRole("button",{name:"人工确认"}).click();
+  await expect(page.getByRole("status")).toContainText("仍需建立假设关系后才会影响Gate");
+  expect(await (await request.get(`${api}/projects/${project.id}/links`)).json()).toEqual([]);
 });

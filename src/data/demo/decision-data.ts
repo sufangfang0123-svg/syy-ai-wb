@@ -35,6 +35,7 @@ export const demoDecisionState: DecisionEngineState = {
     id: "DEC-COT-001", projectId: "COT-DEMO-001", decidedAt: "2026-08-08", recommendation: "supplement", confidence: "medium", confidenceLimit: "已有场景证据，但缺少付费与供应链证据，不能支持包装开模。", dangerousAssumptionIds: ["ASM-COST-01", "ASM-SUP-03"], evidenceIds: ["B018", "C087", "C044", "D012"], testId: "NBT-COT-001", rationale: "下一笔1.8万元将固化包装方向；先用1200元真人概念选择验证价格与组织方式，信息增益更高。", modelVersion: "Decision Demo v0.2", ruleVersion: "Next-Dollar Gate R1", owner: "产品负责人（演示）", humanDecision: "pending", humanNote: "等待责任人确认。",
   },
   results: [],
+  auditLogs: [],
   onboardingStep: null,
   onboardingCompleted: false,
 };
