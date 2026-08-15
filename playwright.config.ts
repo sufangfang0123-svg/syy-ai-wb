@@ -11,7 +11,7 @@ export default defineConfig({
     : process.env.CI ? [["html", { open: "never" }], ["list"]] : "list",
   use: {
     baseURL: process.env.TEST_BUILD_PROFILE === "local_integrated" ? "http://127.0.0.1:3000" : "http://127.0.0.1:3011",
-    channel: undefined,
+    channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
