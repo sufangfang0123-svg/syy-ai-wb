@@ -12,6 +12,7 @@ const commands = [
   ["typecheck", "npm run typecheck"],
   ["unit", "npm run test:unit"],
   ["build_public_demo", "npm run build:public"],
+  ["verify_public_artifacts", "npm run verify:public-artifacts"],
   ["build_local_integrated", "npm run build:local"],
   ["e2e_public_demo", "npm run test:e2e:public"],
   ["e2e_local_integrated", "npm run test:e2e:local"],

@@ -1,8 +1,16 @@
-import { expect, test, APIRequestContext } from "@playwright/test";
+import { expect, test, APIRequestContext, Page } from "@playwright/test";
 
 const profile=process.env.TEST_BUILD_PROFILE??"public_demo";
 const api="http://127.0.0.1:8000/api/v1";
 const dimensions=["NEED","COMMERCIAL","PRODUCT","SUPPLY","COMPLIANCE"];
+
+async function createAndOpenProject(page:Page,request:APIRequestContext,name:string){
+  const project=await (await request.post(`${api}/projects`,{data:{name,decision_question:"此项隔离验收是否通过？",planned_investment:50000,currency:"CNY"}})).json();
+  await page.goto("/real/");
+  await page.getByLabel("选择真实项目").selectOption(project.id);
+  await expect(page.getByLabel("选择真实项目")).toHaveValue(project.id);
+  return project.id as string;
+}
 
 async function seed(request:APIRequestContext,projectId:string){
   const assumptions=[];
@@ -29,12 +37,7 @@ async function round(request:APIRequestContext,projectId:string,assumptions:{id:
 test("three-round local workflow persists and displays STOP history",async({page,request},testInfo)=>{
   test.skip(profile!=="local_integrated","local integrated build only");
   test.skip(testInfo.project.name.includes("mobile"),"workflow semantics remain a desktop regression; mobile layout is covered independently");
-  await page.goto("/real/");
-  await page.getByLabel("项目名称").fill("Playwright v0.3三轮验收");
-  await page.getByLabel("决策问题").fill("是否投入下一笔试点费用？");
-  await page.getByLabel("下一笔计划投入（CNY）").fill("50000");
-  await page.getByRole("button",{name:"创建真实项目"}).click();
-  const projectId=await page.getByText(/^prj_/).innerText();
+  const projectId=await createAndOpenProject(page,request,"Playwright v0.3三轮验收");
   const assumptions=await seed(request,projectId);
   expect((await round(request,projectId,assumptions,[45,45,45,45,45])).result).toBe("SUPPLEMENT");
   await request.post(`${api}/projects/${projectId}/rounds/next`,{data:{selected_assumption_ids:assumptions.map(x=>x.id)}});
@@ -47,9 +50,9 @@ test("three-round local workflow persists and displays STOP history",async({page
   expect(await page.evaluate(()=>Object.keys(localStorage))).not.toContain("REAL-DRAFT-001");
 });
 
-test("file import uses draft confirmation and survives reload",async({page})=>{
+test("file import uses draft confirmation and survives reload",async({page,request},testInfo)=>{
   test.skip(profile!=="local_integrated","local integrated build only");
-  await page.goto("/real/");
+  await createAndOpenProject(page,request,`文件导入隔离验收-${testInfo.project.name}`);
   await page.getByLabel("Evidence文件").setInputFiles({name:"e2e-report.csv",mimeType:"text/csv",buffer:Buffer.from("metric,value\nchoice,68")});
   await page.getByRole("button",{name:"导入文件"}).click();
   await expect(page.getByText(/file · 未填写来源 · draft/)).toBeVisible();
@@ -58,9 +61,9 @@ test("file import uses draft confirmation and survives reload",async({page})=>{
   await expect(page.getByText(/file · 未填写来源 · confirmed/)).toBeVisible();
 });
 
-test("URL import rejects local address without fake evidence",async({page})=>{
+test("URL import rejects local address without fake evidence",async({page,request},testInfo)=>{
   test.skip(profile!=="local_integrated","local integrated build only");
-  await page.goto("/real/");
+  await createAndOpenProject(page,request,`URL安全隔离验收-${testInfo.project.name}`);
   await page.getByPlaceholder("https://公开可访问页面").fill("http://127.0.0.1/private");
   await page.getByRole("button",{name:"导入单URL"}).click();
   await expect(page.getByTestId("real-workspace").getByRole("alert")).toContainText(/拒绝|内网|回环|保留地址|URL|请求失败/);

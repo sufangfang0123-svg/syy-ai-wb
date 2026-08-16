@@ -33,6 +33,7 @@ jobs:
           NEXT_PUBLIC_BASE_PATH: /syy-ai-wb
           NEXT_PUBLIC_BUILD_PROFILE: public_demo
           NEXT_PUBLIC_REAL_WORKSPACE_ENABLED: "false"
+      - run: npm run verify:public-artifacts
       - run: npm run build:local
         env:
           NEXT_PUBLIC_BUILD_PROFILE: local_integrated
