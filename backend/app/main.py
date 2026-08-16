@@ -4,22 +4,26 @@ import json
 from contextlib import asynccontextmanager
 
 import httpx
-from fastapi import Depends, FastAPI, File, Form, HTTPException, Response, UploadFile, status
+from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Response, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
-from .database import APP_VERSION, SCHEMA_VERSION, engine, get_session, run_migrations
-from .materials import extract_upload, store_snapshot
-from .models import Assumption, AuditEvent, Decision, Evidence, EvidenceAssumptionLink, EvidenceRelation, GateEvaluation, IterationRound, Project, ValidationResult, ValidationTest, utcnow
-from .schemas import AssumptionCreate, AssumptionRead, AssumptionUpdate, DecisionCreate, DecisionRead, EvidenceCreate, EvidenceRead, EvidenceRelationCreate, EvidenceRelationRead, EvidenceUpdate, GateRead, IterationRoundRead, LinkCreate, LinkRead, NextRoundCreate, PasteEvidenceCreate, ProjectCreate, ProjectRead, ProjectUpdate, TestCreate, TestRead, TestUpdate, UrlEvidenceCreate, ValidationResultCreate, ValidationResultRead
+from .ai import ProviderFailure, get_evidence_extractor, provider_status
+from .copilot_service import candidate_context, create_source_document, mark_interrupted_runs, review_candidate, run_extraction
+from .database import APP_VERSION, SCHEMA_VERSION, SessionLocal, engine, get_session, run_migrations
+from .materials import extract_material, extract_upload, segment_plain_text, store_snapshot
+from .models import AIEvidenceCandidate, AIEvidenceRun, AISourceDocument, Assumption, AuditEvent, Decision, Evidence, EvidenceAssumptionLink, EvidenceRelation, GateEvaluation, IterationRound, Project, ValidationResult, ValidationTest, utcnow
+from .schemas import AICandidateContextRead, AIEvidenceCandidateRead, AIEvidenceReviewCreate, AIEvidenceRunCreate, AIEvidenceRunRead, AISourceFromEvidenceCreate, AISourceRead, AISourceTextCreate, AISourceUrlCreate, AssumptionCreate, AssumptionRead, AssumptionUpdate, DecisionCreate, DecisionRead, EvidenceCreate, EvidenceRead, EvidenceRelationCreate, EvidenceRelationRead, EvidenceUpdate, GateRead, IterationRoundRead, LinkCreate, LinkRead, NextRoundCreate, PasteEvidenceCreate, ProjectCreate, ProjectRead, ProjectUpdate, TestCreate, TestRead, TestUpdate, UrlEvidenceCreate, ValidationResultCreate, ValidationResultRead
 from .services import audit, content_hash, decision_next_action, derive_validation_outcome, economics_snapshot, evaluate_gate, fetch_public_url, invalidate_project
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     run_migrations()
+    with SessionLocal() as session:
+        mark_interrupted_runs(session)
     yield
 
 
@@ -46,6 +50,138 @@ def commit(session: Session) -> None:
 def health(session: Session = Depends(get_session)):
     session.execute(select(func.count()).select_from(Project)).scalar_one()
     return {"status": "ok", "version": APP_VERSION, "database": "ready", "schema_version": SCHEMA_VERSION}
+
+
+@app.get("/api/v1/ai/evidence-copilot/status")
+def ai_evidence_copilot_status():
+    return provider_status()
+
+
+@app.get("/api/v1/projects/{project_id}/ai/sources", response_model=list[AISourceRead])
+def list_ai_sources(project_id: str, session: Session = Depends(get_session)):
+    require_project(session, project_id)
+    return session.scalars(select(AISourceDocument).where(AISourceDocument.project_id == project_id).order_by(AISourceDocument.created_at.desc())).all()
+
+
+@app.post("/api/v1/projects/{project_id}/ai/sources/text", response_model=AISourceRead, status_code=201)
+def create_ai_text_source(project_id: str, payload: AISourceTextCreate, session: Session = Depends(get_session)):
+    project = require_project(session, project_id)
+    try:
+        text, locator_map = segment_plain_text(payload.text)
+        source = create_source_document(session, project, source_kind="text", source_name=payload.source_name, mime_type="text/plain", extracted_text=text, locator_map=locator_map)
+        commit(session)
+        return source
+    except ValueError as exc:
+        _raise_source_error(exc)
+
+
+@app.post("/api/v1/projects/{project_id}/ai/sources/file", response_model=AISourceRead, status_code=201)
+async def create_ai_file_source(project_id: str, file: UploadFile = File(...), session: Session = Depends(get_session)):
+    project = require_project(session, project_id)
+    try:
+        data = await file.read(5 * 1024 * 1024 + 1)
+        extracted = extract_material(file.filename or "", file.content_type, data, allow_manual_verification=True)
+        snapshot = store_snapshot(project.id, str(extracted["sha256"]), str(extracted["suffix"]), data)
+        source = create_source_document(session, project, source_kind="file", source_name=file.filename or "未命名文件", mime_type=str(extracted["mime_type"]), extracted_text=str(extracted["raw_text"]), locator_map=extracted["locator_map"], sha256=str(extracted["sha256"]), extraction_status=str(extracted["extraction_status"]), snapshot_ref=snapshot)  # type: ignore[arg-type]
+        commit(session)
+        return source
+    except ValueError as exc:
+        _raise_source_error(exc)
+
+
+@app.post("/api/v1/projects/{project_id}/ai/sources/url", response_model=AISourceRead, status_code=201)
+async def create_ai_url_source(project_id: str, payload: AISourceUrlCreate, session: Session = Depends(get_session)):
+    project = require_project(session, project_id)
+    try:
+        fetched = await fetch_public_url(str(payload.url))
+        text, locator_map = segment_plain_text(fetched["raw_text"])
+        source = create_source_document(session, project, source_kind="url", source_name=fetched["title"], source_url=fetched["final_url"], mime_type="text/plain", extracted_text=text, locator_map=locator_map)
+        commit(session)
+        return source
+    except (ValueError, httpx.HTTPError) as exc:
+        _raise_source_error(exc)
+
+
+@app.post("/api/v1/projects/{project_id}/ai/sources/from-evidence", response_model=AISourceRead, status_code=201)
+def create_ai_source_from_evidence(project_id: str, payload: AISourceFromEvidenceCreate, session: Session = Depends(get_session)):
+    project = require_project(session, project_id)
+    evidence = session.get(Evidence, payload.evidence_id)
+    if not evidence or evidence.project_id != project.id:
+        raise HTTPException(404, "Evidence不存在或不属于当前项目")
+    try:
+        text, locator_map = segment_plain_text(evidence.raw_text)
+        source = create_source_document(session, project, source_kind="evidence", source_name=evidence.title, source_url=evidence.source_url, mime_type=evidence.mime_type or "text/plain", extracted_text=text, locator_map=locator_map, sha256=evidence.file_sha256 or content_hash(text), snapshot_ref=f"evidence:{evidence.id}")
+        commit(session)
+        return source
+    except ValueError as exc:
+        _raise_source_error(exc)
+
+
+@app.post("/api/v1/projects/{project_id}/ai/evidence-runs", response_model=AIEvidenceRunRead, status_code=201)
+def create_ai_evidence_run(project_id: str, payload: AIEvidenceRunCreate, session: Session = Depends(get_session)):
+    project = require_project(session, project_id)
+    source = session.get(AISourceDocument, payload.source_document_id)
+    if not source or source.project_id != project.id:
+        raise HTTPException(404, "AI来源材料不存在或不属于当前项目")
+    try:
+        return run_extraction(session, project, source, get_evidence_extractor())
+    except ProviderFailure as exc:
+        raise HTTPException(exc.http_status, exc.public_message) from exc
+
+
+@app.get("/api/v1/projects/{project_id}/ai/evidence-runs", response_model=list[AIEvidenceRunRead])
+def list_ai_evidence_runs(project_id: str, session: Session = Depends(get_session)):
+    require_project(session, project_id)
+    return session.scalars(select(AIEvidenceRun).options(selectinload(AIEvidenceRun.candidates)).where(AIEvidenceRun.project_id == project_id).order_by(AIEvidenceRun.created_at.desc())).all()
+
+
+@app.get("/api/v1/projects/{project_id}/ai/evidence-runs/{run_id}", response_model=AIEvidenceRunRead)
+def get_ai_evidence_run(project_id: str, run_id: str, session: Session = Depends(get_session)):
+    require_project(session, project_id)
+    run = session.scalar(select(AIEvidenceRun).options(selectinload(AIEvidenceRun.candidates)).where(AIEvidenceRun.id == run_id, AIEvidenceRun.project_id == project_id))
+    if not run:
+        raise HTTPException(404, "AI运行不存在")
+    return run
+
+
+@app.post("/api/v1/projects/{project_id}/ai/evidence-candidates/{candidate_id}/review", response_model=AIEvidenceCandidateRead)
+def review_ai_evidence_candidate(project_id: str, candidate_id: str, payload: AIEvidenceReviewCreate, idempotency_key: str = Header(..., alias="Idempotency-Key", min_length=8, max_length=128), if_match: str = Header(..., alias="If-Match"), session: Session = Depends(get_session)):
+    project = require_project(session, project_id)
+    try:
+        expected_revision = int(if_match.strip().removeprefix('W/').strip('"'))
+    except ValueError as exc:
+        raise HTTPException(400, "If-Match必须是项目revision整数") from exc
+    if expected_revision != project.revision:
+        raise HTTPException(409, {"message": "项目已被修改，请刷新后重试", "current_revision": project.revision})
+    candidate = session.scalar(select(AIEvidenceCandidate).options(selectinload(AIEvidenceCandidate.run).selectinload(AIEvidenceRun.source_document)).where(AIEvidenceCandidate.id == candidate_id))
+    if not candidate:
+        raise HTTPException(404, "AI候选不存在")
+    try:
+        return review_candidate(session, project, candidate, payload, idempotency_key)
+    except LookupError as exc:
+        raise HTTPException(404, str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(409, str(exc)) from exc
+
+
+@app.get("/api/v1/projects/{project_id}/ai/evidence-candidates/{candidate_id}/context", response_model=AICandidateContextRead)
+def get_ai_candidate_context(project_id: str, candidate_id: str, session: Session = Depends(get_session)):
+    require_project(session, project_id)
+    candidate = session.scalar(select(AIEvidenceCandidate).options(selectinload(AIEvidenceCandidate.run).selectinload(AIEvidenceRun.source_document)).where(AIEvidenceCandidate.id == candidate_id, AIEvidenceRun.project_id == project_id).join(AIEvidenceRun))
+    if not candidate:
+        raise HTTPException(404, "AI候选不存在")
+    return candidate_context(candidate)
+
+
+def _raise_source_error(exc: Exception) -> None:
+    message = str(exc)
+    if message.startswith("duplicate:"):
+        raise HTTPException(409, {"message": "同一项目已存在相同SHA-256的AI来源材料", "source_document_id": message.split(":", 1)[1]}) from exc
+    if "超过" in message and ("MB" in message or "页" in message or "字符" in message or "安全限制" in message):
+        raise HTTPException(413, message) from exc
+    if any(marker in message for marker in ("仅支持", "MIME", "签名", "结构无效")):
+        raise HTTPException(415, message) from exc
+    raise HTTPException(422, message) from exc
 
 
 @app.post("/api/v1/projects", response_model=ProjectRead, status_code=201)
@@ -493,8 +629,10 @@ def decision_trace(project_id: str, session: Session = Depends(get_session)):
 @app.get("/api/v1/projects/{project_id}/export")
 def export_project(project_id: str, session: Session = Depends(get_session)):
     project = require_project(session, project_id)
+    ai_sources = session.scalars(select(AISourceDocument).where(AISourceDocument.project_id == project.id).order_by(AISourceDocument.created_at)).all()
+    ai_runs = session.scalars(select(AIEvidenceRun).options(selectinload(AIEvidenceRun.candidates)).where(AIEvidenceRun.project_id == project.id).order_by(AIEvidenceRun.created_at)).all()
     return {
-        "export_version": "1.0",
+        "export_version": "1.1",
         "exported_at": utcnow().isoformat(),
         "project": ProjectRead.model_validate(project).model_dump(mode="json"),
         "evidence": [EvidenceRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(Evidence).where(Evidence.project_id == project.id)).all()],
@@ -508,4 +646,36 @@ def export_project(project_id: str, session: Session = Depends(get_session)):
         "gates": [GateRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(GateEvaluation).where(GateEvaluation.project_id == project.id)).all()],
         "decisions": [DecisionRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(Decision).where(Decision.project_id == project.id)).all()],
         "audit_events": [{"id": item.id, "entity_type": item.entity_type, "entity_id": item.entity_id, "action": item.action, "change_summary": item.change_summary, "created_at": item.created_at.isoformat()} for item in session.scalars(select(AuditEvent).where(AuditEvent.project_id == project.id).order_by(AuditEvent.created_at)).all()],
+        "ai_provenance": {
+            "notice": "AI原始建议与人工最终动作分开保存；引用匹配不证明材料本身正确。",
+            "sources": [{"id": item.id, "source_kind": item.source_kind, "source_name": item.source_name, "mime_type": item.mime_type, "sha256": item.sha256, "extraction_status": item.extraction_status, "created_at": item.created_at.isoformat()} for item in ai_sources],
+            "runs": [{
+                "id": item.id,
+                "source_document_id": item.source_document_id,
+                "provider": item.provider,
+                "model": item.model,
+                "prompt_version": item.prompt_version,
+                "output_schema_version": item.output_schema_version,
+                "status": item.status,
+                "latency_ms": item.latency_ms,
+                "input_tokens": item.input_tokens,
+                "output_tokens": item.output_tokens,
+                "document_sufficiency": item.document_sufficiency,
+                "abstain_reason": item.abstain_reason,
+                "sanitized_error_code": item.sanitized_error_code,
+                "created_at": item.created_at.isoformat(),
+                "candidates": [{
+                    "id": candidate.id,
+                    "ordinal": candidate.ordinal,
+                    "raw_ai_output": json.loads(candidate.raw_output_json),
+                    "citation_verification_status": candidate.citation_verification_status,
+                    "review_status": candidate.review_status,
+                    "reviewer_note": candidate.reviewer_note,
+                    "human_final": json.loads(candidate.final_review_json) if candidate.final_review_json else None,
+                    "source_manually_verified": candidate.source_manually_verified,
+                    "final_evidence_id": candidate.final_evidence_id,
+                    "reviewed_at": candidate.reviewed_at.isoformat() if candidate.reviewed_at else None,
+                } for candidate in item.candidates],
+            } for item in ai_runs],
+        },
     }

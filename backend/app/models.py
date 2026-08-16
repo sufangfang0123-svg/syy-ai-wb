@@ -38,6 +38,8 @@ class Project(Base):
     gates: Mapped[list["GateEvaluation"]] = relationship(back_populates="project", cascade="all, delete-orphan")
     decisions: Mapped[list["Decision"]] = relationship(back_populates="project", cascade="all, delete-orphan")
     rounds: Mapped[list["IterationRound"]] = relationship(back_populates="project", cascade="all, delete-orphan")
+    ai_sources: Mapped[list["AISourceDocument"]] = relationship(back_populates="project", cascade="all, delete-orphan")
+    ai_runs: Mapped[list["AIEvidenceRun"]] = relationship(back_populates="project", cascade="all, delete-orphan")
     __table_args__ = (
         CheckConstraint("status IN ('active','archived')", name="ck_project_status"),
         CheckConstraint("planned_investment IS NULL OR planned_investment > 0", name="ck_project_investment"),
@@ -78,6 +80,94 @@ class Evidence(Base):
         CheckConstraint("origin_kind IN ('manual','url','paste','file')", name="ck_evidence_origin_kind"),
         CheckConstraint("size_bytes IS NULL OR size_bytes >= 0", name="ck_evidence_size"),
         UniqueConstraint("project_id", "content_hash", name="uq_project_content_hash"),
+    )
+
+
+class AISourceDocument(Base):
+    __tablename__ = "ai_source_documents"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=lambda: new_id("aisrc"))
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    source_kind: Mapped[str] = mapped_column(String(16))
+    source_name: Mapped[str] = mapped_column(String(300))
+    source_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    mime_type: Mapped[str] = mapped_column(String(120), default="text/plain")
+    sha256: Mapped[str] = mapped_column(String(64), index=True)
+    extracted_text: Mapped[str] = mapped_column(Text)
+    locator_map: Mapped[str] = mapped_column(Text)
+    extraction_status: Mapped[str] = mapped_column(String(40), default="READY")
+    snapshot_ref: Mapped[str] = mapped_column(Text, default="database:extracted_text")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    project: Mapped[Project] = relationship(back_populates="ai_sources")
+    runs: Mapped[list["AIEvidenceRun"]] = relationship(back_populates="source_document", cascade="all, delete-orphan")
+    __table_args__ = (
+        CheckConstraint("source_kind IN ('text','file','url','evidence')", name="ck_ai_source_kind"),
+        CheckConstraint("extraction_status IN ('READY','NEEDS_MANUAL_VERIFICATION')", name="ck_ai_source_extraction"),
+        UniqueConstraint("project_id", "sha256", name="uq_ai_source_project_sha"),
+    )
+
+
+class AIEvidenceRun(Base):
+    __tablename__ = "ai_evidence_runs"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=lambda: new_id("airun"))
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    source_document_id: Mapped[str] = mapped_column(ForeignKey("ai_source_documents.id", ondelete="CASCADE"), index=True)
+    provider: Mapped[str] = mapped_column(String(40))
+    model: Mapped[str] = mapped_column(String(120))
+    prompt_version: Mapped[str] = mapped_column(String(40))
+    output_schema_version: Mapped[str] = mapped_column(String(40))
+    status: Mapped[str] = mapped_column(String(24), default="PENDING")
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    latency_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    input_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    output_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    document_sufficiency: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    abstain_reason: Mapped[str] = mapped_column(Text, default="")
+    sanitized_error_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    sanitized_error_message: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    project: Mapped[Project] = relationship(back_populates="ai_runs")
+    source_document: Mapped[AISourceDocument] = relationship(back_populates="runs")
+    candidates: Mapped[list["AIEvidenceCandidate"]] = relationship(back_populates="run", cascade="all, delete-orphan", order_by="AIEvidenceCandidate.ordinal")
+    __table_args__ = (
+        CheckConstraint("status IN ('PENDING','RUNNING','SUCCEEDED','PARTIAL','ABSTAINED','FAILED','TIMED_OUT','INTERRUPTED')", name="ck_ai_run_status"),
+        CheckConstraint("document_sufficiency IS NULL OR document_sufficiency IN ('SUFFICIENT','PARTIAL','INSUFFICIENT')", name="ck_ai_run_sufficiency"),
+    )
+
+
+class AIEvidenceCandidate(Base):
+    __tablename__ = "ai_evidence_candidates"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=lambda: new_id("aicand"))
+    run_id: Mapped[str] = mapped_column(ForeignKey("ai_evidence_runs.id", ondelete="CASCADE"), index=True)
+    ordinal: Mapped[int] = mapped_column(Integer)
+    raw_output_json: Mapped[str] = mapped_column(Text)
+    claim: Mapped[str] = mapped_column(Text)
+    verbatim_quote: Mapped[str] = mapped_column(Text)
+    source_locator: Mapped[str] = mapped_column(Text)
+    matched_segment_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    scope: Mapped[str] = mapped_column(Text)
+    limitations: Mapped[str] = mapped_column(Text)
+    suggested_grade: Mapped[str] = mapped_column(String(16))
+    confidence_indicator: Mapped[str] = mapped_column(String(16))
+    uncertainty_reasons: Mapped[str] = mapped_column(Text)
+    citation_verification_status: Mapped[str] = mapped_column(String(40))
+    review_status: Mapped[str] = mapped_column(String(32), default="PENDING_REVIEW")
+    reviewer_note: Mapped[str] = mapped_column(Text, default="")
+    final_review_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    source_manually_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    review_idempotency_key: Mapped[str | None] = mapped_column(String(128), nullable=True, unique=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    final_evidence_id: Mapped[str | None] = mapped_column(ForeignKey("evidence.id", ondelete="SET NULL"), nullable=True, unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    run: Mapped[AIEvidenceRun] = relationship(back_populates="candidates")
+    final_evidence: Mapped[Evidence | None] = relationship()
+    __table_args__ = (
+        CheckConstraint("ordinal >= 1", name="ck_ai_candidate_ordinal"),
+        CheckConstraint("suggested_grade IN ('A','B','C','D','UNKNOWN')", name="ck_ai_candidate_grade"),
+        CheckConstraint("confidence_indicator IN ('LOW','MEDIUM','HIGH','UNKNOWN')", name="ck_ai_candidate_confidence"),
+        CheckConstraint("citation_verification_status IN ('VERIFIED','NEEDS_MANUAL_VERIFICATION','INVALID')", name="ck_ai_candidate_citation"),
+        CheckConstraint("review_status IN ('PENDING_REVIEW','ACCEPTED','EDITED_AND_ACCEPTED','REJECTED')", name="ck_ai_candidate_review"),
+        UniqueConstraint("run_id", "ordinal", name="uq_ai_candidate_run_ordinal"),
     )
 
 

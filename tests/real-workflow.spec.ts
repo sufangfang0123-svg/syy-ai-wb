@@ -103,6 +103,6 @@ test("new real Evidence remains unlinked until an explicit human relation",async
   const draft=await (await request.post(`${api}/projects/${project.id}/evidence/paste`,{data:{title:"页面提示Evidence",publisher:"E2E夹具",raw_text:"用于页面提示断言",applicable_scope:"关系验收",limitations:"脱敏夹具"}})).json();
   await page.reload();
   await page.locator(`#${draft.id}`).getByRole("button",{name:"人工确认"}).click();
-  await expect(page.getByRole("status")).toContainText("仍需建立假设关系后才会影响Gate");
+  await expect(page.getByRole("status").filter({hasText:"仍需建立假设关系后才会影响Gate"})).toBeVisible();
   expect(await (await request.get(`${api}/projects/${project.id}/links`)).json()).toEqual([]);
 });

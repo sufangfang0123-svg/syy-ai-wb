@@ -107,6 +107,100 @@ class EvidenceRead(ORMModel):
     updated_at: datetime
 
 
+class AISourceTextCreate(BaseModel):
+    source_name: str = Field(min_length=2, max_length=300)
+    text: str = Field(min_length=1, max_length=1_000_000)
+
+
+class AISourceUrlCreate(BaseModel):
+    url: HttpUrl
+
+
+class AISourceFromEvidenceCreate(BaseModel):
+    evidence_id: str = Field(min_length=3, max_length=40)
+
+
+class AISourceRead(ORMModel):
+    id: str
+    project_id: str
+    source_kind: Literal["text", "file", "url", "evidence"]
+    source_name: str
+    source_url: str | None
+    mime_type: str
+    sha256: str
+    extraction_status: Literal["READY", "NEEDS_MANUAL_VERIFICATION"]
+    snapshot_ref: str
+    created_at: datetime
+
+
+class AIEvidenceRunCreate(BaseModel):
+    source_document_id: str = Field(min_length=3, max_length=40)
+
+
+class AIEvidenceCandidateRead(ORMModel):
+    id: str
+    run_id: str
+    ordinal: int
+    claim: str
+    verbatim_quote: str
+    source_locator: str
+    matched_segment_id: str | None
+    scope: str
+    limitations: str
+    suggested_grade: Literal["A", "B", "C", "D", "UNKNOWN"]
+    confidence_indicator: Literal["LOW", "MEDIUM", "HIGH", "UNKNOWN"]
+    uncertainty_reasons: str
+    citation_verification_status: Literal["VERIFIED", "NEEDS_MANUAL_VERIFICATION", "INVALID"]
+    review_status: Literal["PENDING_REVIEW", "ACCEPTED", "EDITED_AND_ACCEPTED", "REJECTED"]
+    reviewer_note: str
+    source_manually_verified: bool
+    reviewed_at: datetime | None
+    final_evidence_id: str | None
+    created_at: datetime
+
+
+class AIEvidenceRunRead(ORMModel):
+    id: str
+    project_id: str
+    source_document_id: str
+    provider: str
+    model: str
+    prompt_version: str
+    output_schema_version: str
+    status: Literal["PENDING", "RUNNING", "SUCCEEDED", "PARTIAL", "ABSTAINED", "FAILED", "TIMED_OUT", "INTERRUPTED"]
+    started_at: datetime | None
+    completed_at: datetime | None
+    latency_ms: int | None
+    input_tokens: int | None
+    output_tokens: int | None
+    document_sufficiency: Literal["SUFFICIENT", "PARTIAL", "INSUFFICIENT"] | None
+    abstain_reason: str
+    sanitized_error_code: str | None
+    sanitized_error_message: str | None
+    created_at: datetime
+    candidates: list[AIEvidenceCandidateRead] = Field(default_factory=list)
+
+
+class AIEvidenceReviewCreate(BaseModel):
+    action: Literal["ACCEPT", "EDIT_AND_ACCEPT", "REJECT"]
+    reviewer_note: str = Field(default="", max_length=5_000)
+    manual_source_verified: bool = False
+    claim: str | None = Field(default=None, min_length=1, max_length=2_000)
+    verbatim_quote: str | None = Field(default=None, min_length=1, max_length=4_000)
+    scope: str | None = Field(default=None, min_length=1, max_length=2_000)
+    limitations: str | None = Field(default=None, min_length=1, max_length=2_000)
+
+
+class AICandidateContextRead(BaseModel):
+    candidate_id: str
+    source_document_id: str
+    segment_id: str | None
+    locator: dict
+    context: str
+    citation_verification_status: str
+    warning: str
+
+
 class EvidenceRelationCreate(BaseModel):
     source_evidence_id: str
     target_evidence_id: str

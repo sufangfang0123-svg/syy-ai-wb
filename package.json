@@ -1,6 +1,6 @@
 {
   "name": "evolution-lab-next-dollar-gate",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "private": true,
   "scripts": {
     "dev": "npm run dev:public",
@@ -10,6 +10,7 @@
     "dev:integrated": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-integrated.ps1",
     "test:backend:serve": "node scripts/start-test-backend.mjs",
     "test:backend": "backend\\.venv\\Scripts\\python.exe -m pytest backend\\tests -q",
+    "test:ai": "backend\\.venv\\Scripts\\python.exe -m pytest backend\\tests\\test_ai_evidence.py backend\\tests\\test_ai_eval.py -q",
     "build": "npm run build:public",
     "build:public": "cross-env NEXT_PUBLIC_BUILD_PROFILE=public_demo NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=false next build",
     "build:local": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true next build",
@@ -19,8 +20,9 @@
     "test:unit": "vitest run tests/unit",
     "test:e2e": "npm run test:e2e:public",
     "test:e2e:public": "cross-env NEXT_PUBLIC_BUILD_PROFILE=public_demo NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=false TEST_BUILD_PROFILE=public_demo PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/phase1a0/playwright-public.json playwright test --output=test-results/pw-public",
-    "test:e2e:local": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true TEST_BUILD_PROFILE=local_integrated PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/phase1a0/playwright-local.json playwright test tests/phase1a0.spec.ts tests/real-workflow.spec.ts tests/competition-uat.spec.ts --output=test-results/pw-local",
+    "test:e2e:local": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true TEST_BUILD_PROFILE=local_integrated PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/phase1a0/playwright-local.json playwright test tests/phase1a0.spec.ts tests/real-workflow.spec.ts tests/competition-uat.spec.ts tests/evidence-copilot.spec.ts --output=test-results/pw-local",
     "test:uat:competition": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true TEST_BUILD_PROFILE=local_integrated UAT_CAPTURE=1 playwright test tests/competition-uat.spec.ts --project=desktop-chromium --workers=1 --output=test-results/pw-uat",
+    "test:uat:ai-real": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true TEST_BUILD_PROFILE=local_integrated NDG_REAL_AI_UAT=1 playwright test tests/evidence-copilot-real-uat.spec.ts --project=desktop-chromium --workers=1 --output=test-results/pw-ai-real-uat",
     "verify:public-artifacts": "node scripts/verify-public-artifacts.mjs",
     "verify:phase1a0": "node scripts/verify-phase1a0.mjs",
     "check": "npm run verify:phase1a0"

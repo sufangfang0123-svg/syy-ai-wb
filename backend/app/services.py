@@ -83,12 +83,16 @@ def ensure_public_address(hostname: str, port: int | None = None) -> str:
 async def fetch_public_url(url: str, transport: httpx.AsyncBaseTransport | None = None) -> dict[str, str]:
     current = url
     max_bytes = 1_000_000
-    headers = {"User-Agent": "NextDollarGate/0.3 evidence-import", "Accept": "text/html,text/plain;q=0.9"}
-    async with httpx.AsyncClient(transport=transport, follow_redirects=False, timeout=httpx.Timeout(8.0, connect=4.0), headers=headers) as client:
+    headers = {"User-Agent": "NextDollarGate/0.4 evidence-import", "Accept": "text/html,text/plain;q=0.9"}
+    async with httpx.AsyncClient(transport=transport, follow_redirects=False, timeout=httpx.Timeout(8.0, connect=4.0), headers=headers, trust_env=False) as client:
         for _redirect in range(6):
             parsed = urlsplit(current)
             if parsed.scheme not in {"http", "https"} or not parsed.hostname:
                 raise ValueError("仅允许公开的 http 或 https URL")
+            if parsed.username is not None or parsed.password is not None:
+                raise ValueError("URL不得包含用户凭据")
+            if parsed.port not in {None, 80, 443}:
+                raise ValueError("URL仅允许标准HTTP或HTTPS端口")
             pinned_ip = ensure_public_address(parsed.hostname, parsed.port)
             port = parsed.port or (443 if parsed.scheme == "https" else 80)
             host_header = parsed.hostname if parsed.port is None else f"{parsed.hostname}:{parsed.port}"
