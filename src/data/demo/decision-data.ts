@@ -32,7 +32,7 @@ export const demoDecisionState: DecisionEngineState = {
     { id: "NBT-COT-001", projectId: "COT-DEMO-001", assumptionId: "ASM-COST-01", hypothesis: "在相同内容物下，按日组合方案能获得足以支持便携溢价的真人选择。", primaryVariable: "包装组织方式：按日组合 vs 普通分装", baseline: "同内容物、普通透明分装袋、59元", controls: ["内容物数量一致", "视觉风格一致", "说明文案一致", "不展示品牌"], budget: 1200, duration: "3个工作日", sample: "计划招募24名目标用户进行受控概念选择", passThreshold: "至少60%选择按日组合，且价格理由不是促销。", supplementThreshold: "40%—59%选择，需要补充价格或场景证据。", stopThreshold: "低于40%选择，暂停包装开模。", status: "proposed", evidenceLevel: "B", isDigital: false },
   ],
   decision: {
-    id: "DEC-COT-001", projectId: "COT-DEMO-001", decidedAt: "2026-08-08", recommendation: "supplement", confidence: "medium", confidenceLimit: "模拟场景夹具尚缺付费与供应链证据，不能支持包装开模。", dangerousAssumptionIds: ["ASM-COST-01", "ASM-SUP-03"], evidenceIds: ["B018", "C087", "C044", "D012"], testId: "NBT-COT-001", rationale: "下一笔1.8万元将固化包装方向；演示建议先设计1200元真人概念选择，实际执行与金额由责任人确认。", modelVersion: "DEMO_FIXTURE_V0.3.1", ruleVersion: "DEMO_RULE_R1（非真实Gate）", owner: "产品负责人（演示）", humanDecision: "pending", humanNote: "等待责任人确认。",
+    id: "DEC-COT-001", projectId: "COT-DEMO-001", decidedAt: "2026-08-08", recommendation: "supplement", confidence: "medium", confidenceLimit: "模拟场景夹具尚缺付费与供应链证据，不能支持包装开模。", dangerousAssumptionIds: ["ASM-COST-01", "ASM-SUP-03"], evidenceIds: ["B018", "C087", "C044", "D012"], testId: "NBT-COT-001", rationale: "下一笔1.8万元将固化包装方向；固定演示夹具已记录1200元真人概念选择方案，实际执行、金额和顺序由责任人确认。", modelVersion: "DEMO_FIXTURE_V0.3.1", ruleVersion: "DEMO_RULE_R1（非真实Gate）", owner: "产品负责人（演示）", humanDecision: "pending", humanNote: "等待责任人确认。",
   },
   results: [],
   auditLogs: [],

@@ -37,6 +37,10 @@ test("five-step guide stays usable, traps focus and restores it", async ({ page 
     const overlapWidth = Math.max(0, Math.min(panel!.x + panel!.width, target!.x + target!.width) - Math.max(panel!.x, target!.x));
     const overlapHeight = Math.max(0, Math.min(panel!.y + panel!.height, target!.y + target!.height) - Math.max(panel!.y, target!.y));
     expect(overlapWidth * overlapHeight).toBe(0);
+    if (index === 3) {
+      await expect(dialog).toContainText("记录验证方案");
+      await expect(dialog).toContainText("不自动生成实验");
+    }
     if (index < 4) await dialog.getByRole("button", { name: "下一步" }).click();
   }
 

@@ -7,7 +7,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Evolution Lab · Next-Dollar Gate v0.3.1",
-  description: "新品投前决策与下一证据引擎；公开模拟展示与单企业本地封闭试点说明。",
+  description: "新品投前决策与证据验证工作台；公开模拟展示与单企业本地封闭试点说明。",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

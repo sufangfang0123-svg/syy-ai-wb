@@ -1,7 +1,7 @@
 import { expect, Page, test } from "@playwright/test";
 
 const profile = process.env.TEST_BUILD_PROFILE ?? "public_demo";
-const routes = ["/", "/workspace/", "/proof/", "/pilot/", "/decision/", "/results/", "/real/"];
+const routes = ["/", "/workspace/", "/proof/", "/pilot/", "/assumptions/", "/tests/", "/decision/", "/results/", "/real/"];
 
 async function closeGuide(page: Page) {
   await page.waitForTimeout(500);
@@ -58,4 +58,31 @@ test("public delivery pages expose no empty or unexplained controls", async ({ p
       if ((await control.evaluate((node) => node.tagName)) === "A") expect(await control.getAttribute("href")).not.toBe("");
     }
   }
+});
+
+test("public copy does not claim automatic NBT or experiment generation", async ({ page }) => {
+  test.setTimeout(60_000);
+  test.skip(profile !== "public_demo", "public delivery build only");
+  const claims = /Next-Best-Test|NBT-COT-001|推荐下一项证据|推荐最低成本验证|下一项最低成本验证|最低成本下一项验证|只推荐一个成本最低|尚不能推荐实验|自动推荐实验|自动生成验证方案|决定下一项证据|下一项建议动作/;
+  await page.goto("/workspace/");
+  await closeGuide(page);
+  for (const route of ["/", "/proof/", "/assumptions/", "/tests/", "/decision/", "/results/"]) {
+    await page.goto(route);
+    await closeGuide(page);
+    await expect(page.locator("body"), `${route} must not overstate automatic selection`).not.toContainText(claims);
+  }
+
+  await page.goto("/");
+  await expect(page.getByText("明确下一项待补证据。", { exact: true })).toBeVisible();
+  await expect(page.getByText("设计最低成本验证", { exact: true })).toBeVisible();
+  await page.goto("/proof/");
+  await expect(page.getByText("明确下一项待补证据", { exact: true })).toBeVisible();
+  await expect(page.getByText(/只会从负责人已录入的验证方案中给出执行顺序/)).toBeVisible();
+  await page.goto("/tests/");
+  await expect(page.getByRole("heading", { name: "验证方案记录" })).toBeVisible();
+  await expect(page.getByText(/不表示系统已自动生成实验或找到全局最低成本方案/)).toBeVisible();
+  await page.goto("/decision/");
+  await expect(page.getByText("已记录的验证方案", { exact: true })).toBeVisible();
+  await page.goto("/results/");
+  await expect(page.getByText("已记录的下一步动作", { exact: true })).toBeVisible();
 });
