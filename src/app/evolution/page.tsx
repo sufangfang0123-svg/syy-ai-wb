@@ -1,77 +1,38 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { AlertOctagon, ArrowRight, Check, ChevronRight, Dna, GitBranch, Lock, LockOpen, RotateCw, ShieldAlert, Sparkles, X } from "lucide-react";
-import { useEvolution } from "@/components/demo/evolution-provider";
-import { DecisionProvenanceDrawer } from "@/components/evidence/decision-provenance-drawer";
-import { EvidenceBadge } from "@/components/evidence/evidence-badge";
-import { FitnessRing } from "@/components/evolution/fitness-ring";
-import { FITNESS_LABELS, GENOME_LABELS } from "@/domain/constants";
-import { FitnessDimensionKey, GateStatus, GenomeCategory, ProductVersion } from "@/domain/types";
-
-const categories = Object.keys(GENOME_LABELS) as GenomeCategory[];
-const impactPresets = [
-  { id: "compact", category: "G5" as const, valueId: "g5-3", label: "小体积包装", impacts: { demand: 3, differentiation: 3, communication: 4, commercial: -2, supply: -3 } },
-  { id: "one-hand", category: "G5" as const, valueId: "g5-2", label: "强化单手取用", impacts: { pain: 4, differentiation: 2, communication: 2, supply: -1 } },
-  { id: "refill", category: "G8" as const, valueId: "g8-2", label: "增加补充装", impacts: { brand: 2, commercial: 3, supply: -2, compliance: 1 } },
-];
-
-interface MutationFeedback {
-  label: string;
-  gene: string;
-  before: number;
-  after?: number;
-  impacts: string;
-}
+import Link from "next/link";
+import { useState } from "react";
+import { AlertTriangle, ArrowRight, Check, GitCompareArrows, Lock, PencilLine, ShieldAlert } from "lucide-react";
+import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { ProductConceptCandidate } from "@/domain/product-workbench-types";
 
 export default function EvolutionPage() {
-  const { state, currentVersion, toggleGenomeValue, toggleGenomeLock, createMutation, setGateStatus } = useEvolution();
-  const [activeVersionId, setActiveVersionId] = useState(currentVersion.id);
-  const [metric, setMetric] = useState<FitnessDimensionKey | null>(null);
-  const [mutationId, setMutationId] = useState(impactPresets[0].id);
-  const [price, setPrice] = useState(79);
-  const [treeNode, setTreeNode] = useState<ProductVersion | null>(null);
-  const [mutationFeedback, setMutationFeedback] = useState<MutationFeedback | null>(null);
-  const displayedVersion = state.versions.find((item) => item.id === activeVersionId) ?? currentVersion;
-  const selectedMutation = impactPresets.find((item) => item.id === mutationId) ?? impactPresets[0];
-  const evidence = state.evidence.filter((item) => displayedVersion.fitness.evidenceIds.includes(item.id));
-  const hardFail = state.gates.some((gate) => gate.mode === "hard" && gate.status === "FAIL");
-  const timeline = state.versions.filter((item) => item.opportunityId === "OP-01");
-
-  const priceImpact = useMemo(() => price <= 59 ? { demand: 3, commercial: -5 } : price >= 99 ? { demand: -5, commercial: 3 } : { demand: 0, commercial: 0 }, [price]);
-  const combinedImpacts = { ...selectedMutation.impacts, demand: (selectedMutation.impacts.demand ?? 0) + priceImpact.demand, commercial: (selectedMutation.impacts.commercial ?? 0) + priceImpact.commercial };
-
-  useEffect(() => setActiveVersionId(currentVersion.id), [currentVersion.id]);
-  useEffect(() => {
-    setMutationFeedback((current) => current && current.after === undefined ? { ...current, after: currentVersion.fitness.finalFitness } : current);
-  }, [currentVersion.fitness.finalFitness, currentVersion.id]);
-
-  const create = () => {
-    setMutationFeedback({
-      label: `${selectedMutation.label} · 价格${price}元`,
-      gene: `${selectedMutation.category} / ${GENOME_LABELS[selectedMutation.category].title}`,
-      before: currentVersion.fitness.finalFitness,
-      impacts: (Object.entries(combinedImpacts) as [FitnessDimensionKey, number][]).map(([key, value]) => `${FITNESS_LABELS[key]} ${value >= 0 ? "+" : ""}${value}`).join("、"),
-    });
-    createMutation({ category: selectedMutation.category, valueId: selectedMutation.valueId, label: `${selectedMutation.label} · 价格${price}元`, impacts: combinedImpacts });
-  };
-
-  return <div className="page-frame"><div className="page-heading"><div><p className="section-kicker">Evolution Laboratory</p><h1 className="section-title">产品进化</h1><p className="page-description">让产品物种在证据约束下变异、竞争、淘汰和校准。</p></div><div className="flex items-center gap-2"><span className="simulation-chip">D级模拟 · 仅用于预筛</span><EvidenceBadge level={displayedVersion.evidenceLevel} /></div></div>
-
-    <section className="evolution-timeline"><div className="mb-5 flex items-center justify-between"><div><p className="section-kicker">Evolution Timeline</p><h2 className="text-xl font-semibold">版本谱系</h2></div><p className="text-xs text-[#636E72]">选择版本，工作台同步切换</p></div><div className="timeline-row" role="list" aria-label="产品版本谱系">{timeline.map((version, index) => <div key={version.id} className="timeline-branch" role="listitem"><button onClick={() => setActiveVersionId(version.id)} aria-pressed={displayedVersion.id === version.id} className={`version-node version-${version.status} ${displayedVersion.id === version.id ? "version-node-active" : ""}`}><span className="version-dot">{version.status === "survivor" ? <Check className="h-3 w-3" /> : version.status === "eliminated" ? <X className="h-3 w-3" /> : <RotateCw className="h-3 w-3" />}</span><span className="version-copy"><b>{version.label}</b><small>{version.fitness.finalFitness} Fitness</small><em>{version.status === "survivor" ? "幸存" : version.status === "eliminated" ? "淘汰" : "测试中"}</em></span><span className="version-mutation">{version.mutation}</span></button>{index < timeline.length - 1 ? <ChevronRight className="timeline-arrow h-5 w-5 shrink-0" /> : null}</div>)}</div></section>
-
-    <div className="mt-6 grid gap-6 xl:grid-cols-[.85fr_1.15fr]"><section className="data-surface rounded-[24px] p-6"><div className="flex items-start justify-between"><div><p className="section-kicker">Fitness Dashboard</p><h2 className="text-xl font-semibold">{displayedVersion.name} {displayedVersion.label}</h2><p className="mt-1 text-xs text-[#636E72]">{hardFail ? "Hard Gate失败：状态直接REJECTED" : displayedVersion.status === "survivor" ? "当前幸存物种" : displayedVersion.status === "eliminated" ? "已进入失败谱系" : "实验中"}</p></div><button onClick={() => setMetric("demand")} aria-label="展开适应度证据链"><FitnessRing value={displayedVersion.fitness.finalFitness} size={126} /></button></div><div className="formula-grid"><Formula label="Raw Fitness" value={displayedVersion.fitness.rawFitness} /><span>×</span><Formula label="Evidence Factor" value={displayedVersion.fitness.evidenceFactor.toFixed(2)} /><span>−</span><Formula label="Risk Penalty" value={displayedVersion.fitness.riskPenalty} /><span>=</span><Formula label="Final Fitness" value={displayedVersion.fitness.finalFitness} strong /></div><div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">{(Object.entries(displayedVersion.fitness.dimensions) as [FitnessDimensionKey, number][]).map(([key, value]) => <button key={key} onClick={() => setMetric(key)} className="fitness-metric"><span>{FITNESS_LABELS[key]}</span><b>{value}</b><i style={{ width: `${value}%` }} /></button>)}</div><p className="mt-4 rounded-lg bg-[#F3F1EC] p-3 text-xs leading-5 text-[#636E72]">Final Fitness = Raw Fitness × Evidence Factor − Risk Penalty。任何 Hard Gate = FAIL 时停止评分并直接淘汰。</p></section>
-
-      <section className="evolution-surface rounded-[24px] p-6"><div className="flex items-start justify-between"><div><p className="section-kicker text-[#A8D5BA]">Mutation Simulator</p><h2 className="text-xl font-semibold text-white">运行一次基因变异</h2></div><span className="simulation-chip border-white/15 bg-white/10 text-white">D级模拟</span></div><div className="mt-5 grid gap-5 md:grid-cols-[.8fr_1.2fr]"><div><label className="field-label">变异方案</label><div className="space-y-2">{impactPresets.map((preset) => <button key={preset.id} onClick={() => setMutationId(preset.id)} className={`mutation-option ${mutationId === preset.id ? "mutation-option-active" : ""}`}><Sparkles className="h-4 w-4" />{preset.label}</button>)}</div><label className="field-label mt-5">价格情景：{price}元</label><input type="range" min="49" max="109" step="10" value={price} onChange={(event) => setPrice(Number(event.target.value))} className="w-full accent-[#A8D5BA]" aria-label="价格情景" /><div className="mt-1 flex justify-between text-[10px] text-white/45"><span>谨慎 49</span><span>基准 79</span><span>进取 109</span></div></div><div><p className="field-label">Mutation Impact Matrix</p><div className="grid grid-cols-2 gap-2">{(Object.entries(combinedImpacts) as [FitnessDimensionKey, number][]).map(([key, value]) => <div key={key} className="impact-cell"><span>{FITNESS_LABELS[key]}</span><b className={value >= 0 ? "text-[#A8D5BA]" : "text-[#F0A9A4]"}>{value >= 0 ? "+" : ""}{value}</b></div>)}</div><button onClick={create} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#A8D5BA] px-4 py-3 text-sm font-semibold text-[#244936] hover:bg-[#BCE2C9]"><Dna className="h-4 w-4" />创建下一代版本<ArrowRight className="h-4 w-4" /></button></div></div>{mutationFeedback ? <div className="mutation-feedback" role="status" aria-live="polite"><div><span>已改变基因</span><strong>{mutationFeedback.gene}</strong></div><div><span>适应度变化</span><strong>{mutationFeedback.before} → {mutationFeedback.after ?? "计算中"}{mutationFeedback.after !== undefined ? `（${mutationFeedback.after - mutationFeedback.before >= 0 ? "+" : ""}${mutationFeedback.after - mutationFeedback.before}）` : ""}</strong></div><div><span>影响维度</span><strong>{mutationFeedback.impacts}</strong></div><div><span>门禁与下一步</span><strong>{hardFail ? "Hard Gate 失败，进入淘汰谱系" : "进入五门预审；优先补充价格与供应链证据"}</strong></div></div> : null}</section></div>
-
-    <section className="mt-6 rounded-[24px] border border-[#DFE6E9] bg-white p-6"><div className="mb-5"><p className="section-kicker">Genome Workbench</p><h2 className="text-xl font-semibold">八类棉基因</h2><p className="mt-1 text-xs text-[#636E72]">选择基因会改变当前版本；锁定后变异操作不会覆盖该值。</p></div><div className="genome-grid">{categories.map((category) => <article key={category} className="genome-card"><div className="mb-3 flex items-start justify-between"><div><span className="font-mono text-xs font-bold text-[#5B8C5A]">{category}</span><h3 className="text-sm font-semibold">{GENOME_LABELS[category].title}</h3></div><Dna className="h-4 w-4 text-[#9CAB9F]" /></div><p className="mb-3 text-[10px] text-[#7D8B85]">{GENOME_LABELS[category].subtitle}</p><div className="space-y-1.5">{displayedVersion.genome[category].map((value) => <div key={value.id} className={`genome-value ${value.selected ? "genome-value-selected" : ""}`}><button onClick={() => toggleGenomeValue(category, value.id)} disabled={displayedVersion.id !== currentVersion.id || value.locked} className="flex min-w-0 flex-1 items-center gap-2 text-left disabled:cursor-not-allowed"><span className="gene-check">{value.selected ? <Check className="h-3 w-3" /> : null}</span><span className="truncate">{value.label}</span>{!value.verified ? <em>待确认</em> : null}</button><button onClick={() => toggleGenomeLock(category, value.id)} disabled={displayedVersion.id !== currentVersion.id} className="p-1 text-[#7D8B85] disabled:opacity-30" aria-label={`${value.locked ? "解锁" : "锁定"}${value.label}`}>{value.locked ? <Lock className="h-3.5 w-3.5" /> : <LockOpen className="h-3.5 w-3.5" />}</button></div>)}</div></article>)}</div></section>
-
-    <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_1fr]"><section className="rounded-[24px] border border-[#DFE6E9] bg-white p-6"><div className="mb-5 flex items-center justify-between"><div><p className="section-kicker">Five Decision Gates</p><h2 className="text-xl font-semibold">五道否决（模拟夹具）</h2></div>{hardFail ? <span className="status-badge status-fail"><AlertOctagon className="h-3.5 w-3.5" />REJECTED</span> : <span className="status-badge status-warning"><ShieldAlert className="h-3.5 w-3.5" />HUMAN REVIEW</span>}</div><p className="data-caution">本页仅演示门禁交互。真实Gate由NDG_GATE_V0.3.0确定性规则计算，人工负责人作最终决定；当前没有AI模型参与Gate。</p><div className="mt-4 space-y-3">{state.gates.map((gate) => <article key={gate.id} className={`gate-card gate-card-${gate.status.toLowerCase()}`}><div className="flex flex-wrap items-center gap-3"><span className="gate-code">{gate.id}</span><div className="min-w-[140px] flex-1"><div className="flex items-center gap-2"><h3 className="text-sm font-semibold">{gate.name}</h3><span className={`mode-chip mode-${gate.mode}`}>{gate.mode === "hard" ? "Hard Gate" : "Soft Gate"}</span></div><p className="mt-1 text-[11px] text-[#636E72]">{gate.reason}</p></div><div className="segmented segmented-small">{(["PASS", "WARNING", "FAIL"] as GateStatus[]).map((status) => <button key={status} onClick={() => setGateStatus(gate.id, status)} className={gate.status === status ? "active" : ""}>{status}</button>)}</div></div><div className="mt-2 grid gap-1 text-[10px] text-[#7D8B85] sm:grid-cols-2"><p>模拟辅助说明：{gate.aiRole}</p><p>最终责任人：{gate.owner}</p></div></article>)}</div></section>
-
-      <section className="rounded-[24px] border border-[#DFE6E9] bg-[#F3F1EC] p-6"><div className="mb-5"><p className="section-kicker">Evolution Tree</p><h2 className="text-xl font-semibold">失败谱系</h2><p className="mt-1 text-xs text-[#636E72]">失败不是垃圾数据，而是企业知识资产。</p></div><div className="tree-root"><span>Opportunity OP-01</span><div className="tree-branches">{timeline.map((version) => <button key={version.id} onClick={() => setTreeNode(version)} className={`tree-node tree-${version.status}`}><GitBranch className="h-4 w-4" /><div><b>{version.label}</b><small>{version.mutation}</small></div></button>)}</div></div>{treeNode ? <div className="mt-5 rounded-xl border border-[#D8DFDB] bg-white p-4"><div className="flex items-center justify-between"><div><span className="font-mono text-xs text-[#7D8B85]">{treeNode.id}</span><h3 className="text-base font-semibold">{treeNode.name} {treeNode.label}</h3></div><button onClick={() => setTreeNode(null)} className="icon-button"><X className="h-4 w-4" /></button></div><dl className="tree-detail"><div><dt>状态</dt><dd>{treeNode.status}</dd></div><div><dt>淘汰Gate</dt><dd>{treeNode.eliminatedBy ?? "未淘汰"}</dd></div><div><dt>关键学习</dt><dd>{treeNode.learning ?? "验证进行中"}</dd></div><div><dt>未来复活</dt><dd>{treeNode.revivable ? "允许，需补充新证据" : "不允许"}</dd></div></dl></div> : null}</section></div>
-
-    <DecisionProvenanceDrawer open={metric !== null} onClose={() => setMetric(null)} metric={metric ?? "demand"} score={displayedVersion.fitness.dimensions[metric ?? "demand"]} evidence={evidence} fitness={displayedVersion.fitness} />
+  const { state, selectedConcept, selectConcept, updateConcept, lockConcept } = useProductWorkbench();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [reason, setReason] = useState(selectedConcept.selectionReason);
+  const [draft, setDraft] = useState<Partial<ProductConceptCandidate>>({});
+  const startEdit = (concept: ProductConceptCandidate) => { setEditingId(concept.id); setDraft({ sellingPoint: concept.sellingPoint, specification: concept.specification, packaging: concept.packaging, priceBand: concept.priceBand }); };
+  const save = (id: string) => { updateConcept(id, draft); setEditingId(null); };
+  return <div className="page-frame">
+    <header className="page-heading"><div><p className="section-kicker">Product co-creation · DEMO</p><h1>产品共创台</h1><p className="page-description">围绕已确认机会比较三个固定演示候选，保留人工修改、选择理由和版本状态；当前未连接真实AI。</p></div><span className="simulation-chip">比赛概念方案 · 非全棉时代正式产品</span></header>
+    <section className="concept-boundary"><ShieldAlert className="h-5 w-5" /><p><strong>候选来源：</strong>固定演示夹具或人工导入，不是AI实时生成。产品概念变更会把相关数字情景和内容版本标记为 stale，但不会修改真实 Gate 规则。</p></section>
+    <section className="concept-comparison" aria-label="三个产品概念比较">{state.concepts.map((concept) => {
+      const active = state.selectedConceptId === concept.id;
+      const editing = editingId === concept.id;
+      const original = JSON.parse(concept.originalSnapshot) as ProductConceptCandidate;
+      return <article key={concept.id} className={`concept-proposal ${active ? "active" : ""}`}>
+        <header><div><span className="meta-chip">{concept.id} · V{concept.version}</span><h2>{concept.name}</h2></div><span className={concept.locked ? "approval-badge" : "warning-badge"}>{concept.locked ? <><Lock className="h-3.5 w-3.5" />已锁定</> : "待锁定"}</span></header>
+        <div className="unique-variable"><GitCompareArrows className="h-4 w-4" /><span>唯一变量</span><strong>{concept.uniqueVariable}</strong></div>
+        <dl className="concept-specs"><Row label="目标用户" value={concept.targetUser} /><Row label="使用场景" value={concept.scenario} /><Row label="核心需求" value={concept.need} /><Row label="产品基因" value={concept.genes.join(" · ")} /><Row label="功能" value={concept.functions} /><Row label="材质" value={concept.material} /></dl>
+        {editing ? <div className="concept-edit"><Field label="规格" value={String(draft.specification ?? "")} onChange={(value) => setDraft({ ...draft, specification: value })} /><Field label="包装假设" value={String(draft.packaging ?? "")} onChange={(value) => setDraft({ ...draft, packaging: value })} /><Field label="价格带假设" value={String(draft.priceBand ?? "")} onChange={(value) => setDraft({ ...draft, priceBand: value })} /><Field label="核心卖点" value={String(draft.sellingPoint ?? "")} onChange={(value) => setDraft({ ...draft, sellingPoint: value })} /><div className="flex gap-2"><button className="primary-action" onClick={() => save(concept.id)}>保存人工版本</button><button className="secondary-action" onClick={() => setEditingId(null)}>取消</button></div></div> : <dl className="concept-specs"><Row label="规格" value={concept.specification} changed={concept.specification !== original.specification} /><Row label="包装假设" value={concept.packaging} changed={concept.packaging !== original.packaging} /><Row label="价格带假设" value={concept.priceBand} changed={concept.priceBand !== original.priceBand} /><Row label="核心卖点" value={concept.sellingPoint} changed={concept.sellingPoint !== original.sellingPoint} /></dl>}
+        <div className="concept-risks"><p><AlertTriangle className="h-4 w-4" /><span><b>供应风险</b>{concept.supplyRisk}</span></p><p><ShieldAlert className="h-4 w-4" /><span><b>合规风险</b>{concept.complianceRisk}</span></p></div>
+        <div className="trace-chips">{concept.evidenceIds.map((id) => <Link key={id} href="/evidence">Evidence {id}</Link>)}{concept.assumptionIds.map((id) => <Link key={id} href="/assumptions">{id}</Link>)}</div>
+        <div className="concept-actions"><button className="secondary-action" onClick={() => startEdit(concept)}><PencilLine className="h-4 w-4" />编辑人工版本</button><button className={active ? "primary-action" : "secondary-action"} onClick={() => selectConcept(concept.id, reason || "负责人选择该概念进入数字情景整理。")}>{active ? <Check className="h-4 w-4" /> : null}{active ? "当前方案" : "选择方案"}</button></div>
+      </article>;
+    })}</section>
+    <section className="panel-surface mt-6"><div className="panel-title-row"><div><p className="section-kicker">Human selection</p><h2>选择理由与版本锁定</h2></div><span className="simulation-chip">{selectedConcept.id} · V{selectedConcept.version}</span></div><label className="form-field mt-4"><span>人工选择理由</span><textarea value={reason} onChange={(event) => setReason(event.target.value)} placeholder="记录取舍依据、反证和仍需验证的问题" /></label><div className="mt-4 flex flex-wrap gap-3"><button className="primary-action" onClick={() => { selectConcept(selectedConcept.id, reason); lockConcept(selectedConcept.id); }}><Lock className="h-4 w-4" />确认并锁定当前版本</button><Link href="/launch" className="secondary-action">进入数字实验<ArrowRight className="h-4 w-4" /></Link></div></section>
   </div>;
 }
 
-function Formula({ label, value, strong = false }: { label: string; value: string | number; strong?: boolean }) { return <div className={`formula-card ${strong ? "formula-strong" : ""}`}><span>{label}</span><b>{value}</b></div>; }
+function Row({ label, value, changed = false }: { label: string; value: string; changed?: boolean }) { return <div><dt>{label}</dt><dd>{value}{changed ? <span className="changed-chip">人工已修改</span> : null}</dd></div>; }
+function Field({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) { return <label className="form-field"><span>{label}</span><textarea value={value} onChange={(event) => onChange(event.target.value)} /></label>; }

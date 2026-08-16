@@ -1,36 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, CircleDollarSign, FileSearch, ShieldAlert } from "lucide-react";
+import { AlertTriangle, ArrowRight, Boxes, CheckCircle2, CircleDollarSign, Clock3, FileCheck2, Megaphone, MessageSquareText, ShieldAlert } from "lucide-react";
 import { useDecision } from "@/components/decision/decision-provider";
+import { useEvolution } from "@/components/demo/evolution-provider";
+import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { DataBoundary, WorkspaceHeading, recommendationLabel } from "@/components/decision/workspace-ui";
+import { ModeSwitch } from "@/components/decision/workspace-ui";
 import { ServiceStatus } from "@/components/system/service-status";
-import { DataBoundary, ModeSwitch, WorkspaceHeading, recommendationLabel } from "@/components/decision/workspace-ui";
+
+const stages = [["洞察", "/insights", 100], ["产品共创", "/evolution", 70], ["数字实验", "/launch", 38], ["预验证Gate", "/evidence", 72], ["内容中枢", "/content", 54], ["转化反馈", "/results", 22]] as const;
 
 export default function WorkspacePage() {
-  const { state, updateProject } = useDecision();
-  const p = state.project;
+  const { state: decision, updateProject } = useDecision();
+  const { state: evolution } = useEvolution();
+  const { state, selectedConcept } = useProductWorkbench();
+  const p = decision.project;
+  const pendingContent = state.contentAssets.filter((item) => item.reviewStatus === "pending" || item.reviewStatus === "changes").length;
+  const staleCount = state.scenarioReviews.filter((item) => item.stale).length + state.contentAssets.filter((item) => item.stale).length;
   return <div className="page-frame">
-    <WorkspaceHeading eyebrow="Next-Dollar Gate · Simulation" title="模拟决策流程" description="使用显著标注的演示数据体验投前流程；当前页面不会创建或保存真实项目。" actions={<ModeSwitch />} />
+    <WorkspaceHeading eyebrow="Hit-product workbench · DEMO" title="爆品项目总览" description="进入工作台后先看清当前产品、进度、阻断与下一项人工任务；公开版所有数据均为固定模拟夹具。" actions={<ModeSwitch />} />
     <ServiceStatus />
     <DataBoundary />
-    <div className="workspace-grid">
-      <section className="panel-surface">
-        <div className="panel-title-row" data-guide="project-brief"><div><p className="section-kicker">Four-question brief</p><h2>把下一笔投入说清楚</h2></div><span className="simulation-chip">{p.id}</span></div>
-        <div className="form-grid mt-6">
-          <label className="form-field"><span>想做什么新品</span><textarea value={p.productIdea} onChange={(e) => updateProject({ productIdea: e.target.value })} placeholder="例如：三天差旅用的按日棉品护理组合" /></label>
-          <label className="form-field"><span>面向谁</span><input value={p.targetUser} onChange={(e) => updateProject({ targetUser: e.target.value })} placeholder="目标人群和关键场景" /></label>
-          <label className="form-field"><span>当前阶段</span><input value={p.stage} onChange={(e) => updateProject({ stage: e.target.value })} /></label>
-          <label className="form-field"><span>下一步准备做什么</span><input value={p.nextAction} onChange={(e) => updateProject({ nextAction: e.target.value })} placeholder="打样、开模、备货或投放" /></label>
-          <label className="form-field"><span>计划投入金额</span><input type="number" value={p.nextInvestmentAmount ?? ""} onChange={(e) => updateProject({ nextInvestmentAmount: e.target.value ? Number(e.target.value) : null })} /></label>
-          <label className="form-field"><span>负责人</span><input value={p.owner} onChange={(e) => updateProject({ owner: e.target.value })} /></label>
-        </div>
-        <div className="mt-6 flex flex-wrap items-center gap-3"><Link href="/evidence" className="primary-action">保存演示草稿并进入证据库<ArrowRight className="h-4 w-4" /></Link><span className="demo-save-badge" role="status" aria-label="保存状态：演示草稿仅保存在当前浏览器"><CheckCircle2 className="h-4 w-4" /><span><strong>保存状态</strong> · 演示草稿仅保存在当前浏览器</span></span></div>
-      </section>
-      <aside className="space-y-5">
-        <section className="decision-summary-card"><p className="section-kicker text-white/55">Current gate</p><div className="mt-3 flex items-center justify-between gap-3"><h2>{recommendationLabel[state.decision.recommendation]}</h2><ShieldAlert className="h-6 w-6" /></div><p className="mt-4 text-sm leading-6 text-white/70">{state.decision.confidenceLimit}</p><div className="mt-5 border-t border-white/10 pt-4"><span>下一笔投入</span><strong>{p.nextInvestmentAmount === null ? "待填写" : `¥${p.nextInvestmentAmount.toLocaleString("zh-CN")}`}</strong><small>{p.nextAction || "尚未填写具体动作"}</small></div></section>
-        <section className="panel-surface"><p className="section-kicker">Current boundary</p><h2 className="mt-1 text-lg font-semibold">此页仅提供流程演示</h2><p className="mt-4 text-xs leading-5 text-[#6F7D77]">公开构建不创建真实项目；本地集成构建另行提供SQLite持久化与确定性Gate。账号、多人协作、权限和可信身份审计仍未实现。</p></section>
-        <section className="panel-surface"><CircleDollarSign className="h-5 w-5 text-[#5B8C5A]" /><h2 className="mt-3 text-lg font-semibold">当前P0闭环</h2><p className="mt-2 text-xs leading-5 text-[#6F7D77]">建项 → 证据 → 风险假设 → 下一验证 → 投前决策单 → 结果回流</p><Link href="/opportunities" className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-[#315C46]"><FileSearch className="h-4 w-4" />打开保留的研究实验室</Link></section>
-      </aside>
-    </div>
+    <label className="project-quick-edit"><span>想做什么新品</span><input value={p.productIdea} onChange={(event) => updateProject({ productIdea: event.target.value })} /></label>
+    <section className="overview-hero" data-guide="project-brief"><div><span className="simulation-chip">交互式系统原型 · 非企业经营成果</span><h2>{p.name}</h2><p>{selectedConcept.name}围绕“{evolution.opportunities.find((item) => item.id === state.selectedOpportunityId)?.name}”机会展开；比赛概念方案，非全棉时代正式产品。</p></div><div className="overview-status"><span>当前 Gate</span><strong>{recommendationLabel[decision.decision.recommendation]}</strong><small>{decision.decision.confidenceLimit}</small></div></section>
+    <section className="overview-kpis" aria-label="项目关键状态"><Kpi icon={Boxes} label="当前概念" value={`V${selectedConcept.version}`} note={selectedConcept.locked ? "人工已锁定" : "待重新锁定"} /><Kpi icon={FileCheck2} label="关联Evidence" value={String(selectedConcept.evidenceIds.length)} note="固定模拟引用" /><Kpi icon={Megaphone} label="内容资产" value={String(state.contentAssets.length)} note={`${pendingContent} 条待审核/修改`} /><Kpi icon={MessageSquareText} label="反馈记录" value={String(state.feedbackRecords.length)} note="模拟或人工录入" /></section>
+    <div className="overview-layout"><section className="panel-surface"><div className="panel-title-row"><div><p className="section-kicker">Project brief</p><h2>项目与责任信息</h2></div><span className="demo-save-badge"><CheckCircle2 className="h-4 w-4" />浏览器演示状态</span></div><div className="form-grid mt-5"><label className="form-field"><span>产品目标</span><textarea value={p.productIdea} onChange={(event) => updateProject({ productIdea: event.target.value })} /></label><label className="form-field"><span>目标人群</span><textarea value={p.targetUser} onChange={(event) => updateProject({ targetUser: event.target.value })} /></label><label className="form-field"><span>当前阶段</span><input value={p.stage} onChange={(event) => updateProject({ stage: event.target.value })} /></label><label className="form-field"><span>负责人（人工自述）</span><input value={p.owner} onChange={(event) => updateProject({ owner: event.target.value })} /></label></div><div className="stage-progress-list mt-6">{stages.map(([label, href, progress], index) => <Link key={label} href={href}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{label}</strong><i><b style={{ width: `${progress}%` }} /></i></div><em>{progress}%</em><ArrowRight className="h-4 w-4" /></Link>)}</div></section><aside className="space-y-5"><section className="panel-surface"><p className="section-kicker">Open items</p><h2 className="section-title">未完成事项</h2><ul className="work-item-list">{state.nextRoundItems.map((item) => <li key={item}><CircleDollarSign className="h-4 w-4" /><span>{item}</span></li>)}{pendingContent ? <li><Megaphone className="h-4 w-4" /><span>复核 {pendingContent} 条内容版本</span></li> : null}</ul><Link href="/launch" className="primary-action mt-5 w-full justify-center">进入数字实验<ArrowRight className="h-4 w-4" /></Link></section><section className="panel-surface"><p className="section-kicker">Risks</p><h2 className="section-title">主要风险</h2><div className="risk-stack"><p><ShieldAlert className="h-4 w-4" />{selectedConcept.supplyRisk}</p><p><AlertTriangle className="h-4 w-4" />{selectedConcept.complianceRisk}</p>{staleCount ? <p><Clock3 className="h-4 w-4" />{staleCount} 项下游记录因概念变更而 stale</p> : null}</div></section><section className="panel-surface"><p className="section-kicker">Recent activity</p><h2 className="section-title">最近活动</h2><div className="activity-list">{state.auditEvents.slice(0, 4).map((event) => <div key={event.id}><span>{event.createdAt}</span><strong>{event.action}</strong><p>{event.summary}</p></div>)}</div></section></aside></div>
   </div>;
 }
+
+function Kpi({ icon: Icon, label, value, note }: { icon: typeof Boxes; label: string; value: string; note: string }) { return <article><Icon className="h-5 w-5" /><span>{label}</span><strong>{value}</strong><small>{note}</small></article>; }
