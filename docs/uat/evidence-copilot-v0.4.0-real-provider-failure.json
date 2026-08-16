@@ -1,0 +1,20 @@
+{
+  "label": "真实Provider系统UAT失败记录／固定脱敏非客户材料",
+  "version": "v0.4.0-rc",
+  "date": "2026-08-16",
+  "provider": "openai",
+  "model": "gpt-5.6-luna",
+  "callCount": 1,
+  "automaticRetryCount": 0,
+  "runStatus": "FAILED",
+  "sanitizedErrorCode": "provider_error",
+  "candidateCount": 0,
+  "formalEvidenceCount": 0,
+  "revisionChange": 0,
+  "gateOrDecisionChanged": false,
+  "fixtureFallbackCount": 0,
+  "fakeSuccessCount": 0,
+  "secretExposureCount": 0,
+  "customerData": false,
+  "uatPassed": false
+}
