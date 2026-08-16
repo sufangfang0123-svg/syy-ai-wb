@@ -143,6 +143,8 @@ test("fixed de-identified system acceptance case produces a traceable UAT eviden
 
   await page.goto("/real/", { waitUntil: "networkidle" });
   await expect(page.getByTestId("real-workspace")).toBeVisible();
+  await page.getByLabel("选择真实项目").selectOption("");
+  await expect(page.getByRole("heading", { name: "创建第一个真实项目" })).toBeVisible();
   await page.getByLabel("项目名称").fill("系统验收案例｜棉品下一笔投入闭环 UAT v0.3.1");
   await page.getByLabel("决策问题").fill("固定脱敏夹具是否满足进入下一轮验证的条件？");
   await page.getByLabel("描述（可空）").fill("固定脱敏系统验收夹具；非客户成果，不含真实企业或个人数据。");
@@ -166,7 +168,7 @@ test("fixed de-identified system acceptance case produces a traceable UAT eviden
     buffer: Buffer.from(csvFixture, "utf8"),
   });
   await page.getByRole("button", { name: "导入文件" }).click();
-  await expect(page.getByRole("status")).toContainText("文件已安全导入为draft");
+  await expect(page.getByRole("status").filter({ hasText: "文件已安全导入为draft" })).toBeVisible();
   const evidence = await getJson<EvidenceRecord[]>(request, `/projects/${projectId}/evidence`);
   const fileEvidence = evidence.find((item) => item.original_filename === "uat-cotton-evidence.csv");
   expect(fileEvidence).toBeDefined();
@@ -177,7 +179,7 @@ test("fixed de-identified system acceptance case produces a traceable UAT eviden
   frames.push(await captureFrame(page, testInfo, outputRoot, 2, "material-imported", "导入脱敏CSV材料并保留draft状态"));
 
   await page.locator(`#${fileEvidence.id}`).getByRole("button", { name: "人工确认" }).click();
-  await expect(page.getByRole("status")).toContainText("Evidence已确认");
+  await expect(page.getByRole("status").filter({ hasText: "Evidence已确认" })).toBeVisible();
   await expect(page.locator(`#${fileEvidence.id}`)).toContainText("confirmed");
   frames.push(await captureFrame(page, testInfo, outputRoot, 3, "evidence-confirmed", "人工确认文件Evidence且保持未自动关联"));
 
@@ -259,7 +261,7 @@ test("fixed de-identified system acceptance case produces a traceable UAT eviden
 
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
   await page.getByRole("button", { name: "执行Gate" }).click();
-  await expect(page.getByRole("status")).toContainText("Gate已按当前数据重新计算");
+  await expect(page.getByRole("status").filter({ hasText: "Gate已按当前数据重新计算" })).toBeVisible();
   const gate = await getJson<GateRecord>(request, `/projects/${projectId}/gate/current`);
   expect(gate.result).toBe("CONTINUE");
   expect(gate.rule_version).toBe("NDG_GATE_V0.3.0");
@@ -271,7 +273,7 @@ test("fixed de-identified system acceptance case produces a traceable UAT eviden
   await page.getByLabel("决策理由").fill("系统验收负责人复核规则快照后确认；非企业审批结论。");
   await page.getByLabel("负责人（自我声明）").fill("系统验收负责人（自我声明）");
   await page.getByRole("button", { name: "记录人工Decision" }).click();
-  await expect(page.getByRole("status")).toContainText("人工Decision已记录");
+  await expect(page.getByRole("status").filter({ hasText: "人工Decision已记录" })).toBeVisible();
   const decision = await getJson<DecisionRecord>(request, `/projects/${projectId}/decision/current`);
   expect(decision.decision).toBe("CONTINUE");
   frames.push(await captureFrame(page, testInfo, outputRoot, 7, "human-decision", "人工负责人记录自我声明Decision与理由"));
@@ -289,7 +291,7 @@ test("fixed de-identified system acceptance case produces a traceable UAT eviden
   frames.push(await captureFrame(page, testInfo, outputRoot, 8, "decision-stale", "关键Evidence状态变化使旧Gate与Decision失效但不覆盖历史"));
 
   await page.getByRole("button", { name: "创建下一轮" }).click();
-  await expect(page.getByRole("status")).toContainText("已创建下一轮");
+  await expect(page.getByRole("status").filter({ hasText: "已创建下一轮" })).toBeVisible();
   await expect(page.getByText(/当前有效 Gate · Round 2/)).toBeVisible();
   await focusSection(page, "#real-step-05");
   frames.push(await captureFrame(page, testInfo, outputRoot, 9, "next-round", "创建下一轮并保留旧Gate与Decision历史"));

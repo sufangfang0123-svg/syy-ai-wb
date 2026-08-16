@@ -6,8 +6,8 @@ import { RuntimeBoundaryProvider } from "@/components/system/runtime-boundary-pr
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Evolution Lab · Next-Dollar Gate v0.3.1",
-  description: "新品投前决策与证据验证工作台；公开模拟展示与单企业本地封闭试点说明。",
+  title: "Evolution Lab · Next-Dollar Gate v0.4.0",
+  description: "Evidence Copilot把授权材料转为待人工复核的候选证据；Gate仍由确定性规则计算。公开站仅为模拟展示。",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

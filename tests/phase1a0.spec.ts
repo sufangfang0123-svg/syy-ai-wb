@@ -44,7 +44,7 @@ test("local_integrated opens the real workspace only after a valid health respon
   await page.getByRole("button", { name: "真实项目入口" }).click();
   await expect(page).toHaveURL(/\/real\/$/);
   await expect(page.getByTestId("real-workspace")).toBeVisible();
-  await expect(page.getByText("所有真实记录只写入FastAPI连接的SQLite")).toBeVisible();
+  await expect(page.getByText(/负责人确认后才进入SQLite项目链路/)).toBeVisible();
   await expect(page.getByLabel("想做什么新品")).toHaveCount(0);
   const keys = await page.evaluate(() => Object.keys(window.localStorage));
   expect(keys.some((key) => key.includes("decision-real") || key.includes("active-mode"))).toBe(false);

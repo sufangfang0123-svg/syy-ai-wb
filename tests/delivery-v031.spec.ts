@@ -9,19 +9,21 @@ async function closeGuide(page: Page) {
   if (await dialog.isVisible().catch(() => false)) await page.keyboard.press("Escape");
 }
 
-test("v0.3.1 public delivery routes, CTAs and truth boundaries are explicit", async ({ page }) => {
+test("v0.4.0 public delivery routes, CTAs and truth boundaries are explicit", async ({ page }) => {
   test.setTimeout(60_000);
   test.skip(profile !== "public_demo", "public delivery build only");
   await page.goto("/");
-  await expect(page).toHaveTitle(/Evolution Lab · Next-Dollar Gate v0\.3\.1/);
+  await expect(page).toHaveTitle(/Evolution Lab · Next-Dollar Gate v0\.4\.0/);
   await expect(page.getByRole("link", { name: /体验完整模拟流程/ })).toHaveAttribute("href", /workspace/);
   await expect(page.getByRole("link", { name: /查看本地闭环系统证明/ })).toHaveAttribute("href", /proof/);
   await expect(page.getByRole("link", { name: /查看企业试点说明/ })).toHaveAttribute("href", /pilot/);
   await expect(page.getByText(/公开站是模拟演示/).first()).toBeVisible();
+  await expect(page.getByText(/真实Provider UAT尚未通过/).first()).toBeVisible();
   await page.goto("/proof/");
   await expect(page.getByRole("heading", { name: /为什么下一笔不可逆新品费用/ })).toBeVisible();
   await expect(page.getByText(/系统验收案例/).first()).toBeVisible();
   await expect(page.getByText(/不是客户案例/).first()).toBeVisible();
+  await expect(page.getByText(/真实Provider成功UAT尚未取得/).first()).toBeVisible();
   await expect(page.locator(".uat-gallery img")).toHaveCount(10);
   await page.waitForFunction(() => Array.from(document.querySelectorAll<HTMLImageElement>(".uat-gallery img")).every((image) => image.complete && image.naturalWidth > 0));
   await page.goto("/pilot/");
@@ -34,7 +36,7 @@ test("v0.3.1 public delivery routes, CTAs and truth boundaries are explicit", as
 });
 
 for (const route of routes) {
-  test(`${route} fits the v0.3.1 desktop and mobile viewport`, async ({ page }, testInfo) => {
+  test(`${route} fits the v0.4.0 desktop and mobile viewport`, async ({ page }, testInfo) => {
     test.skip(profile !== "public_demo", "public delivery build only");
     if (!testInfo.project.name.includes("mobile")) await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(route);
@@ -74,7 +76,7 @@ test("public copy does not claim automatic NBT or experiment generation", async 
 
   await page.goto("/");
   await expect(page.getByText("明确下一项待补证据。", { exact: true })).toBeVisible();
-  await expect(page.getByText("设计最低成本验证", { exact: true })).toBeVisible();
+  await expect(page.getByText("设计低成本验证", { exact: true })).toBeVisible();
   await page.goto("/proof/");
   await expect(page.getByText("明确下一项待补证据", { exact: true })).toBeVisible();
   await expect(page.getByText(/只会从负责人已录入的验证方案中给出执行顺序/)).toBeVisible();
