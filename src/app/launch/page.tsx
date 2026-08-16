@@ -1,66 +1,28 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowRight, Bot, CheckCircle2, Play, RefreshCw, ShieldAlert, Users } from "lucide-react";
-import { useEvolution } from "@/components/demo/evolution-provider";
-import { EvidenceBadge } from "@/components/evidence/evidence-badge";
-import { useDecision } from "@/components/decision/decision-provider";
-import { formatStatusCounts, getValidationLedger } from "@/lib/validation-ledger";
-
-const stages = [
-  { range: "01—20", key: "concept", name: "概念生存", pressure: "需求真实性 / 替代方案" },
-  { range: "21—50", key: "genome", name: "基因变异", pressure: "关键任务 / 体验结构" },
-  { range: "51—75", key: "content", name: "内容对战", pressure: "理解度 / 信息可信度" },
-  { range: "76—90", key: "business", name: "商业审判", pressure: "成本区间 / 供应链约束" },
-  { range: "91—100", key: "reality", name: "现实校准", pressure: "真人意愿 / 真实行为" },
-];
-
-const concepts = [
-  { label: "A", name: "按旅程选模块", share: 44, reason: "更容易理解使用方式" },
-  { label: "B", name: "固定三日组合", share: 31, reason: "省事，但适配范围有限" },
-  { label: "C", name: "常规装 + 分装袋", share: 25, reason: "价格更熟悉，准备步骤较多" },
-];
-
-const scenarios = [
-  { name: "谨慎", range: "31%—38%", note: "价格敏感度较高，补充装采用较慢" },
-  { name: "基准", range: "39%—48%", note: "便携价值成立，79元仍需分层验证" },
-  { name: "积极", range: "49%—57%", note: "高频出行人群集中且内容解释充分" },
-];
+import { ArrowRight, Filter, FlaskConical, GitCompareArrows, ShieldAlert } from "lucide-react";
+import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
 
 export default function LaunchPage() {
-  const { state, currentVersion, advanceExperiment } = useEvolution();
-  const { state: decisionState } = useDecision();
-  const validationLedger = getValidationLedger(decisionState);
-  const [view, setView] = useState<"synthetic" | "human" | "delta">("delta");
-  const [scenario, setScenario] = useState("基准");
-  const latest = state.experiments.at(-1)!;
-  const stageIndex = stages.findIndex((stage) => stage.key === latest.experimentType);
-  const stage = stages[Math.max(0, stageIndex)];
-  const completed = Math.max(1, Math.min(100, latest.round));
-  const statusCopy = latest.result === "pending" ? "等待本轮证据" : latest.result === "eliminate" ? "已淘汰" : "继续进化";
-  const calibrationAverage = useMemo(() => Math.round(state.calibrations.reduce((sum, item) => sum + Math.abs(item.syntheticValue - item.humanValue), 0) / state.calibrations.length), [state.calibrations]);
-
+  const { state, selectedConcept, scenarios, reviewScenario } = useProductWorkbench();
+  const [persona, setPersona] = useState("全部");
+  const [channel, setChannel] = useState("全部");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [owner, setOwner] = useState("演示负责人");
+  const [note, setNote] = useState("");
+  const visible = useMemo(() => scenarios.filter((item) => (persona === "全部" || item.persona === persona) && (channel === "全部" || item.channel === channel)), [scenarios, persona, channel]);
+  const personas = ["全部", ...new Set(scenarios.map((item) => item.persona))];
+  const channels = ["全部", ...new Set(scenarios.map((item) => item.channel))];
+  const reviewMap = new Map(state.scenarioReviews.map((item) => [item.scenarioId, item]));
+  const toggleCompare = (id: string) => setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : current.length < 3 ? [...current, id] : current);
   return <div className="page-frame">
-    <header className="page-heading"><div><p className="section-kicker">Simulation Protocol</p><h1>模拟上市与校准流程</h1><p className="page-description">本页用固定夹具展示结构化选择压力和校准方法；没有执行真实消费者研究，不把模拟偏好写成市场销量。</p></div><span className="simulation-chip"><Bot className="h-3.5 w-3.5" /> D级模拟夹具</span></header>
-    <div className="provenance-legend" aria-label="数据分层说明"><span><Bot />模拟情景 <b>D级</b></span><ArrowRight /><span><Users />模拟人研夹具 <b>演示</b></span><ArrowRight /><span><ShieldAlert />真实项目决定 <b>责任人确认</b></span></div>
-    <section className="panel-surface mt-5" aria-label="核心验证账本"><div className="panel-title-row"><div><p className="section-kicker">Core validation ledger</p><h2>与投前主链一致的验证状态</h2></div><span className="simulation-chip">研究实验室记录不自动计入</span></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{[["数字实验",formatStatusCounts(validationLedger.digital)],["真人校准",formatStatusCounts(validationLedger.human)],["样品验证",`已完成 ${validationLedger.sampleCompleted}`],["销售结果",`已完成 ${validationLedger.salesCompleted}`]].map(([label,value])=><div key={label} className="validation-count"><span>{label}</span><strong className="text-sm">{value}</strong><small>核心决策账本</small></div>)}</div></section>
-
-    <section className="experiment-progress data-surface">
-      <div className="flex flex-wrap items-center justify-between gap-4"><div aria-live="polite"><p className="section-kicker">Round {String(completed).padStart(3, "0")}</p><h2 className="section-title">{stage.name} · {statusCopy}</h2><p className="mt-2 text-xs text-[#6D7A73]">本轮选择压力：{stage.pressure}</p></div><button className="primary-action" onClick={advanceExperiment} disabled={completed >= 100}><Play className="h-4 w-4 fill-current" />{completed >= 100 ? "协议已完成" : "运行下一轮"}</button></div>
-      <div className="round-meter mt-6"><span style={{ width: `${completed}%` }} /></div>
-      <div className="mt-5 grid gap-3 md:grid-cols-5">{stages.map((item, index) => <article key={item.key} className={`stage-card ${index === stageIndex ? "stage-card-active" : ""} ${index < stageIndex ? "stage-card-done" : ""}`}><span>{item.range}</span><strong>{item.name}</strong><small>{item.pressure}</small></article>)}</div>
-    </section>
-
-    <div className="mt-6 grid gap-6 xl:grid-cols-[1.05fr_.95fr]">
-      <section className="panel-surface"><div className="panel-title-row"><div><p className="section-kicker">Synthetic Stress Test</p><h2>模拟概念选择压力</h2></div><EvidenceBadge level="D" /></div><div className="mt-5 space-y-3">{concepts.map((concept) => <div key={concept.label} className="concept-choice"><span className="concept-letter">{concept.label}</span><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-3"><strong>{concept.name}</strong><span className="font-semibold text-[#315C46]">{concept.share}%</span></div><div className="choice-bar"><span style={{ width: `${concept.share}%` }} /></div><p>{concept.reason}</p></div></div>)}</div><p className="data-caution"><ShieldAlert className="h-4 w-4" />以上百分比是固定演示夹具，只用于说明分歧与反例呈现，不代表真实样本、市场份额或购买转化。</p></section>
-
-      <section className="panel-surface"><div className="panel-title-row"><div><p className="section-kicker">Scenario Planning</p><h2>固定模拟商业情景区间</h2></div><span className="meta-chip">非销量预测</span></div><div className="segmented mt-5">{scenarios.map((item) => <button key={item.name} onClick={() => setScenario(item.name)} className={scenario === item.name ? "active" : ""}>{item.name}</button>)}</div>{scenarios.filter((item) => item.name === scenario).map((item) => <div key={item.name} className="scenario-result"><p>目标人群中的模拟概念考虑区间</p><strong>{item.range}</strong><span>{item.note}</span></div>)}<div className="mt-4 grid grid-cols-3 gap-2"><MiniFact label="候选价带" value="69—89元" /><MiniFact label="成本状态" value="待BOM" /><MiniFact label="供应链" value="需验证" /></div></section>
-    </div>
-
-    <section className="mt-6 panel-surface"><div className="panel-title-row"><div><p className="section-kicker">Calibration Demo · 固定夹具</p><h2>模拟情景 × 模拟人研夹具</h2></div><div className="segmented compact"><button onClick={() => setView("synthetic")} className={view === "synthetic" ? "active" : ""}>模拟结果</button><button onClick={() => setView("human")} className={view === "human" ? "active" : ""}>模拟人研</button><button onClick={() => setView("delta")} className={view === "delta" ? "active" : ""}>演示差值</button></div></div><div className="calibration-grid">{state.calibrations.map((item) => { const delta = item.syntheticValue - item.humanValue; const value = view === "synthetic" ? item.syntheticValue : view === "human" ? item.humanValue : Math.abs(delta); return <article key={item.id} className="calibration-card"><div className="flex items-center justify-between"><EvidenceBadge level={item.evidenceLevel} /><span className="text-xs text-[#7D8B85]">{item.id}</span></div><h3>{item.metric}</h3><div className="calibration-value">{view === "delta" ? (delta > 0 ? "+" : "−") : ""}{value}{item.unit}</div><p>{item.conclusion}</p><div className="calibration-action"><RefreshCw className="h-3.5 w-3.5" />{item.action}</div></article>; })}</div><div className="reality-summary"><Users className="h-5 w-5" /><div><strong>固定夹具平均演示差值 {calibrationAverage} 个百分点</strong><p>这些数字不是实际访谈或研究结果，不会自动计入核心账本；只有真实项目中带来源的结果回填才进入已完成计数。</p></div><ArrowRight className="ml-auto h-5 w-5" /></div></section>
-
-    <section className="mt-6 decision-output"><div><CheckCircle2 className="h-5 w-5" /><div><p>本轮模拟输出</p><strong>{currentVersion.label} 暂时存活；继续验证价格与小规格包装可行性</strong></div></div><span>拟定责任角色：商品经理 / 供应链 / 验证研究负责人</span></section>
+    <header className="page-heading"><div><p className="section-kicker">Deterministic scenario matrix</p><h1>数字实验工作台</h1><p className="page-description">围绕当前概念形成100个确定性情景组合，用于整理和缩小待验证范围；刷新后组合和分数保持一致。</p></div><span className="simulation-chip">100 / 100 个固定组合</span></header>
+    <section className="scenario-boundary"><ShieldAlert className="h-5 w-5" /><p>数字情景实验用于整理和缩小待验证范围，不替代真实用户研究、渠道测试或企业最终决策。优先级不是销量、ROI或爆款概率预测。</p></section>
+    <section className="scenario-toolbar"><div><Filter className="h-4 w-4" /><select value={persona} onChange={(event) => setPersona(event.target.value)} aria-label="按人群筛选">{personas.map((item) => <option key={item}>{item}</option>)}</select><select value={channel} onChange={(event) => setChannel(event.target.value)} aria-label="按渠道筛选">{channels.map((item) => <option key={item}>{item}</option>)}</select></div><p>当前概念：<strong>{selectedConcept.name}</strong> · 已复核 {state.scenarioReviews.length} 个</p></section>
+    {selected.length ? <section className="scenario-compare"><header><GitCompareArrows className="h-4 w-4" /><strong>对比中的情景（最多3个）</strong><button onClick={() => setSelected([])}>清空</button></header><div>{selected.map((id) => { const item = scenarios.find((scenario) => scenario.id === id)!; return <article key={id}><span>{item.id}</span><strong>{item.persona}</strong><p>{item.sellingPoint} · {item.channel}</p><b>{item.priority}</b></article>; })}</div></section> : null}
+    <section className="scenario-table" aria-label="100个数字情景组合"><header><span>情景</span><span>人群 / 卖点</span><span>渠道 / CTA</span><span>演示优先级</span><span>状态与操作</span></header>{visible.map((item) => { const review = reviewMap.get(item.id); return <article key={item.id} className={review?.stale ? "stale" : ""}><label><input type="checkbox" checked={selected.includes(item.id)} onChange={() => toggleCompare(item.id)} aria-label={`对比${item.id}`} /><span>{item.id}</span><small>{item.assumptionId}</small></label><div><strong>{item.persona}</strong><small>{item.sellingPoint}</small></div><div><strong>{item.channel}</strong><small>{item.cta}</small></div><button className="priority-cell" title={item.rule} onClick={() => toggleCompare(item.id)}><b>{item.priority}</b><small>公式可查</small></button><div><span className={`review-pill review-${review?.status ?? "pending"}`}>{review?.stale ? "stale" : review?.status ?? "未复核"}</span><button onClick={() => reviewScenario(item.id, "shortlisted", owner, note)}>加入候选</button><button onClick={() => reviewScenario(item.id, "validation", owner, note)}>进入Validation</button></div></article>; })}</section>
+    <section className="panel-surface mt-6"><div className="panel-title-row"><div><p className="section-kicker">Human review</p><h2>人工判断与责任人</h2></div><span className="meta-chip">不会自动生成或择优推荐实验</span></div><div className="form-grid mt-4"><label className="form-field"><span>负责人</span><input value={owner} onChange={(event) => setOwner(event.target.value)} /></label><label className="form-field"><span>判断说明</span><textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="记录为什么把某个情景加入候选或Validation" /></label></div><div className="mt-4 flex flex-wrap gap-3"><Link href="/tests" className="primary-action">查看既有Validation记录<ArrowRight className="h-4 w-4" /></Link><Link href="/evidence" className="secondary-action"><FlaskConical className="h-4 w-4" />进入预验证Gate</Link></div><p className="mt-3 text-xs text-[#6F7D77]">公开演示仅记录情景与Validation候选关系；真实项目必须在本地工作区人工创建Validation，未确认内容不影响Gate。</p></section>
   </div>;
 }
-
-function MiniFact({ label, value }: { label: string; value: string }) { return <div className="mini-fact"><span>{label}</span><strong>{value}</strong></div>; }

@@ -9,15 +9,18 @@ import { EvidenceUpgradePath } from "@/components/evidence/evidence-upgrade-path
 import { DecisionProvenanceDrawer } from "@/components/evidence/decision-provenance-drawer";
 import { EvidenceLevel, FitnessDimensionKey } from "@/domain/types";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
 
 export default function OpportunitiesPage() {
-  const { state, currentVersion, selectedOpportunity, selectOpportunity, addToValidationPool, rejectOpportunity, generateConcept } = useEvolution();
+  const { state, currentVersion, selectedOpportunity, selectOpportunity } = useEvolution();
+  const { state: workbench, reviewOpportunity } = useProductWorkbench();
   const [query, setQuery] = useState("");
   const [level, setLevel] = useState<"all" | EvidenceLevel>("all");
   const [dataType, setDataType] = useState("all");
   const [view, setView] = useState<"active" | "failed">("active");
   const [metric, setMetric] = useState<FitnessDimensionKey | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [reviewNote, setReviewNote] = useState(workbench.opportunityNotes[selectedOpportunity.id] ?? "");
   const visibleEvidence = useMemo(() => state.evidence.filter((item) => {
     const matchesQuery = `${item.id}${item.excerpt}${item.persona}${item.scenario}${item.painPoint}`.toLowerCase().includes(query.toLowerCase());
     return matchesQuery && (level === "all" || item.level === level) && (dataType === "all" || item.dataType === dataType);
@@ -28,7 +31,7 @@ export default function OpportunitiesPage() {
     <section className="counter-evidence"><div className="mb-3 flex items-center gap-2"><AlertTriangle className="h-4 w-4" /><h3 className="text-sm font-semibold">反向证据</h3></div>{selectedOpportunity.counterEvidence.map((counter) => <div key={counter.id} className="border-t border-[#E9C9C5] py-3 first:border-0 first:pt-0"><p className="text-xs font-medium text-[#7A3E3E]">{counter.statement}</p><dl className="mt-2 grid gap-1 text-[11px] text-[#805D5D]"><div><dt>替代方案</dt><dd>{counter.alternative}</dd></div><div><dt>不购买原因</dt><dd>{counter.nonPurchaseReason}</dd></div><div><dt>高风险假设</dt><dd>{counter.riskyAssumption}</dd></div></dl></div>)}</section>
     <EvidenceUpgradePath level={selectedOpportunity.evidenceLevel} completed={1} />
     <section><h3 className="mb-2 text-sm font-semibold">五门预审</h3><div className="grid grid-cols-5 gap-1">{selectedOpportunity.gatePreview.map((status, index) => <div key={index} className={`gate-mini gate-${status.toLowerCase()}`}><span>V{index + 1}</span><b>{status}</b></div>)}</div></section>
-    <div className="grid grid-cols-2 gap-2"><button onClick={() => addToValidationPool(selectedOpportunity.id)} className="secondary-action justify-center"><CheckCircle2 className="h-4 w-4" />{selectedOpportunity.validationPool ? "移出模拟验证池" : "加入模拟验证池"}</button><button onClick={() => generateConcept(selectedOpportunity.id)} className="primary-action justify-center"><Sparkles className="h-4 w-4" />生成模拟概念</button><button onClick={() => rejectOpportunity(selectedOpportunity.id)} className="danger-action justify-center"><Ban className="h-4 w-4" />否决机会</button><Link href="/evolution" className="secondary-action justify-center"><GitBranch className="h-4 w-4" />查看失败谱系</Link></div>
+    <section className="opportunity-review"><label className="form-field"><span>人工判断与原因</span><textarea value={reviewNote} onChange={(event) => setReviewNote(event.target.value)} placeholder="说明为什么进入候选、确认或不采用" /></label><div className="mt-3 grid grid-cols-2 gap-2"><button onClick={() => reviewOpportunity(selectedOpportunity.id, "candidate", reviewNote)} className="secondary-action justify-center"><CheckCircle2 className="h-4 w-4" />标记候选</button><button onClick={() => reviewOpportunity(selectedOpportunity.id, "confirmed", reviewNote)} className="primary-action justify-center"><Sparkles className="h-4 w-4" />确认机会</button><button onClick={() => reviewOpportunity(selectedOpportunity.id, "rejected", reviewNote)} className="danger-action justify-center"><Ban className="h-4 w-4" />不采用</button><Link href="/evolution" className="secondary-action justify-center"><GitBranch className="h-4 w-4" />进入产品共创</Link></div><p className="mt-2 text-[11px] text-[#6F7D77]">当前状态：{workbench.opportunityStatus[selectedOpportunity.id] ?? "pending"}。人工操作进入模拟工作台审计记录。</p></section>
   </div></>;
 
   return <div className="page-frame"><div className="page-heading"><div><p className="section-kicker">Opportunity Evidence Workbench</p><h1 className="section-title">需求机会</h1><p className="page-description">从消费信号、证据等级和反向证据出发，形成可验证的产品机会。</p></div><div className="segmented"><button onClick={() => setView("active")} className={view === "active" ? "active" : ""}>活跃机会</button><button onClick={() => setView("failed")} className={view === "failed" ? "active" : ""}>失败谱系</button></div></div>

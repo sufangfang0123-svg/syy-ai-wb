@@ -1,52 +1,37 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { AlertTriangle, ArrowRight, CheckCircle2, Clock3, PackageCheck, ShieldAlert, ShoppingBag, Users } from "lucide-react";
+import { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
+import { ArrowRight, BarChart3, CheckCircle2, PackageCheck, Plus, ShieldAlert, ShoppingBag, Users } from "lucide-react";
 import { useDecision } from "@/components/decision/decision-provider";
-import { DataBoundary, EmptyState, WorkspaceHeading, recommendationLabel } from "@/components/decision/workspace-ui";
+import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { DataBoundary, WorkspaceHeading } from "@/components/decision/workspace-ui";
 import { ResultType } from "@/domain/decision-types";
-import { getValidationLedger } from "@/lib/validation-ledger";
 
 const resultMeta = { human: { label: "真人反馈", icon: Users }, sample: { label: "样品表现", icon: PackageCheck }, sales: { label: "销售结果", icon: ShoppingBag } } as const;
 
 export default function ResultsPage() {
-  const { state, addResult } = useDecision();
-  const ledger = getValidationLedger(state);
-  const primaryRisk = state.assumptions.find((item) => state.decision.dangerousAssumptionIds.includes(item.id));
-  const nextTest = state.tests.find((item) => item.id === state.decision.testId);
-  const [draft, setDraft] = useState({ type: "human" as ResultType, summary: "", outcome: "supports" as "supports" | "conflicts" | "unclear", source: "" });
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    addResult(draft);
-    setDraft({ ...draft, summary: "", source: "" });
-  };
+  const { state: decision, addResult } = useDecision();
+  const { state, selectedConcept, addFeedback, addNextRoundItem } = useProductWorkbench();
+  const [channel, setChannel] = useState("全部");
+  const [variant, setVariant] = useState<"全部" | "A" | "B">("全部");
+  const [nextItem, setNextItem] = useState("");
+  const [feedbackDraft, setFeedbackDraft] = useState({ contentAssetId: state.contentAssets[0].id, channel: state.contentAssets[0].channel, impressions: 0, clicks: 0, interactions: 0, saves: 0, addToCart: 0, conversions: 0, userFeedback: "", theme: "", source: "人工录入", recordedAt: new Date().toISOString().slice(0, 10), owner: "演示负责人", assumptionId: "ASM-DEMAND-01" });
+  const [resultDraft, setResultDraft] = useState({ type: "human" as ResultType, summary: "", outcome: "supports" as "supports" | "conflicts" | "unclear", source: "" });
+  const filtered = useMemo(() => state.feedbackRecords.filter((item) => { const asset = state.contentAssets.find((candidate) => candidate.id === item.contentAssetId); return (channel === "全部" || item.channel === channel) && (variant === "全部" || asset?.variant === variant); }), [state.feedbackRecords, state.contentAssets, channel, variant]);
+  const totals = filtered.reduce((acc, item) => ({ impressions: acc.impressions + item.impressions, clicks: acc.clicks + item.clicks, interactions: acc.interactions + item.interactions, saves: acc.saves + item.saves, addToCart: acc.addToCart + item.addToCart, conversions: acc.conversions + item.conversions }), { impressions: 0, clicks: 0, interactions: 0, saves: 0, addToCart: 0, conversions: 0 });
+  const submitFeedback = (event: FormEvent) => { event.preventDefault(); addFeedback(feedbackDraft); setFeedbackDraft({ ...feedbackDraft, userFeedback: "", theme: "" }); };
+  const submitResult = (event: FormEvent) => { event.preventDefault(); addResult(resultDraft); setResultDraft({ ...resultDraft, summary: "", source: "" }); };
   return <div className="page-frame">
-    <WorkspaceHeading eyebrow="Simulation feedback" title="模拟结果回流" description="演示如何分别记录真人反馈、样品表现和销售结果，并据此复核原判断；当前不会接收或计算真实企业数据。" />
+    <WorkspaceHeading eyebrow="Conversion feedback · DEMO" title="转化反馈" description="按渠道和内容版本记录固定模拟指标或人工录入反馈，并追溯回内容、产品概念与待验证假设。" />
     <DataBoundary />
-    <section className="results-summary" aria-label="模拟决策摘要">
-      <header><div><p className="section-kicker">Simulated decision result</p><h2>当前模拟结论：{recommendationLabel[state.decision.recommendation]}</h2><p>{state.decision.rationale}</p></div><span className="simulation-chip">固定演示结果 · 非实时计算</span></header>
-      <div className="results-summary-grid">
-        <ResultSummary icon={CheckCircle2} label="结论依据" value={`${state.decision.evidenceIds.length} 条演示证据 · ${state.decision.confidence === "high" ? "较高" : state.decision.confidence === "medium" ? "中等" : "较低"}置信度`} />
-        <ResultSummary icon={ShieldAlert} label="主要风险" value={primaryRisk?.statement ?? "尚未识别可展示的风险假设"} warning />
-        <ResultSummary icon={AlertTriangle} label="待补证项" value={primaryRisk?.evidenceGap ?? state.decision.confidenceLimit} warning />
-        <ResultSummary icon={ArrowRight} label="已记录的下一步动作" value={nextTest ? `${nextTest.primaryVariable} · 演示预算 ¥${nextTest.budget.toLocaleString("zh-CN")}` : "证据不足，尚未记录下一步动作"} />
-      </div>
-      <footer><span>人工决定：{state.decision.humanDecision === "pending" ? "待演示确认" : recommendationLabel[state.decision.humanDecision]}</span><span><Clock3 className="h-3.5 w-3.5" />本页只展示模拟案例，不构成生产、投资或经营建议。</span></footer>
-    </section>
-    <div className="results-layout">
-      <form onSubmit={submit} className="panel-surface" data-guide="results"><p className="section-kicker">Simulation input</p><h2 className="mt-2 text-xl font-semibold">录入一项演示结果</h2><div className="mt-5 segmented">{(["human", "sample", "sales"] as ResultType[]).map((type) => <button type="button" key={type} onClick={() => setDraft({ ...draft, type })} className={draft.type === type ? "active" : ""}>{resultMeta[type].label}</button>)}</div><label className="form-field mt-5"><span>结果来源</span><input required value={draft.source} onChange={(event) => setDraft({ ...draft, source: event.target.value })} placeholder="演示访谈编号、样品批次或报表编号" /></label><label className="form-field mt-4"><span>结果摘要</span><textarea required value={draft.summary} onChange={(event) => setDraft({ ...draft, summary: event.target.value })} placeholder="仅在模拟空间记录观察到的事实" /></label><label className="form-field mt-4"><span>与原判断关系</span><select value={draft.outcome} onChange={(event) => setDraft({ ...draft, outcome: event.target.value as typeof draft.outcome })}><option value="supports">支持原判断</option><option value="conflicts">与原判断冲突</option><option value="unclear">仍无法判断</option></select></label><button className="primary-action mt-5">保存演示结果</button></form>
-      <section>
-        <div className="result-separation"><ResultCount icon={Users} label="真人反馈" value={ledger.humanFeedbackCompleted} /><ResultCount icon={PackageCheck} label="样品表现" value={ledger.sampleCompleted} /><ResultCount icon={ShoppingBag} label="销售结果" value={ledger.salesCompleted} /></div>
-        {state.results.length === 0 ? <EmptyState title="尚无演示结果回流" body="当前模拟判断仍是待验证假设，不能被包装成已验证成果。" /> : <div className="mt-4 space-y-3">{state.results.map((item) => { const Icon = resultMeta[item.type].icon; return <article key={item.id} className={`result-record ${item.outcome}`}><Icon className="h-5 w-5" /><div><div className="flex flex-wrap gap-2"><strong>{resultMeta[item.type].label}</strong><span className="meta-chip">{item.id}</span></div><p>{item.summary}</p><small>{item.source} · {item.recordedAt}</small><div className="mt-3 flex items-start gap-2 text-xs">{item.outcome === "conflicts" ? <AlertTriangle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}{item.ruleChange}</div></div></article>; })}</div>}
-      </section>
-    </div>
+    <section className="recorded-next-action"><span>已记录的下一步动作</span><strong>{state.nextRoundItems[0]}</strong><small>由负责人确认，不是自动生成或择优推荐。</small></section>
+    <section className="feedback-boundary"><ShieldAlert className="h-5 w-5" /><p><strong>DEMO / 模拟数据 / 非企业经营成果。</strong>本页不连接真实平台，不根据模拟指标自动决定上市、投放或预算。</p></section>
+    <section className="feedback-toolbar"><div><select value={channel} onChange={(event) => setChannel(event.target.value)} aria-label="按反馈渠道筛选"><option>全部</option>{[...new Set(state.contentAssets.map((item) => item.channel))].map((item) => <option key={item}>{item}</option>)}</select><select value={variant} onChange={(event) => setVariant(event.target.value as typeof variant)} aria-label="按内容版本筛选"><option>全部</option><option>A</option><option>B</option></select></div><span>{selectedConcept.name} · {filtered.length} 条反馈</span></section>
+    <section className="funnel-grid" aria-label="模拟指标漏斗"><Metric label="曝光" value={totals.impressions} base={totals.impressions} /><Metric label="点击" value={totals.clicks} base={totals.impressions} /><Metric label="互动" value={totals.interactions} base={totals.impressions} /><Metric label="收藏" value={totals.saves} base={totals.impressions} /><Metric label="加购" value={totals.addToCart} base={totals.impressions} /><Metric label="转化" value={totals.conversions} base={totals.impressions} /></section>
+    <div className="feedback-layout"><section className="panel-surface"><div className="panel-title-row"><div><p className="section-kicker">A/B records</p><h2>内容版本反馈</h2></div><span className="simulation-chip">模拟与人工记录分层</span></div><div className="feedback-records">{filtered.map((item) => { const asset = state.contentAssets.find((candidate) => candidate.id === item.contentAssetId); return <article key={item.id}><header><div><span>{item.channel} · {asset?.variant ?? "?"}版</span><strong>{item.theme}</strong></div><em>{item.dataNature === "demo" ? "DEMO 模拟" : "人工录入"}</em></header><p>{item.userFeedback}</p><dl><div><dt>曝光</dt><dd>{item.impressions}</dd></div><div><dt>点击</dt><dd>{item.clicks}</dd></div><div><dt>互动</dt><dd>{item.interactions}</dd></div><div><dt>收藏</dt><dd>{item.saves}</dd></div><div><dt>转化</dt><dd>{item.conversions}</dd></div></dl><footer><Link href="/content">内容 {item.contentAssetId}</Link><Link href="/evolution">概念 {item.conceptId}</Link>{item.assumptionId ? <Link href="/assumptions">{item.assumptionId}</Link> : null}<span>{item.recordedAt} · {item.owner}</span></footer></article>; })}</div></section><aside className="space-y-5"><form className="panel-surface" onSubmit={submitFeedback}><p className="section-kicker">Manual feedback</p><h2 className="section-title">记录一条反馈</h2><label className="form-field mt-4"><span>内容版本</span><select value={feedbackDraft.contentAssetId} onChange={(event) => { const asset = state.contentAssets.find((item) => item.id === event.target.value)!; setFeedbackDraft({ ...feedbackDraft, contentAssetId: asset.id, channel: asset.channel }); }}>{state.contentAssets.map((item) => <option key={item.id} value={item.id}>{item.channel} · {item.variant}版 · {item.id}</option>)}</select></label><label className="form-field mt-3"><span>反馈主题</span><input required value={feedbackDraft.theme} onChange={(event) => setFeedbackDraft({ ...feedbackDraft, theme: event.target.value })} /></label><label className="form-field mt-3"><span>用户反馈</span><textarea required value={feedbackDraft.userFeedback} onChange={(event) => setFeedbackDraft({ ...feedbackDraft, userFeedback: event.target.value })} /></label><div className="mini-metric-inputs">{(["impressions", "clicks", "interactions", "saves", "addToCart", "conversions"] as const).map((key) => <label key={key}><span>{key}</span><input type="number" min="0" value={feedbackDraft[key]} onChange={(event) => setFeedbackDraft({ ...feedbackDraft, [key]: Number(event.target.value) })} /></label>)}</div><button className="primary-action mt-4"><Plus className="h-4 w-4" />保存反馈</button></form><section className="panel-surface"><p className="section-kicker">Next round</p><h2 className="section-title">创建下一轮待验证事项</h2><label className="form-field mt-4"><span>事项</span><textarea value={nextItem} onChange={(event) => setNextItem(event.target.value)} /></label><button className="secondary-action mt-3" onClick={() => { addNextRoundItem(nextItem); setNextItem(""); }}><ArrowRight className="h-4 w-4" />加入下一轮</button></section></aside></div>
+    <section className="panel-surface mt-6"><div className="panel-title-row"><div><p className="section-kicker">Pre-validation result</p><h2>录入一项演示结果</h2></div><span className="meta-chip">保留既有Evidence→Decision回流</span></div><form onSubmit={submitResult} className="result-compat-form"><div className="segmented">{(["human", "sample", "sales"] as ResultType[]).map((type) => <button type="button" key={type} className={resultDraft.type === type ? "active" : ""} onClick={() => setResultDraft({ ...resultDraft, type })}>{resultMeta[type].label}</button>)}</div><label className="form-field"><span>结果来源</span><input required value={resultDraft.source} onChange={(event) => setResultDraft({ ...resultDraft, source: event.target.value })} /></label><label className="form-field"><span>结果摘要</span><textarea required value={resultDraft.summary} onChange={(event) => setResultDraft({ ...resultDraft, summary: event.target.value })} /></label><label className="form-field"><span>与原判断关系</span><select value={resultDraft.outcome} onChange={(event) => setResultDraft({ ...resultDraft, outcome: event.target.value as typeof resultDraft.outcome })}><option value="supports">支持原判断</option><option value="conflicts">与原判断冲突</option><option value="unclear">仍无法判断</option></select></label><button className="primary-action">保存演示结果</button></form><div className="mt-4 flex flex-wrap gap-2">{decision.results.slice(-3).map((item) => <span key={item.id} className="meta-chip"><CheckCircle2 className="h-3 w-3" />{item.summary}</span>)}</div></section>
   </div>;
 }
 
-function ResultSummary({ icon: Icon, label, value, warning = false }: { icon: typeof CheckCircle2; label: string; value: string; warning?: boolean }) {
-  return <div className={warning ? "warning" : ""}><Icon className="h-4 w-4" /><span>{label}</span><strong>{value}</strong></div>;
-}
-
-function ResultCount({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: number }) {
-  return <div><Icon className="h-5 w-5" /><span>{label}</span><strong>{value}</strong><small>已完成并独立记录</small></div>;
-}
+function Metric({ label, value, base }: { label: string; value: number; base: number }) { const rate = base ? Math.round(value / base * 1000) / 10 : 0; return <article><BarChart3 className="h-4 w-4" /><span>{label}</span><strong>{value.toLocaleString("zh-CN")}</strong><small>{label === "曝光" ? "漏斗基数" : `${rate}% / 曝光`}</small></article>; }
