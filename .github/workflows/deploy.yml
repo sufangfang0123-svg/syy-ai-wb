@@ -36,6 +36,8 @@ jobs:
           NEXT_PUBLIC_BUILD_PROFILE: public_demo
           NEXT_PUBLIC_REAL_WORKSPACE_ENABLED: "false"
         run: npm run build:public
+      - name: Verify public artifact boundaries and UAT hashes
+        run: npm run verify:public-artifacts
       - name: Configure Pages
         uses: actions/configure-pages@v6
       - name: Upload static export

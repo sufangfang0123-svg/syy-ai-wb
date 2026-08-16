@@ -50,7 +50,7 @@ def test_url_failure_does_not_create_evidence(client, project, monkeypatch):
     assert client.get(f"/api/v1/projects/{project['id']}/evidence").json() == []
 
 
-@pytest.mark.parametrize("url", ["file:///etc/passwd", "ftp://example.com/file", "http://localhost/data", "http://127.0.0.1/data", "http://169.254.169.254/latest/meta-data"])
+@pytest.mark.parametrize("url", ["file:///etc/passwd", "ftp://example.com/file", "http://localhost/data", "http://127.0.0.1/data", "http://[::1]/data", "http://[::ffff:127.0.0.1]/data", "http://169.254.169.254/latest/meta-data", "https://user:secret@example.com/report", "https://example.com:8443/report"])
 def test_url_protocol_and_private_targets_are_rejected(url):
     from app.services import fetch_public_url
     with pytest.raises(ValueError):

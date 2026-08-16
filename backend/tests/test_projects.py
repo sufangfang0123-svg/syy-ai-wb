@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 def test_health_database_and_version(client):
     payload = client.get("/api/v1/health").json()
-    assert payload == {"status": "ok", "version": "0.3.1", "database": "ready", "schema_version": 2}
+    assert payload == {"status": "ok", "version": "0.4.0", "database": "ready", "schema_version": 3}
 
 
 def test_create_update_archive_and_revision(client, project):
@@ -30,8 +30,8 @@ def test_two_projects_are_isolated(client, project):
 def test_migration_is_repeatable(tmp_path):
     from app.database import make_engine, run_migrations
     engine = make_engine(f"sqlite:///{(tmp_path / 'repeat.sqlite3').as_posix()}")
-    assert run_migrations(engine) == 2
-    assert run_migrations(engine) == 2
+    assert run_migrations(engine) == 3
+    assert run_migrations(engine) == 3
     with engine.connect() as connection:
         assert connection.exec_driver_sql("SELECT COUNT(*) FROM schema_migrations").scalar_one() == 1
 
@@ -49,11 +49,12 @@ def test_v02_database_migrates_forward_without_losing_project(tmp_path):
         connection.exec_driver_sql("CREATE TABLE gate_evaluations (id VARCHAR(32) PRIMARY KEY, project_id VARCHAR(32))")
         connection.exec_driver_sql("CREATE TABLE decisions (id VARCHAR(32) PRIMARY KEY, project_id VARCHAR(32), gate_evaluation_id VARCHAR(32))")
         connection.exec_driver_sql("INSERT INTO projects(id,name,revision,created_at,updated_at) VALUES ('legacy','v0.2保留项目',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)")
-    assert run_migrations(engine) == 2
+    assert run_migrations(engine) == 3
     with engine.connect() as connection:
         assert connection.exec_driver_sql("SELECT name FROM projects WHERE id='legacy'").scalar_one() == "v0.2保留项目"
         assert connection.exec_driver_sql("SELECT current_round FROM projects WHERE id='legacy'").scalar_one() == 1
-        assert connection.exec_driver_sql("SELECT COUNT(*) FROM schema_migrations").scalar_one() == 2
+        assert connection.exec_driver_sql("SELECT COUNT(*) FROM schema_migrations").scalar_one() == 3
+        assert {"ai_source_documents", "ai_evidence_runs", "ai_evidence_candidates"}.issubset({row[0] for row in connection.exec_driver_sql("SELECT name FROM sqlite_master WHERE type='table'")})
 
 
 def test_file_database_survives_engine_restart(tmp_path):
@@ -70,4 +71,43 @@ def test_file_database_survives_engine_restart(tmp_path):
     SecondSession = sessionmaker(bind=second)
     with SecondSession() as session:
         assert session.scalar(select(Project).where(Project.name == "重启恢复")) is not None
+
+
+def test_v3_migration_preserves_existing_evidence_and_recreates_ai_tables(tmp_path):
+    from app.database import make_engine, run_migrations, sessionmaker
+    from app.models import Evidence, Project
+    path = tmp_path / "schema2-to-3.sqlite3"
+    engine = make_engine(f"sqlite:///{path.as_posix()}")
+    run_migrations(engine)
+    Session = sessionmaker(bind=engine, expire_on_commit=False)
+    with Session.begin() as session:
+        project = Project(name="v2保留包", decision_question="迁移后记录是否完整？")
+        session.add(project)
+        session.flush()
+        session.add(Evidence(project_id=project.id, source_type="manual", origin_kind="manual", title="迁移保留Evidence", raw_text="迁移前正文", content_hash="a" * 64, status="confirmed"))
+        project_id = project.id
+    with engine.begin() as connection:
+        connection.exec_driver_sql("DROP TABLE ai_evidence_candidates")
+        connection.exec_driver_sql("DROP TABLE ai_evidence_runs")
+        connection.exec_driver_sql("DROP TABLE ai_source_documents")
+        connection.exec_driver_sql("DELETE FROM schema_migrations WHERE version=3")
+    assert run_migrations(engine) == 3
+    with Session() as session:
+        assert session.scalar(select(Project).where(Project.id == project_id)).name == "v2保留包"
+        assert session.scalar(select(Evidence).where(Evidence.project_id == project_id)).raw_text == "迁移前正文"
+    with engine.connect() as connection:
+        assert {"ai_source_documents", "ai_evidence_runs", "ai_evidence_candidates"}.issubset({row[0] for row in connection.exec_driver_sql("SELECT name FROM sqlite_master WHERE type='table'")})
+
+
+def test_future_schema_is_rejected_without_mutation(tmp_path):
+    import pytest
+    from app.database import make_engine, run_migrations
+    engine = make_engine(f"sqlite:///{(tmp_path / 'future.sqlite3').as_posix()}")
+    with engine.begin() as connection:
+        connection.exec_driver_sql("CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL)")
+        connection.exec_driver_sql("INSERT INTO schema_migrations VALUES (99, CURRENT_TIMESTAMP)")
+    with pytest.raises(RuntimeError, match="高于应用支持"):
+        run_migrations(engine)
+    with engine.connect() as connection:
+        assert connection.exec_driver_sql("SELECT MAX(version) FROM schema_migrations").scalar_one() == 99
 

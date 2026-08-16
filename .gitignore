@@ -23,6 +23,7 @@ backend/data/
 *.sqlite3-wal
 __pycache__/
 .pytest_cache/
+.pytest-tmp-*/
 
 # IDE
 .vscode/
