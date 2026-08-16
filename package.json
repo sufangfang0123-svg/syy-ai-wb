@@ -19,7 +19,7 @@
     "test:unit": "vitest run tests/unit",
     "test:e2e": "npm run test:e2e:public",
     "test:e2e:public": "cross-env NEXT_PUBLIC_BUILD_PROFILE=public_demo NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=false TEST_BUILD_PROFILE=public_demo PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/phase1a0/playwright-public.json playwright test --output=test-results/pw-public",
-    "test:e2e:local": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true TEST_BUILD_PROFILE=local_integrated PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/phase1a0/playwright-local.json playwright test tests/phase1a0.spec.ts tests/real-workflow.spec.ts tests/competition-uat.spec.ts --output=test-results/pw-local",
+    "test:e2e:local": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true TEST_BUILD_PROFILE=local_integrated PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/phase1a0/playwright-local.json playwright test tests/phase1a0.spec.ts tests/real-workflow.spec.ts tests/competition-uat.spec.ts tests/product-workbench.spec.ts --workers=1 --output=test-results/pw-local",
     "test:uat:competition": "cross-env NEXT_PUBLIC_BUILD_PROFILE=local_integrated NEXT_PUBLIC_REAL_WORKSPACE_ENABLED=true TEST_BUILD_PROFILE=local_integrated UAT_CAPTURE=1 playwright test tests/competition-uat.spec.ts --project=desktop-chromium --workers=1 --output=test-results/pw-uat",
     "verify:public-artifacts": "node scripts/verify-public-artifacts.mjs",
     "verify:phase1a0": "node scripts/verify-phase1a0.mjs",
