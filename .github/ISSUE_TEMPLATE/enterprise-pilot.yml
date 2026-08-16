@@ -1,0 +1,53 @@
+name: 企业本地封闭试点申请
+description: 使用脱敏信息说明Next-Dollar Gate单企业本地试点需求
+title: "[企业试点] "
+labels: ["enterprise-pilot"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 提交前请确认
+        此公开Issue只用于初步沟通。请勿填写商业机密、个人信息、未脱敏材料、内部URL、账号、Token、Cookie或其他敏感数据。
+  - type: input
+    id: organization_type
+    attributes:
+      label: 组织类型
+      description: 只填写行业或组织类型，不填写未公开企业信息。
+      placeholder: 例如：棉品制造企业 / 消费品牌团队
+    validations:
+      required: true
+  - type: textarea
+    id: decision_scenario
+    attributes:
+      label: 下一笔决策场景
+      description: 使用脱敏描述说明待判断的是打样、开模、备货、投放还是渠道费用。
+      placeholder: 例如：计划在下一轮样品投入前核验证据缺口。
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: 可用本地环境
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS / Linux（需要自行适配启动脚本）
+        - 尚未确认
+    validations:
+      required: true
+  - type: input
+    id: timing
+    attributes:
+      label: 期望试点时间
+      placeholder: 例如：2026年第三季度
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: 边界确认
+      options:
+        - label: 我没有在本Issue中提交商业机密、个人信息或未脱敏材料。
+          required: true
+        - label: 我理解当前版本为单企业、本地、单用户封闭试点，不是云生产系统。
+          required: true
+        - label: 我理解Gate由确定性规则计算，最终决定仍由人工负责人承担。
+          required: true

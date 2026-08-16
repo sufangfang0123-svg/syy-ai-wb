@@ -122,7 +122,7 @@ export function EvolutionProvider({ children }: { children: ReactNode }) {
       opportunity.status = "concept";
       const newId = `PV-${Date.now()}`;
       next.versions.push({ ...source, id: newId, label: "V0.1", opportunityId: id, name: opportunity.name, parentId: undefined, status: "testing", createdAt: new Date().toISOString().slice(0, 10), mutation: "由机会生成初始物种", genome: cloneGenome(source.genome) });
-      addAudit(next, { action: "Concept Generated", object: id, oldValue: "opportunity", newValue: newId, source: "Demo AI Provider", aiGenerated: true });
+      addAudit(next, { action: "Concept Generated", object: id, oldValue: "opportunity", newValue: newId, source: "Demo Fixture Generator", aiGenerated: false });
       return next;
     });
   }, [addAudit]);
@@ -162,7 +162,7 @@ export function EvolutionProvider({ children }: { children: ReactNode }) {
       next.versions.push({ ...source, id, label, parentId: source.id, status: resolveProductStatus(next.gates), fitness, mutation: input.label, genome, createdAt: new Date().toISOString().slice(0, 10) });
       next.currentVersionId = id;
       next.experiments.push({ id: `EXP-${Date.now()}`, round: Math.min(100, next.experiments.length + 38), parentVersionId: source.id, experimentType: "genome", variable: input.label, hypothesis: `验证${input.label}对八维适应度的影响`, evidenceLevel: "D", result: "evolve", decision: `生成${label}并进入下一轮验证`, nextVersionId: id, createdAt: new Date().toISOString().slice(0, 10) });
-      addAudit(next, { action: "Mutation", object: id, oldValue: source.label, newValue: `${label}：${input.label}`, source: "Synthetic Simulation", aiGenerated: true });
+      addAudit(next, { action: "Mutation", object: id, oldValue: source.label, newValue: `${label}：${input.label}`, source: "System Demo Fixture", aiGenerated: false });
       return next;
     });
   }, [addAudit]);
@@ -192,7 +192,7 @@ export function EvolutionProvider({ children }: { children: ReactNode }) {
       const round = Math.min(100, previousRound + 1);
       const stage = round <= 50 ? "genome" : round <= 75 ? "content" : round <= 90 ? "business" : "reality";
       next.experiments.push({ id: `EXP-${Date.now()}`, round, parentVersionId: next.currentVersionId, experimentType: stage, variable: stage, hypothesis: "按实验协议推进结构化验证", evidenceLevel: stage === "reality" ? "B" : "D", result: "pending", decision: "等待本轮证据", createdAt: new Date().toISOString().slice(0, 10) });
-      addAudit(next, { action: "Experiment Advanced", object: `Round ${round}`, oldValue: String(previousRound), newValue: String(round), source: stage === "reality" ? "Human Research" : "Synthetic Simulation", aiGenerated: stage !== "reality" });
+      addAudit(next, { action: "Experiment Advanced", object: `Round ${round}`, oldValue: String(previousRound), newValue: String(round), source: stage === "reality" ? "Simulated Research Fixture" : "System Demo Fixture", aiGenerated: false });
       return next;
     });
   }, [addAudit]);

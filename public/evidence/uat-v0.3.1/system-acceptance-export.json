@@ -1,0 +1,1082 @@
+{
+  "export_version": "1.0",
+  "exported_at": "2026-08-16T04:51:59.018326+00:00",
+  "project": {
+    "id": "prj_dbe7fd6ec0f14115",
+    "name": "系统验收案例｜棉品下一笔投入闭环 UAT v0.3.1",
+    "description": "固定脱敏系统验收夹具；非客户成果，不含真实企业或个人数据。",
+    "product_category": "棉品行业验证包（系统验收）",
+    "target_user": "虚拟验收角色",
+    "decision_question": "固定脱敏夹具是否满足进入下一轮验证的条件？",
+    "status": "active",
+    "revision": 34,
+    "planned_investment": 60000,
+    "currency": "CNY",
+    "current_round": 2,
+    "created_at": "2026-08-16T04:51:50.886178",
+    "updated_at": "2026-08-16T04:51:58.620340"
+  },
+  "evidence": [
+    {
+      "id": "ev_60e0177c860d46d8",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "source_type": "manual",
+      "origin_kind": "file",
+      "title": "uat-cotton-evidence.csv",
+      "source_url": null,
+      "publisher": "",
+      "published_at": null,
+      "retrieved_at": null,
+      "raw_text": "dimension | claim | fixture_value | data_classification\nNEED | 固定验收需求事实 | 68 | synthetic_uat_fixture",
+      "summary": "",
+      "applicable_scope": "由负责人复核",
+      "limitations": "",
+      "original_filename": "uat-cotton-evidence.csv",
+      "mime_type": "text/csv",
+      "size_bytes": 104,
+      "file_sha256": "c291e899f25dc8497e473b98aa8b0a268c983c712afe3e15fe904a23c98028b9",
+      "imported_at": "2026-08-16T04:51:51.450592",
+      "snapshot_ref": "uploads/prj_dbe7fd6ec0f14115/c291e899f25dc8497e473b98aa8b0a268c983c712afe3e15fe904a23c98028b9.csv.snapshot",
+      "content_hash": "8b2c51b253b3de0098dd38f009b207b2207da06071a21f059f65e26f925cdafd",
+      "status": "draft",
+      "created_at": "2026-08-16T04:51:51.450592",
+      "updated_at": "2026-08-16T04:51:57.058087"
+    },
+    {
+      "id": "ev_d7fb1431d7b545ee",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "source_type": "manual",
+      "origin_kind": "paste",
+      "title": "COMMERCIAL固定脱敏Evidence",
+      "source_url": null,
+      "publisher": "系统验收夹具（脱敏）",
+      "published_at": null,
+      "retrieved_at": null,
+      "raw_text": "COMMERCIAL固定验收事实2；仅用于系统验收，不代表真实客户研究结论。",
+      "summary": "COMMERCIAL系统验收摘要",
+      "applicable_scope": "v0.3.1固定系统验收项目",
+      "limitations": "合成夹具，不能作为市场、经营或客户成果证据",
+      "original_filename": null,
+      "mime_type": null,
+      "size_bytes": null,
+      "file_sha256": null,
+      "imported_at": "2026-08-16T04:51:52.333567",
+      "snapshot_ref": "database:raw_text",
+      "content_hash": "e9a8c87cf3212130fc9ab4c03635bf46b1e6fd317c0bf15e877bbd9d7c477b4d",
+      "status": "confirmed",
+      "created_at": "2026-08-16T04:51:52.333567",
+      "updated_at": "2026-08-16T04:51:52.352100"
+    },
+    {
+      "id": "ev_90297e473e3a4f1e",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "source_type": "manual",
+      "origin_kind": "paste",
+      "title": "PRODUCT固定脱敏Evidence",
+      "source_url": null,
+      "publisher": "系统验收夹具（脱敏）",
+      "published_at": null,
+      "retrieved_at": null,
+      "raw_text": "PRODUCT固定验收事实3；仅用于系统验收，不代表真实客户研究结论。",
+      "summary": "PRODUCT系统验收摘要",
+      "applicable_scope": "v0.3.1固定系统验收项目",
+      "limitations": "合成夹具，不能作为市场、经营或客户成果证据",
+      "original_filename": null,
+      "mime_type": null,
+      "size_bytes": null,
+      "file_sha256": null,
+      "imported_at": "2026-08-16T04:51:52.364580",
+      "snapshot_ref": "database:raw_text",
+      "content_hash": "c0b790dca2e0861c0a843c6d261c58f02854629c50043cace0f64b05e056f07e",
+      "status": "confirmed",
+      "created_at": "2026-08-16T04:51:52.364580",
+      "updated_at": "2026-08-16T04:51:52.374835"
+    },
+    {
+      "id": "ev_0111529a4eba45a3",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "source_type": "manual",
+      "origin_kind": "paste",
+      "title": "SUPPLY固定脱敏Evidence",
+      "source_url": null,
+      "publisher": "系统验收夹具（脱敏）",
+      "published_at": null,
+      "retrieved_at": null,
+      "raw_text": "SUPPLY固定验收事实4；仅用于系统验收，不代表真实客户研究结论。",
+      "summary": "SUPPLY系统验收摘要",
+      "applicable_scope": "v0.3.1固定系统验收项目",
+      "limitations": "合成夹具，不能作为市场、经营或客户成果证据",
+      "original_filename": null,
+      "mime_type": null,
+      "size_bytes": null,
+      "file_sha256": null,
+      "imported_at": "2026-08-16T04:51:52.387027",
+      "snapshot_ref": "database:raw_text",
+      "content_hash": "6a646110e02750e3e397ab641d98aeb40bb9a77712abdc447ca16e260a158c53",
+      "status": "confirmed",
+      "created_at": "2026-08-16T04:51:52.387635",
+      "updated_at": "2026-08-16T04:51:52.399457"
+    },
+    {
+      "id": "ev_176842dd02f94167",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "source_type": "manual",
+      "origin_kind": "paste",
+      "title": "COMPLIANCE固定脱敏Evidence",
+      "source_url": null,
+      "publisher": "系统验收夹具（脱敏）",
+      "published_at": null,
+      "retrieved_at": null,
+      "raw_text": "COMPLIANCE固定验收事实5；仅用于系统验收，不代表真实客户研究结论。",
+      "summary": "COMPLIANCE系统验收摘要",
+      "applicable_scope": "v0.3.1固定系统验收项目",
+      "limitations": "合成夹具，不能作为市场、经营或客户成果证据",
+      "original_filename": null,
+      "mime_type": null,
+      "size_bytes": null,
+      "file_sha256": null,
+      "imported_at": "2026-08-16T04:51:52.410827",
+      "snapshot_ref": "database:raw_text",
+      "content_hash": "016008f8a3052c1425e4605bbf25933c8af3428676fe858ec4d17bde8fc3bbb4",
+      "status": "confirmed",
+      "created_at": "2026-08-16T04:51:52.410827",
+      "updated_at": "2026-08-16T04:51:52.422702"
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "asm_fa230cacdc8a4ef8",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "statement": "NEED维固定系统验收假设达到预设阈值",
+      "criticality": 5,
+      "dimension": "NEED",
+      "potential_loss": 20000,
+      "avoidable_loss": 12000,
+      "created_at": "2026-08-16T04:51:52.436544",
+      "updated_at": "2026-08-16T04:51:52.436544"
+    },
+    {
+      "id": "asm_d2dc69cdb1514439",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "statement": "COMMERCIAL维固定系统验收假设达到预设阈值",
+      "criticality": 5,
+      "dimension": "COMMERCIAL",
+      "potential_loss": 20100,
+      "avoidable_loss": 12100,
+      "created_at": "2026-08-16T04:51:52.463581",
+      "updated_at": "2026-08-16T04:51:52.463581"
+    },
+    {
+      "id": "asm_86bc1b413bfe4005",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "statement": "PRODUCT维固定系统验收假设达到预设阈值",
+      "criticality": 5,
+      "dimension": "PRODUCT",
+      "potential_loss": 20200,
+      "avoidable_loss": 12200,
+      "created_at": "2026-08-16T04:51:52.489505",
+      "updated_at": "2026-08-16T04:51:52.489505"
+    },
+    {
+      "id": "asm_53f5a194d3214871",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "statement": "SUPPLY维固定系统验收假设达到预设阈值",
+      "criticality": 5,
+      "dimension": "SUPPLY",
+      "potential_loss": 20300,
+      "avoidable_loss": 12300,
+      "created_at": "2026-08-16T04:51:52.521057",
+      "updated_at": "2026-08-16T04:51:52.521057"
+    },
+    {
+      "id": "asm_1df006cf501246d7",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "statement": "COMPLIANCE维固定系统验收假设达到预设阈值",
+      "criticality": 5,
+      "dimension": "COMPLIANCE",
+      "potential_loss": 20400,
+      "avoidable_loss": 12400,
+      "created_at": "2026-08-16T04:51:52.545518",
+      "updated_at": "2026-08-16T04:51:52.545518"
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk_163012b8b1d84006",
+      "evidence_id": "ev_60e0177c860d46d8",
+      "assumption_id": "asm_fa230cacdc8a4ef8",
+      "direction": "support",
+      "strength": 4,
+      "created_at": "2026-08-16T04:51:52.453170"
+    },
+    {
+      "id": "lnk_3b960229729a47bf",
+      "evidence_id": "ev_d7fb1431d7b545ee",
+      "assumption_id": "asm_d2dc69cdb1514439",
+      "direction": "support",
+      "strength": 4,
+      "created_at": "2026-08-16T04:51:52.476008"
+    },
+    {
+      "id": "lnk_e58ebc300e974b66",
+      "evidence_id": "ev_90297e473e3a4f1e",
+      "assumption_id": "asm_86bc1b413bfe4005",
+      "direction": "support",
+      "strength": 4,
+      "created_at": "2026-08-16T04:51:52.508263"
+    },
+    {
+      "id": "lnk_29495f1280f74358",
+      "evidence_id": "ev_0111529a4eba45a3",
+      "assumption_id": "asm_53f5a194d3214871",
+      "direction": "support",
+      "strength": 4,
+      "created_at": "2026-08-16T04:51:52.533032"
+    },
+    {
+      "id": "lnk_7c9d336794e94adb",
+      "evidence_id": "ev_176842dd02f94167",
+      "assumption_id": "asm_1df006cf501246d7",
+      "direction": "support",
+      "strength": 4,
+      "created_at": "2026-08-16T04:51:52.558565"
+    }
+  ],
+  "evidence_relations": [
+    {
+      "id": "evr_dbee140555ea4256",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "source_evidence_id": "ev_60e0177c860d46d8",
+      "target_evidence_id": "ev_90297e473e3a4f1e",
+      "relation_type": "supports",
+      "notes": "系统验收负责人确认的夹具内支持关系；非客户事实",
+      "created_at": "2026-08-16T04:51:52.572841"
+    }
+  ],
+  "tests": [
+    {
+      "id": "tst_ca49480bae86453c",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "assumption_id": "asm_fa230cacdc8a4ef8",
+      "name": "NEED固定系统验收指标",
+      "method": "固定脱敏样本指标回放（系统验收）",
+      "estimated_cost": 600,
+      "estimated_days": 1,
+      "success_criterion": "夹具指标达到60%",
+      "round_number": 1,
+      "metric_name": "系统验收通过率",
+      "metric_unit": "%",
+      "direction": "at_least",
+      "baseline_value": 40,
+      "threshold_value": 60,
+      "stop_threshold": 30,
+      "status": "completed",
+      "result": "pass",
+      "result_notes": "合成UAT结果68，非真实用户或客户数据",
+      "created_at": "2026-08-16T04:51:54.208854",
+      "updated_at": "2026-08-16T04:51:54.226152"
+    },
+    {
+      "id": "tst_432727669d2243ab",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "assumption_id": "asm_d2dc69cdb1514439",
+      "name": "COMMERCIAL固定系统验收指标",
+      "method": "固定脱敏样本指标回放（系统验收）",
+      "estimated_cost": 600,
+      "estimated_days": 1,
+      "success_criterion": "夹具指标达到60%",
+      "round_number": 1,
+      "metric_name": "系统验收通过率",
+      "metric_unit": "%",
+      "direction": "at_least",
+      "baseline_value": 40,
+      "threshold_value": 60,
+      "stop_threshold": 30,
+      "status": "completed",
+      "result": "pass",
+      "result_notes": "合成UAT结果71，非真实用户或客户数据",
+      "created_at": "2026-08-16T04:51:54.245146",
+      "updated_at": "2026-08-16T04:51:54.259566"
+    },
+    {
+      "id": "tst_0e194cbc22ad41e4",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "assumption_id": "asm_86bc1b413bfe4005",
+      "name": "PRODUCT固定系统验收指标",
+      "method": "固定脱敏样本指标回放（系统验收）",
+      "estimated_cost": 600,
+      "estimated_days": 1,
+      "success_criterion": "夹具指标达到60%",
+      "round_number": 1,
+      "metric_name": "系统验收通过率",
+      "metric_unit": "%",
+      "direction": "at_least",
+      "baseline_value": 40,
+      "threshold_value": 60,
+      "stop_threshold": 30,
+      "status": "completed",
+      "result": "pass",
+      "result_notes": "合成UAT结果66，非真实用户或客户数据",
+      "created_at": "2026-08-16T04:51:54.273510",
+      "updated_at": "2026-08-16T04:51:54.288886"
+    },
+    {
+      "id": "tst_d579d37b1e3b4114",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "assumption_id": "asm_53f5a194d3214871",
+      "name": "SUPPLY固定系统验收指标",
+      "method": "固定脱敏样本指标回放（系统验收）",
+      "estimated_cost": 600,
+      "estimated_days": 1,
+      "success_criterion": "夹具指标达到60%",
+      "round_number": 1,
+      "metric_name": "系统验收通过率",
+      "metric_unit": "%",
+      "direction": "at_least",
+      "baseline_value": 40,
+      "threshold_value": 60,
+      "stop_threshold": 30,
+      "status": "completed",
+      "result": "pass",
+      "result_notes": "合成UAT结果70，非真实用户或客户数据",
+      "created_at": "2026-08-16T04:51:54.303331",
+      "updated_at": "2026-08-16T04:51:54.319662"
+    },
+    {
+      "id": "tst_74676cac2abe4c25",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "assumption_id": "asm_1df006cf501246d7",
+      "name": "COMPLIANCE固定系统验收指标",
+      "method": "固定脱敏样本指标回放（系统验收）",
+      "estimated_cost": 600,
+      "estimated_days": 1,
+      "success_criterion": "夹具指标达到60%",
+      "round_number": 1,
+      "metric_name": "系统验收通过率",
+      "metric_unit": "%",
+      "direction": "at_least",
+      "baseline_value": 40,
+      "threshold_value": 60,
+      "stop_threshold": 30,
+      "status": "completed",
+      "result": "pass",
+      "result_notes": "合成UAT结果73，非真实用户或客户数据",
+      "created_at": "2026-08-16T04:51:54.333570",
+      "updated_at": "2026-08-16T04:51:54.346370"
+    }
+  ],
+  "validation_results": [
+    {
+      "id": "res_f328fe104b144f87",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "validation_test_id": "tst_ca49480bae86453c",
+      "round_number": 1,
+      "actual_value": 68,
+      "sample_size": 24,
+      "executed_at": "2026-08-16T00:00:00",
+      "source": "固定脱敏系统验收夹具",
+      "summary": "合成UAT结果68，非真实用户或客户数据",
+      "deviation_notes": "无；固定夹具回放",
+      "derived_outcome": "pass",
+      "calculation_snapshot": "{\"algorithm\": \"threshold_v1\", \"metric\": \"系统验收通过率\", \"unit\": \"%\", \"direction\": \"at_least\", \"baseline\": 40.0, \"pass_threshold\": 60.0, \"stop_threshold\": 30.0, \"actual\": 68.0, \"derived_outcome\": \"pass\"}",
+      "created_at": "2026-08-16T04:51:54.231732"
+    },
+    {
+      "id": "res_2bc940f84adc4c18",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "validation_test_id": "tst_432727669d2243ab",
+      "round_number": 1,
+      "actual_value": 71,
+      "sample_size": 24,
+      "executed_at": "2026-08-16T00:00:00",
+      "source": "固定脱敏系统验收夹具",
+      "summary": "合成UAT结果71，非真实用户或客户数据",
+      "deviation_notes": "无；固定夹具回放",
+      "derived_outcome": "pass",
+      "calculation_snapshot": "{\"algorithm\": \"threshold_v1\", \"metric\": \"系统验收通过率\", \"unit\": \"%\", \"direction\": \"at_least\", \"baseline\": 40.0, \"pass_threshold\": 60.0, \"stop_threshold\": 30.0, \"actual\": 71.0, \"derived_outcome\": \"pass\"}",
+      "created_at": "2026-08-16T04:51:54.259566"
+    },
+    {
+      "id": "res_74375ec707e14a8d",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "validation_test_id": "tst_0e194cbc22ad41e4",
+      "round_number": 1,
+      "actual_value": 66,
+      "sample_size": 24,
+      "executed_at": "2026-08-16T00:00:00",
+      "source": "固定脱敏系统验收夹具",
+      "summary": "合成UAT结果66，非真实用户或客户数据",
+      "deviation_notes": "无；固定夹具回放",
+      "derived_outcome": "pass",
+      "calculation_snapshot": "{\"algorithm\": \"threshold_v1\", \"metric\": \"系统验收通过率\", \"unit\": \"%\", \"direction\": \"at_least\", \"baseline\": 40.0, \"pass_threshold\": 60.0, \"stop_threshold\": 30.0, \"actual\": 66.0, \"derived_outcome\": \"pass\"}",
+      "created_at": "2026-08-16T04:51:54.288886"
+    },
+    {
+      "id": "res_6dec7ef5051a4d4c",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "validation_test_id": "tst_d579d37b1e3b4114",
+      "round_number": 1,
+      "actual_value": 70,
+      "sample_size": 24,
+      "executed_at": "2026-08-16T00:00:00",
+      "source": "固定脱敏系统验收夹具",
+      "summary": "合成UAT结果70，非真实用户或客户数据",
+      "deviation_notes": "无；固定夹具回放",
+      "derived_outcome": "pass",
+      "calculation_snapshot": "{\"algorithm\": \"threshold_v1\", \"metric\": \"系统验收通过率\", \"unit\": \"%\", \"direction\": \"at_least\", \"baseline\": 40.0, \"pass_threshold\": 60.0, \"stop_threshold\": 30.0, \"actual\": 70.0, \"derived_outcome\": \"pass\"}",
+      "created_at": "2026-08-16T04:51:54.319662"
+    },
+    {
+      "id": "res_929f148628944970",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "validation_test_id": "tst_74676cac2abe4c25",
+      "round_number": 1,
+      "actual_value": 73,
+      "sample_size": 24,
+      "executed_at": "2026-08-16T00:00:00",
+      "source": "固定脱敏系统验收夹具",
+      "summary": "合成UAT结果73，非真实用户或客户数据",
+      "deviation_notes": "无；固定夹具回放",
+      "derived_outcome": "pass",
+      "calculation_snapshot": "{\"algorithm\": \"threshold_v1\", \"metric\": \"系统验收通过率\", \"unit\": \"%\", \"direction\": \"at_least\", \"baseline\": 40.0, \"pass_threshold\": 60.0, \"stop_threshold\": 30.0, \"actual\": 73.0, \"derived_outcome\": \"pass\"}",
+      "created_at": "2026-08-16T04:51:54.346370"
+    }
+  ],
+  "rounds": [
+    {
+      "id": "rnd_53fd9302de914ef6",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "round_number": 1,
+      "base_revision": 1,
+      "selected_assumption_ids": "[]",
+      "created_at": "2026-08-16T04:51:50.889061"
+    },
+    {
+      "id": "rnd_adb14dc744a141b7",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "round_number": 2,
+      "base_revision": 34,
+      "selected_assumption_ids": "[\"asm_fa230cacdc8a4ef8\", \"asm_d2dc69cdb1514439\", \"asm_86bc1b413bfe4005\", \"asm_53f5a194d3214871\", \"asm_1df006cf501246d7\"]",
+      "created_at": "2026-08-16T04:51:58.620340"
+    }
+  ],
+  "economics": {
+    "currency": "CNY",
+    "planned_investment": 60000,
+    "validation_cost": 0,
+    "potential_loss": 101000,
+    "avoidable_loss": 61000,
+    "validation_to_planned_investment_ratio": 0,
+    "validation_to_avoidable_loss_ratio": 0,
+    "break_even_probability": 0,
+    "path_comparison": {
+      "direct_investment": {
+        "immediate_cost": 60000,
+        "loss_exposure": 101000
+      },
+      "validate_first": {
+        "immediate_cost": 0,
+        "potentially_avoidable_loss": 61000
+      }
+    },
+    "formulas": {
+      "validation_cost": "sum(current_round estimated_cost)",
+      "validation_to_planned_investment_ratio": "validation_cost / planned_investment",
+      "break_even_probability": "validation_cost / avoidable_loss"
+    },
+    "rounding": "API保留IEEE-754原值；界面最多展示4位小数",
+    "input_sources": {
+      "planned_investment": "Project",
+      "validation_cost": "ValidationTest.estimated_cost",
+      "potential_loss": "Assumption.potential_loss",
+      "avoidable_loss": "Assumption.avoidable_loss"
+    },
+    "missing_fields": []
+  },
+  "gates": [
+    {
+      "id": "gate_b353c618cf924cd9",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "project_revision": 32,
+      "round_number": 1,
+      "rule_version": "NDG_GATE_V0.3.0",
+      "result": "CONTINUE",
+      "reasons": "[]",
+      "evidence_gaps": "[]",
+      "snapshot": "{\"project_id\": \"prj_dbe7fd6ec0f14115\", \"project_revision\": 32, \"round_number\": 1, \"rule_version\": \"NDG_GATE_V0.3.0\", \"dimension_states\": {\"NEED\": \"CONTINUE\", \"COMMERCIAL\": \"CONTINUE\", \"PRODUCT\": \"CONTINUE\", \"SUPPLY\": \"CONTINUE\", \"COMPLIANCE\": \"CONTINUE\"}, \"economics\": {\"currency\": \"CNY\", \"planned_investment\": 60000.0, \"validation_cost\": 3000.0, \"potential_loss\": 101000.0, \"avoidable_loss\": 61000.0, \"validation_to_planned_investment_ratio\": 0.05, \"validation_to_avoidable_loss_ratio\": 0.04918032786885246, \"break_even_probability\": 0.04918032786885246, \"path_comparison\": {\"direct_investment\": {\"immediate_cost\": 60000.0, \"loss_exposure\": 101000.0}, \"validate_first\": {\"immediate_cost\": 3000.0, \"potentially_avoidable_loss\": 61000.0}}, \"formulas\": {\"validation_cost\": \"sum(current_round estimated_cost)\", \"validation_to_planned_investment_ratio\": \"validation_cost / planned_investment\", \"break_even_probability\": \"validation_cost / avoidable_loss\"}, \"rounding\": \"API保留IEEE-754原值；界面最多展示4位小数\", \"input_sources\": {\"planned_investment\": \"Project\", \"validation_cost\": \"ValidationTest.estimated_cost\", \"potential_loss\": \"Assumption.potential_loss\", \"avoidable_loss\": \"Assumption.avoidable_loss\"}, \"missing_fields\": []}, \"assumptions\": [{\"id\": \"asm_fa230cacdc8a4ef8\", \"criticality\": 5, \"links\": [{\"id\": \"lnk_163012b8b1d84006\", \"evidence_id\": \"ev_60e0177c860d46d8\", \"status\": \"confirmed\", \"direction\": \"support\", \"strength\": 4}], \"dimension\": \"NEED\", \"tests\": [{\"id\": \"tst_ca49480bae86453c\", \"round\": 1, \"status\": \"completed\", \"derived_outcome\": \"pass\"}]}, {\"id\": \"asm_d2dc69cdb1514439\", \"criticality\": 5, \"links\": [{\"id\": \"lnk_3b960229729a47bf\", \"evidence_id\": \"ev_d7fb1431d7b545ee\", \"status\": \"confirmed\", \"direction\": \"support\", \"strength\": 4}], \"dimension\": \"COMMERCIAL\", \"tests\": [{\"id\": \"tst_432727669d2243ab\", \"round\": 1, \"status\": \"completed\", \"derived_outcome\": \"pass\"}]}, {\"id\": \"asm_86bc1b413bfe4005\", \"criticality\": 5, \"links\": [{\"id\": \"lnk_e58ebc300e974b66\", \"evidence_id\": \"ev_90297e473e3a4f1e\", \"status\": \"confirmed\", \"direction\": \"support\", \"strength\": 4}], \"dimension\": \"PRODUCT\", \"tests\": [{\"id\": \"tst_0e194cbc22ad41e4\", \"round\": 1, \"status\": \"completed\", \"derived_outcome\": \"pass\"}]}, {\"id\": \"asm_53f5a194d3214871\", \"criticality\": 5, \"links\": [{\"id\": \"lnk_29495f1280f74358\", \"evidence_id\": \"ev_0111529a4eba45a3\", \"status\": \"confirmed\", \"direction\": \"support\", \"strength\": 4}], \"dimension\": \"SUPPLY\", \"tests\": [{\"id\": \"tst_d579d37b1e3b4114\", \"round\": 1, \"status\": \"completed\", \"derived_outcome\": \"pass\"}]}, {\"id\": \"asm_1df006cf501246d7\", \"criticality\": 5, \"links\": [{\"id\": \"lnk_7c9d336794e94adb\", \"evidence_id\": \"ev_176842dd02f94167\", \"status\": \"confirmed\", \"direction\": \"support\", \"strength\": 4}], \"dimension\": \"COMPLIANCE\", \"tests\": [{\"id\": \"tst_74676cac2abe4c25\", \"round\": 1, \"status\": \"completed\", \"derived_outcome\": \"pass\"}]}], \"triggered_rules\": []}",
+      "evaluated_at": "2026-08-16T04:51:55.982246",
+      "is_stale": true
+    }
+  ],
+  "decisions": [
+    {
+      "id": "dec_64867f8a77b24fb3",
+      "project_id": "prj_dbe7fd6ec0f14115",
+      "gate_evaluation_id": "gate_b353c618cf924cd9",
+      "project_revision": 32,
+      "round_number": 1,
+      "decision": "CONTINUE",
+      "key_reasons": "[]",
+      "evidence_gaps": "[]",
+      "next_action": "在保留风险边界的前提下，由负责人决定是否继续下一笔投入；本结论不承诺商业成功。",
+      "rationale": "系统验收负责人复核规则快照后确认；非企业审批结论。",
+      "decided_by": "系统验收负责人（自我声明）",
+      "created_at": "2026-08-16T04:51:56.755667",
+      "is_stale": true
+    }
+  ],
+  "audit_events": [
+    {
+      "id": "audit_1e0667228d08453e",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "created",
+      "change_summary": "创建真实项目",
+      "created_at": "2026-08-16T04:51:50.887526"
+    },
+    {
+      "id": "audit_aac493d1d8da44d6",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增文件Evidence",
+      "created_at": "2026-08-16T04:51:51.453406"
+    },
+    {
+      "id": "audit_558722741c594d97",
+      "entity_type": "evidence",
+      "entity_id": "ev_60e0177c860d46d8",
+      "action": "file_imported",
+      "change_summary": "sha256=c291e899f25dc8497e473b98aa8b0a268c983c712afe3e15fe904a23c98028b9; snapshot=uploads/prj_dbe7fd6ec0f14115/c291e899f25dc8497e473b98aa8b0a268c983c712afe3e15fe904a23c98028b9.csv.snapshot",
+      "created_at": "2026-08-16T04:51:51.454556"
+    },
+    {
+      "id": "audit_5935ffb06bd5455e",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "Evidence状态改为confirmed",
+      "created_at": "2026-08-16T04:51:51.964093"
+    },
+    {
+      "id": "audit_d85d699e72334441",
+      "entity_type": "evidence",
+      "entity_id": "ev_60e0177c860d46d8",
+      "action": "confirmed",
+      "change_summary": "status=confirmed",
+      "created_at": "2026-08-16T04:51:51.964093"
+    },
+    {
+      "id": "audit_7011c7bc0c2b42f3",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增粘贴文本Evidence",
+      "created_at": "2026-08-16T04:51:52.337558"
+    },
+    {
+      "id": "audit_b33376262c0640b2",
+      "entity_type": "evidence",
+      "entity_id": "ev_d7fb1431d7b545ee",
+      "action": "paste_imported",
+      "change_summary": "sha256=e9a8c87cf3212130fc9ab4c03635bf46b1e6fd317c0bf15e877bbd9d7c477b4d",
+      "created_at": "2026-08-16T04:51:52.337558"
+    },
+    {
+      "id": "audit_6716591e6e7540f6",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "Evidence状态改为confirmed",
+      "created_at": "2026-08-16T04:51:52.354040"
+    },
+    {
+      "id": "audit_dfd681c0f3dd46b8",
+      "entity_type": "evidence",
+      "entity_id": "ev_d7fb1431d7b545ee",
+      "action": "confirmed",
+      "change_summary": "status=confirmed",
+      "created_at": "2026-08-16T04:51:52.354040"
+    },
+    {
+      "id": "audit_f792feab09864fc2",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增粘贴文本Evidence",
+      "created_at": "2026-08-16T04:51:52.366232"
+    },
+    {
+      "id": "audit_1aa2bd7aad844ea9",
+      "entity_type": "evidence",
+      "entity_id": "ev_90297e473e3a4f1e",
+      "action": "paste_imported",
+      "change_summary": "sha256=c0b790dca2e0861c0a843c6d261c58f02854629c50043cace0f64b05e056f07e",
+      "created_at": "2026-08-16T04:51:52.366773"
+    },
+    {
+      "id": "audit_3ccb9d47deba425d",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "Evidence状态改为confirmed",
+      "created_at": "2026-08-16T04:51:52.374835"
+    },
+    {
+      "id": "audit_688fefb1b2824ca9",
+      "entity_type": "evidence",
+      "entity_id": "ev_90297e473e3a4f1e",
+      "action": "confirmed",
+      "change_summary": "status=confirmed",
+      "created_at": "2026-08-16T04:51:52.374835"
+    },
+    {
+      "id": "audit_1c375b9790874bca",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增粘贴文本Evidence",
+      "created_at": "2026-08-16T04:51:52.388806"
+    },
+    {
+      "id": "audit_7b2ab07d140c46ae",
+      "entity_type": "evidence",
+      "entity_id": "ev_0111529a4eba45a3",
+      "action": "paste_imported",
+      "change_summary": "sha256=6a646110e02750e3e397ab641d98aeb40bb9a77712abdc447ca16e260a158c53",
+      "created_at": "2026-08-16T04:51:52.389320"
+    },
+    {
+      "id": "audit_ee1ea341d6a94df1",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "Evidence状态改为confirmed",
+      "created_at": "2026-08-16T04:51:52.400676"
+    },
+    {
+      "id": "audit_20c30c0dd1b24751",
+      "entity_type": "evidence",
+      "entity_id": "ev_0111529a4eba45a3",
+      "action": "confirmed",
+      "change_summary": "status=confirmed",
+      "created_at": "2026-08-16T04:51:52.400676"
+    },
+    {
+      "id": "audit_ef6c5fc8436d4c17",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增粘贴文本Evidence",
+      "created_at": "2026-08-16T04:51:52.410827"
+    },
+    {
+      "id": "audit_dc4cf44a9188422f",
+      "entity_type": "evidence",
+      "entity_id": "ev_176842dd02f94167",
+      "action": "paste_imported",
+      "change_summary": "sha256=016008f8a3052c1425e4605bbf25933c8af3428676fe858ec4d17bde8fc3bbb4",
+      "created_at": "2026-08-16T04:51:52.410827"
+    },
+    {
+      "id": "audit_ddeca9132ea845ef",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "Evidence状态改为confirmed",
+      "created_at": "2026-08-16T04:51:52.423798"
+    },
+    {
+      "id": "audit_a0141ad142a5461f",
+      "entity_type": "evidence",
+      "entity_id": "ev_176842dd02f94167",
+      "action": "confirmed",
+      "change_summary": "status=confirmed",
+      "created_at": "2026-08-16T04:51:52.423798"
+    },
+    {
+      "id": "audit_eb1a9630e2de4324",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增Assumption",
+      "created_at": "2026-08-16T04:51:52.438204"
+    },
+    {
+      "id": "audit_02f52b58eeb94fca",
+      "entity_type": "assumption",
+      "entity_id": "asm_fa230cacdc8a4ef8",
+      "action": "created",
+      "change_summary": "criticality=5",
+      "created_at": "2026-08-16T04:51:52.438204"
+    },
+    {
+      "id": "audit_281b38b1658a450b",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增Evidence关系",
+      "created_at": "2026-08-16T04:51:52.453740"
+    },
+    {
+      "id": "audit_36d1b15991b0462d",
+      "entity_type": "link",
+      "entity_id": "lnk_163012b8b1d84006",
+      "action": "created",
+      "change_summary": "support:4",
+      "created_at": "2026-08-16T04:51:52.454316"
+    },
+    {
+      "id": "audit_cd0715fed2604cdf",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增Assumption",
+      "created_at": "2026-08-16T04:51:52.465870"
+    },
+    {
+      "id": "audit_609304a89d3c4a41",
+      "entity_type": "assumption",
+      "entity_id": "asm_d2dc69cdb1514439",
+      "action": "created",
+      "change_summary": "criticality=5",
+      "created_at": "2026-08-16T04:51:52.466393"
+    },
+    {
+      "id": "audit_ab350c611c5741a6",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增Evidence关系",
+      "created_at": "2026-08-16T04:51:52.477088"
+    },
+    {
+      "id": "audit_057fbc9bd7d14752",
+      "entity_type": "link",
+      "entity_id": "lnk_3b960229729a47bf",
+      "action": "created",
+      "change_summary": "support:4",
+      "created_at": "2026-08-16T04:51:52.477088"
+    },
+    {
+      "id": "audit_09ef1098e7c94553",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增Assumption",
+      "created_at": "2026-08-16T04:51:52.490656"
+    },
+    {
+      "id": "audit_3814af777baa4474",
+      "entity_type": "assumption",
+      "entity_id": "asm_86bc1b413bfe4005",
+      "action": "created",
+      "change_summary": "criticality=5",
+      "created_at": "2026-08-16T04:51:52.491392"
+    },
+    {
+      "id": "audit_91bd4e39917b45d6",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增Evidence关系",
+      "created_at": "2026-08-16T04:51:52.508263"
+    },
+    {
+      "id": "audit_2abf70342f7246e7",
+      "entity_type": "link",
+      "entity_id": "lnk_e58ebc300e974b66",
+      "action": "created",
+      "change_summary": "support:4",
+      "created_at": "2026-08-16T04:51:52.508263"
+    },
+    {
+      "id": "audit_5cadb0db9bb24998",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增Assumption",
+      "created_at": "2026-08-16T04:51:52.522751"
+    },
+    {
+      "id": "audit_c70499fad3e04b00",
+      "entity_type": "assumption",
+      "entity_id": "asm_53f5a194d3214871",
+      "action": "created",
+      "change_summary": "criticality=5",
+      "created_at": "2026-08-16T04:51:52.522751"
+    },
+    {
+      "id": "audit_04c4c1796333482d",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增Evidence关系",
+      "created_at": "2026-08-16T04:51:52.533032"
+    },
+    {
+      "id": "audit_7304721433744366",
+      "entity_type": "link",
+      "entity_id": "lnk_29495f1280f74358",
+      "action": "created",
+      "change_summary": "support:4",
+      "created_at": "2026-08-16T04:51:52.536429"
+    },
+    {
+      "id": "audit_d0c9cf6f91974976",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增Assumption",
+      "created_at": "2026-08-16T04:51:52.547818"
+    },
+    {
+      "id": "audit_f1f4958f74154c05",
+      "entity_type": "assumption",
+      "entity_id": "asm_1df006cf501246d7",
+      "action": "created",
+      "change_summary": "criticality=5",
+      "created_at": "2026-08-16T04:51:52.548871"
+    },
+    {
+      "id": "audit_f42ccf9314ad4ab6",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增Evidence关系",
+      "created_at": "2026-08-16T04:51:52.559795"
+    },
+    {
+      "id": "audit_7740f66e6fe44cbd",
+      "entity_type": "link",
+      "entity_id": "lnk_7c9d336794e94adb",
+      "action": "created",
+      "change_summary": "support:4",
+      "created_at": "2026-08-16T04:51:52.559795"
+    },
+    {
+      "id": "audit_7fe9b7f5c23f4484",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增EvidenceRelation",
+      "created_at": "2026-08-16T04:51:52.574506"
+    },
+    {
+      "id": "audit_eaa7f1444fc248f1",
+      "entity_type": "evidence_relation",
+      "entity_id": "evr_dbee140555ea4256",
+      "action": "created",
+      "change_summary": "supports",
+      "created_at": "2026-08-16T04:51:52.574506"
+    },
+    {
+      "id": "audit_711443272698479a",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增ValidationTest",
+      "created_at": "2026-08-16T04:51:54.208854"
+    },
+    {
+      "id": "audit_6f60c43d42be40f9",
+      "entity_type": "validation_test",
+      "entity_id": "tst_ca49480bae86453c",
+      "action": "created",
+      "change_summary": "NEED固定系统验收指标",
+      "created_at": "2026-08-16T04:51:54.208854"
+    },
+    {
+      "id": "audit_58af8a638f22433f",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "回填ValidationResult并按阈值派生结论",
+      "created_at": "2026-08-16T04:51:54.233201"
+    },
+    {
+      "id": "audit_2db5857ff0304aba",
+      "entity_type": "validation_result",
+      "entity_id": "res_f328fe104b144f87",
+      "action": "derived",
+      "change_summary": "{\"algorithm\": \"threshold_v1\", \"metric\": \"系统验收通过率\", \"unit\": \"%\", \"direction\": \"at_least\", \"baseline\": 40.0, \"pass_threshold\": 60.0, \"stop_threshold\": 30.0, \"actual\": 68.0, \"derived_outcome\": \"pass\"}",
+      "created_at": "2026-08-16T04:51:54.233201"
+    },
+    {
+      "id": "audit_add34eff87fe4843",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增ValidationTest",
+      "created_at": "2026-08-16T04:51:54.247239"
+    },
+    {
+      "id": "audit_00cda36992d74616",
+      "entity_type": "validation_test",
+      "entity_id": "tst_432727669d2243ab",
+      "action": "created",
+      "change_summary": "COMMERCIAL固定系统验收指标",
+      "created_at": "2026-08-16T04:51:54.247870"
+    },
+    {
+      "id": "audit_0b50a766db104f30",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "回填ValidationResult并按阈值派生结论",
+      "created_at": "2026-08-16T04:51:54.261613"
+    },
+    {
+      "id": "audit_e1259be2788a4110",
+      "entity_type": "validation_result",
+      "entity_id": "res_2bc940f84adc4c18",
+      "action": "derived",
+      "change_summary": "{\"algorithm\": \"threshold_v1\", \"metric\": \"系统验收通过率\", \"unit\": \"%\", \"direction\": \"at_least\", \"baseline\": 40.0, \"pass_threshold\": 60.0, \"stop_threshold\": 30.0, \"actual\": 71.0, \"derived_outcome\": \"pass\"}",
+      "created_at": "2026-08-16T04:51:54.261613"
+    },
+    {
+      "id": "audit_d1bcd719e39941b0",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增ValidationTest",
+      "created_at": "2026-08-16T04:51:54.273510"
+    },
+    {
+      "id": "audit_2a9a51ce7b864d8c",
+      "entity_type": "validation_test",
+      "entity_id": "tst_0e194cbc22ad41e4",
+      "action": "created",
+      "change_summary": "PRODUCT固定系统验收指标",
+      "created_at": "2026-08-16T04:51:54.273510"
+    },
+    {
+      "id": "audit_9fac1e6d53a04eb5",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "回填ValidationResult并按阈值派生结论",
+      "created_at": "2026-08-16T04:51:54.288886"
+    },
+    {
+      "id": "audit_2bf34b78929645da",
+      "entity_type": "validation_result",
+      "entity_id": "res_74375ec707e14a8d",
+      "action": "derived",
+      "change_summary": "{\"algorithm\": \"threshold_v1\", \"metric\": \"系统验收通过率\", \"unit\": \"%\", \"direction\": \"at_least\", \"baseline\": 40.0, \"pass_threshold\": 60.0, \"stop_threshold\": 30.0, \"actual\": 66.0, \"derived_outcome\": \"pass\"}",
+      "created_at": "2026-08-16T04:51:54.291155"
+    },
+    {
+      "id": "audit_41fdd34d82074fbd",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增ValidationTest",
+      "created_at": "2026-08-16T04:51:54.304514"
+    },
+    {
+      "id": "audit_bdfb3b1528424896",
+      "entity_type": "validation_test",
+      "entity_id": "tst_d579d37b1e3b4114",
+      "action": "created",
+      "change_summary": "SUPPLY固定系统验收指标",
+      "created_at": "2026-08-16T04:51:54.304514"
+    },
+    {
+      "id": "audit_1ffcd8a705f842a6",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "回填ValidationResult并按阈值派生结论",
+      "created_at": "2026-08-16T04:51:54.321417"
+    },
+    {
+      "id": "audit_1257b4a82aa24dc7",
+      "entity_type": "validation_result",
+      "entity_id": "res_6dec7ef5051a4d4c",
+      "action": "derived",
+      "change_summary": "{\"algorithm\": \"threshold_v1\", \"metric\": \"系统验收通过率\", \"unit\": \"%\", \"direction\": \"at_least\", \"baseline\": 40.0, \"pass_threshold\": 60.0, \"stop_threshold\": 30.0, \"actual\": 70.0, \"derived_outcome\": \"pass\"}",
+      "created_at": "2026-08-16T04:51:54.322170"
+    },
+    {
+      "id": "audit_eed4e972d1d343e0",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "新增ValidationTest",
+      "created_at": "2026-08-16T04:51:54.335297"
+    },
+    {
+      "id": "audit_e5fb36f3998046f6",
+      "entity_type": "validation_test",
+      "entity_id": "tst_74676cac2abe4c25",
+      "action": "created",
+      "change_summary": "COMPLIANCE固定系统验收指标",
+      "created_at": "2026-08-16T04:51:54.335803"
+    },
+    {
+      "id": "audit_75e8b339117341ad",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "回填ValidationResult并按阈值派生结论",
+      "created_at": "2026-08-16T04:51:54.347836"
+    },
+    {
+      "id": "audit_8617cab52a164b3f",
+      "entity_type": "validation_result",
+      "entity_id": "res_929f148628944970",
+      "action": "derived",
+      "change_summary": "{\"algorithm\": \"threshold_v1\", \"metric\": \"系统验收通过率\", \"unit\": \"%\", \"direction\": \"at_least\", \"baseline\": 40.0, \"pass_threshold\": 60.0, \"stop_threshold\": 30.0, \"actual\": 73.0, \"derived_outcome\": \"pass\"}",
+      "created_at": "2026-08-16T04:51:54.348740"
+    },
+    {
+      "id": "audit_f7a998eba7214939",
+      "entity_type": "gate",
+      "entity_id": "gate_b353c618cf924cd9",
+      "action": "evaluated",
+      "change_summary": "result=CONTINUE; revision=32",
+      "created_at": "2026-08-16T04:51:55.984922"
+    },
+    {
+      "id": "audit_e2e4b09ce3064061",
+      "entity_type": "decision",
+      "entity_id": "dec_64867f8a77b24fb3",
+      "action": "human_confirmed",
+      "change_summary": "decision=CONTINUE; decided_by=系统验收负责人（自我声明）",
+      "created_at": "2026-08-16T04:51:56.755667"
+    },
+    {
+      "id": "audit_c8fcba5e4362484d",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "Evidence状态改为draft",
+      "created_at": "2026-08-16T04:51:57.061044"
+    },
+    {
+      "id": "audit_895e50455b554eeb",
+      "entity_type": "evidence",
+      "entity_id": "ev_60e0177c860d46d8",
+      "action": "draft",
+      "change_summary": "status=draft",
+      "created_at": "2026-08-16T04:51:57.061044"
+    },
+    {
+      "id": "audit_f9c029e256f144c6",
+      "entity_type": "project",
+      "entity_id": "prj_dbe7fd6ec0f14115",
+      "action": "revision_incremented",
+      "change_summary": "创建下一轮验证",
+      "created_at": "2026-08-16T04:51:58.620340"
+    },
+    {
+      "id": "audit_8fced4c373ac4466",
+      "entity_type": "iteration_round",
+      "entity_id": "rnd_adb14dc744a141b7",
+      "action": "created",
+      "change_summary": "[\"asm_fa230cacdc8a4ef8\", \"asm_d2dc69cdb1514439\", \"asm_86bc1b413bfe4005\", \"asm_53f5a194d3214871\", \"asm_1df006cf501246d7\"]",
+      "created_at": "2026-08-16T04:51:58.620340"
+    }
+  ]
+}

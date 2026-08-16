@@ -15,7 +15,7 @@ export function ServiceStatus() {
 
   const content = {
     checking: { icon: LoaderCircle, title: "正在检查本地真实服务", body: "确认服务健康前，真实项目入口保持关闭。" },
-    available: { icon: CheckCircle2, title: "本地真实服务可用", body: "v0.3.0单企业封闭试点入口已开放；数据只保存到本地SQLite与私有附件目录。" },
+    available: { icon: CheckCircle2, title: "本地真实服务可用", body: "v0.3.1单企业本地封闭试点入口已开放；数据只保存到本地SQLite与私有附件目录。" },
     unavailable: { icon: AlertTriangle, title: "真实服务不可用", body: "真实项目入口已关闭，且不会回退到浏览器存储。请启动后端服务后重试。" },
     disabled: { icon: AlertTriangle, title: "真实项目能力未启用", body: "本地构建未开启真实项目配置。" },
   }[backendStatus];

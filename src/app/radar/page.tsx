@@ -7,7 +7,7 @@ import { EvidenceBadge } from "@/components/evidence/evidence-badge";
 
 const sources = [
   { name: "公开社交信号", status: "演示样例", coverage: 68, note: "仅公开可见内容" },
-  { name: "真人研究", status: "部分接入", coverage: 42, note: "访谈与概念测试" },
+  { name: "模拟人研夹具", status: "演示样例", coverage: 42, note: "非真实访谈或概念测试" },
   { name: "企业经营数据", status: "待授权", coverage: 0, note: "不在前端模拟" },
   { name: "合成压力测试", status: "可用", coverage: 100, note: "明确标为D级" },
 ];
@@ -28,7 +28,7 @@ export default function RadarPage() {
 
   return <div className="page-frame">
     <header className="page-heading"><div><p className="section-kicker">Simulation Signal Radar</p><h1>模拟信号雷达</h1><p className="page-description">播放内置演示信号以说明覆盖比较方法，不连接平台、不执行全网采集，也不推断真实需求强弱。</p></div><button className="primary-action" onClick={runScan} disabled={running}>{running ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />}{running ? "演示播放中" : "运行演示扫描"}</button></header>
-    <section className="stat-grid"><Stat icon={Radio} label="演示信号" value={state.evidence.length} /><Stat icon={Activity} label="真人证据" value={state.evidence.filter((item) => item.isHuman).length} /><Stat icon={AlertTriangle} label="待验证假设" value={state.evidence.filter((item) => item.level === "D").length} /><Stat icon={Radar} label="上次扫描" value={lastScan} /></section>
+    <section className="stat-grid"><Stat icon={Radio} label="演示信号" value={state.evidence.length} /><Stat icon={Activity} label="模拟人研夹具" value={state.evidence.filter((item) => item.isHuman).length} /><Stat icon={AlertTriangle} label="待验证假设" value={state.evidence.filter((item) => item.level === "D").length} /><Stat icon={Radar} label="上次演示播放" value={lastScan} /></section>
     <div className="mt-6 grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
       <section className="panel-surface">
         <div className="panel-title-row"><div><p className="section-kicker">Incoming Signals</p><h2>最新证据流</h2></div><select className="field-select" value={focus} onChange={(event) => setFocus(event.target.value)} aria-label="筛选证据场景"><option>全部场景</option><option>短期出差</option><option>家庭补给</option><option>公共空间</option></select></div>

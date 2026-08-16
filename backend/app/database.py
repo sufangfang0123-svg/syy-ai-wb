@@ -8,7 +8,7 @@ from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 
-APP_VERSION = "0.3.0"
+APP_VERSION = "0.3.1"
 SCHEMA_VERSION = 2
 DEFAULT_DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 
