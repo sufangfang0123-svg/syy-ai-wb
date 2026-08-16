@@ -8,7 +8,7 @@
 | 成果可视性 | local_integrated已跑通项目、Evidence、Assumption、Validation、Gate、人工Decision、stale、下一轮和导出 | 固定脱敏UAT截图、导出JSON、SHA-256；后端与E2E测试 | `/proof/`、`public/evidence/uat-v0.3.1/`、`backend/tests/`、`tests/` | 已证明系统路径；非客户成果 | “云端真实系统已上线”“已有企业成功案例” |
 | 产业契合度 | 棉生万物是当前内置的棉品行业验证包，可承载材料、包装、供应链与合规假设 | 模拟行业包与五维假设结构；试点材料边界 | `/workspace/`、`/pilot/`、`src/data/demo/decision-data.ts` | 部分证明；产业效果待真实试点 | “已提升棉品销量”“已完成供应链验证” |
 | AI赋能与真实边界 | 本版以确定性规则、结构化追溯和人工责任闭环为核心；AI辅助能力未接入 | Gate规则常量及服务、限制说明、公开边界文案 | `backend/app/services.py`、`KNOWN-LIMITATIONS.md`、`/proof/` | 边界已证明；AI能力待验证 | “AI预测爆品”“AI自动决策”“AI需求洞察已上线” |
-| 特色创新 | 下一笔投入、错误代价排序、下一证据、规则/责任分离、stale和历史不覆盖形成可审计方法 | 数据模型、Gate服务、版本化回归测试与UAT | `/proof/`、`backend/app/models.py`、`backend/app/services.py`、`backend/tests/test_business_acceptance.py` | 已证明软件实现；经营价值待试点 | “自动避免所有错误投入”“成功率提升X%” |
+| 特色创新 | 下一笔投入、错误代价排序、人工明确待补证据、记录验证方案、规则/责任分离、stale和历史不覆盖形成可审计方法 | 数据模型、Gate服务、版本化回归测试与UAT | `/proof/`、`backend/app/models.py`、`backend/app/services.py`、`backend/tests/test_business_acceptance.py` | 已证明记录与规则流程；系统不会自动生成验证方案，经营价值待试点 | “自动推荐下一项证据”“自动生成最低成本实验”“成功率提升X%” |
 
 ## 证据使用规则
 

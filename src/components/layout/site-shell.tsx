@@ -58,5 +58,5 @@ export function SiteShell({ children }: { children: ReactNode }) {
 }
 
 function Brand() {
-  return <Link href="/" className="group flex shrink-0 items-center gap-3" aria-label="Evolution Lab · Next-Dollar Gate 首页"><div className="brand-mark"><span /><span /><span /></div><div><p className="text-[15px] font-semibold tracking-wide text-[#26312D]">Evolution Lab</p><p className="text-[10px] tracking-[0.08em] text-[#6F7D77]">新品投前决策与下一证据引擎</p></div></Link>;
+  return <Link href="/" className="group flex shrink-0 items-center gap-3" aria-label="Evolution Lab · Next-Dollar Gate 首页"><div className="brand-mark"><span /><span /><span /></div><div><p className="text-[15px] font-semibold tracking-wide text-[#26312D]">Evolution Lab</p><p className="text-[10px] tracking-[0.08em] text-[#6F7D77]">新品投前决策与证据验证工作台</p></div></Link>;
 }

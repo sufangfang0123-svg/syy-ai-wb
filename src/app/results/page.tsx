@@ -29,7 +29,7 @@ export default function ResultsPage() {
         <ResultSummary icon={CheckCircle2} label="结论依据" value={`${state.decision.evidenceIds.length} 条演示证据 · ${state.decision.confidence === "high" ? "较高" : state.decision.confidence === "medium" ? "中等" : "较低"}置信度`} />
         <ResultSummary icon={ShieldAlert} label="主要风险" value={primaryRisk?.statement ?? "尚未识别可展示的风险假设"} warning />
         <ResultSummary icon={AlertTriangle} label="待补证项" value={primaryRisk?.evidenceGap ?? state.decision.confidenceLimit} warning />
-        <ResultSummary icon={ArrowRight} label="下一项建议动作" value={nextTest ? `${nextTest.primaryVariable} · 演示预算 ¥${nextTest.budget.toLocaleString("zh-CN")}` : "证据不足，暂不建议继续投入"} />
+        <ResultSummary icon={ArrowRight} label="已记录的下一步动作" value={nextTest ? `${nextTest.primaryVariable} · 演示预算 ¥${nextTest.budget.toLocaleString("zh-CN")}` : "证据不足，尚未记录下一步动作"} />
       </div>
       <footer><span>人工决定：{state.decision.humanDecision === "pending" ? "待演示确认" : recommendationLabel[state.decision.humanDecision]}</span><span><Clock3 className="h-3.5 w-3.5" />本页只展示模拟案例，不构成生产、投资或经营建议。</span></footer>
     </section>

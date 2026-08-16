@@ -52,8 +52,8 @@ export default function DecisionPage() {
           <div className="mt-6"><p className="field-label">当前最危险假设</p><div className="mt-3 space-y-3">{risks.length ? risks.map((item) => <div key={item.id} className="decision-risk"><ShieldAlert className="h-4 w-4" /><div><strong>{item.statement}</strong><p>{item.errorCost}</p></div></div>) : <p className="empty-inline">数据不足，尚未识别关键假设。</p>}</div></div>
         </section>
         <aside>
-          <p className="field-label">最低成本下一项验证</p>
-          {test ? <div className="next-test-card"><span>{test.id} · {test.status === "proposed" ? "待执行" : test.status === "running" ? "进行中" : "已完成"}</span><h3>{test.primaryVariable}</h3><p>{test.hypothesis}</p><div><strong>¥{test.budget.toLocaleString("zh-CN")}</strong><small>{test.duration} · {test.sample}</small></div></div> : <p className="empty-inline">尚无可执行实验建议。</p>}
+          <p className="field-label">已记录的验证方案</p>
+          {test ? <div className="next-test-card"><span>固定演示方案 · {test.status === "proposed" ? "待执行" : test.status === "running" ? "进行中" : "已完成"}</span><h3>{test.primaryVariable}</h3><p>{test.hypothesis}</p><div><strong>¥{test.budget.toLocaleString("zh-CN")}</strong><small>{test.duration} · {test.sample}</small></div></div> : <p className="empty-inline">尚无已记录的验证方案。</p>}
           <p className="field-label mt-6">追溯信息</p>
           <div className="trace-list"><p><span>证据ID</span><strong>{decision.evidenceIds.join("、") || "无"}</strong></p><p><span>模拟规则快照</span><strong>{decision.ruleVersion}</strong></p><p><span>演示夹具版本</span><strong>{decision.modelVersion}</strong></p><p><span>责任人</span><strong>{decision.owner}</strong></p></div>
         </aside>

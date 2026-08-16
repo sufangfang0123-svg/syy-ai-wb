@@ -10,8 +10,8 @@ import { computeGuidePlacement, GuidePlacement, GuideRect } from "@/lib/guide-po
 const steps = [
   { title: "创建新品决策项目", body: "先写清楚准备做什么、面向谁、处于哪个阶段，以及下一笔钱准备花在哪里。", route: "/workspace", targets: ["project-brief"] },
   { title: "核对现有证据", body: "从第一张证据卡开始核对来源、适用范围和限制；公开讨论不能冒充购买行为。", route: "/evidence", targets: ["css:.evidence-record:first-child h2"] },
-  { title: "识别关键风险", body: "系统同时比较错误代价与证据缺口，并解释为什么此刻先验证这一项。", route: "/assumptions", targets: ["assumption-primary", "assumption-explain"] },
-  { title: "生成下一项验证", body: "只推荐一个成本最低、最可能改变决策的测试，并预设通过、补证和停止阈值。", route: "/tests", targets: ["test-hypothesis", "test-thresholds"] },
+  { title: "识别关键风险", body: "模拟案例并列展示错误代价与证据缺口，帮助负责人说明为什么先核对这一项。", route: "/assumptions", targets: ["assumption-primary", "assumption-explain"] },
+  { title: "记录验证方案", body: "由负责人选定一个主变量，记录预算、样本以及通过、补证和停止阈值；演示不自动生成实验。", route: "/tests", targets: ["test-hypothesis", "test-thresholds"] },
   { title: "确认投前决策", body: "系统建议与人工决定分开记录。负责人必须明确确认继续投入、先补证或停止。", route: "/decision", targets: ["decision-verdict", "decision-confirm"] },
 ] as const;
 
