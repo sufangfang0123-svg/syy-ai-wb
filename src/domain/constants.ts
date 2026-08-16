@@ -24,7 +24,7 @@ export const EVIDENCE_LEVELS: Record<
   },
   D: {
     coefficient: 0.25,
-    definition: "AI 模拟、专家假设、演示测算或合成测试",
+    definition: "合成情景、专家假设、演示测算或固定测试夹具",
     decision: "仅用于预筛、压力测试和寻找反例",
     limitation: "不代表真实消费者预测或商业结果",
   },

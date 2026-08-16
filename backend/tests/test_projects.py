@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 def test_health_database_and_version(client):
     payload = client.get("/api/v1/health").json()
-    assert payload == {"status": "ok", "version": "0.3.0", "database": "ready", "schema_version": 2}
+    assert payload == {"status": "ok", "version": "0.3.1", "database": "ready", "schema_version": 2}
 
 
 def test_create_update_archive_and_revision(client, project):

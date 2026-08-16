@@ -55,7 +55,7 @@ export default function DecisionPage() {
           <p className="field-label">最低成本下一项验证</p>
           {test ? <div className="next-test-card"><span>{test.id} · {test.status === "proposed" ? "待执行" : test.status === "running" ? "进行中" : "已完成"}</span><h3>{test.primaryVariable}</h3><p>{test.hypothesis}</p><div><strong>¥{test.budget.toLocaleString("zh-CN")}</strong><small>{test.duration} · {test.sample}</small></div></div> : <p className="empty-inline">尚无可执行实验建议。</p>}
           <p className="field-label mt-6">追溯信息</p>
-          <div className="trace-list"><p><span>证据ID</span><strong>{decision.evidenceIds.join("、") || "无"}</strong></p><p><span>规则版本</span><strong>{decision.ruleVersion}</strong></p><p><span>模型版本</span><strong>{decision.modelVersion}</strong></p><p><span>责任人</span><strong>{decision.owner}</strong></p></div>
+          <div className="trace-list"><p><span>证据ID</span><strong>{decision.evidenceIds.join("、") || "无"}</strong></p><p><span>模拟规则快照</span><strong>{decision.ruleVersion}</strong></p><p><span>演示夹具版本</span><strong>{decision.modelVersion}</strong></p><p><span>责任人</span><strong>{decision.owner}</strong></p></div>
         </aside>
       </div>
       <form id="human-decision" className="human-decision-panel" onSubmit={submit}>

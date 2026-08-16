@@ -49,7 +49,7 @@ export function DecisionProvenanceDrawer({
               </div>
               <p className="text-sm font-medium text-[#2D3436]">{item.title}</p>
               <p className="mt-1 text-xs leading-5 text-[#636E72]">{item.excerpt}</p>
-              <p className="mt-2 text-[11px] text-[#7D8B85]">{item.platform} · {item.date} · {item.isHuman ? "真人研究" : item.dataType === "syntheticSimulation" ? "模拟演示" : "可追溯观察"}</p>
+              <p className="mt-2 text-[11px] text-[#7D8B85]">{item.platform} · {item.date} · {item.isHuman ? "模拟人研夹具" : item.dataType === "syntheticSimulation" ? "模拟演示" : "模拟公开信号"}</p>
             </article>
           ))}
         </div>

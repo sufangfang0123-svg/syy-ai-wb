@@ -32,5 +32,5 @@ export const dataTypeMeta: Record<
 > = {
   public: { label: "公开反馈", color: "#4C83C3", bg: "#EDF2FA" },
   interview: { label: "真人访谈", color: "#7768C5", bg: "#F0EDFA" },
-  ai_simulated: { label: "AI模拟", color: "#7768C5", bg: "#F0EDFA" },
+  ai_simulated: { label: "模拟情景", color: "#7768C5", bg: "#F0EDFA" },
 };

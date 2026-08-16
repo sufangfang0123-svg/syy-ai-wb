@@ -38,7 +38,7 @@ export function NewcomerGuideButton() {
     resetOnboarding();
     router.push(steps[0].route);
   };
-  return <button id="newcomer-guide-trigger" onClick={restart} className="guide-button"><CircleHelp className="h-4 w-4" />新手指引</button>;
+  return <button id="newcomer-guide-trigger" onClick={restart} className="guide-button" aria-label="新手指引"><CircleHelp className="h-4 w-4" /><span className="hidden sm:inline">新手指引</span></button>;
 }
 
 export function NewcomerGuide() {
@@ -49,16 +49,18 @@ export function NewcomerGuide() {
   const closeRef = useRef<HTMLButtonElement>(null);
   const [targetRects, setTargetRects] = useState<GuideRect[]>([]);
   const [placement, setPlacement] = useState<GuidePlacement>({ left: 12, top: 12, side: "center" });
+  const normalizedPathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
+  const isGuideRoute = steps.some((step) => normalizedPathname === step.route);
 
   useEffect(() => {
-    if (isHydrated && pathname !== "/" && !state.onboardingCompleted && state.onboardingStep === null) setOnboardingStep(0);
-  }, [isHydrated, pathname, state.onboardingCompleted, state.onboardingStep, setOnboardingStep]);
+    if (isHydrated && isGuideRoute && !state.onboardingCompleted && state.onboardingStep === null) setOnboardingStep(0);
+  }, [isGuideRoute, isHydrated, state.onboardingCompleted, state.onboardingStep, setOnboardingStep]);
 
   useEffect(() => {
-    if (!isHydrated || state.onboardingStep === null) return;
+    if (!isHydrated || !isGuideRoute || state.onboardingStep === null) return;
     const expectedRoute = steps[state.onboardingStep].route;
-    if (pathname !== expectedRoute) router.replace(expectedRoute);
-  }, [isHydrated, pathname, router, state.onboardingStep]);
+    if (normalizedPathname !== expectedRoute) router.replace(expectedRoute);
+  }, [isGuideRoute, isHydrated, normalizedPathname, router, state.onboardingStep]);
 
   const updateGeometry = useCallback(() => {
     if (state.onboardingStep === null) return;
@@ -73,7 +75,7 @@ export function NewcomerGuide() {
   }, [state.onboardingStep]);
 
   useLayoutEffect(() => {
-    if (!isHydrated || state.onboardingStep === null) return;
+    if (!isHydrated || !isGuideRoute || state.onboardingStep === null) return;
     const frame = window.requestAnimationFrame(() => {
       const target = document.querySelector(targetSelector(steps[state.onboardingStep!].targets[0]));
       target?.scrollIntoView({ behavior: "auto", block: "end", inline: "nearest" });
@@ -89,10 +91,10 @@ export function NewcomerGuide() {
       window.removeEventListener("resize", updateGeometry);
       window.removeEventListener("scroll", updateGeometry, true);
     };
-  }, [isHydrated, pathname, state.onboardingStep, updateGeometry]);
+  }, [isGuideRoute, isHydrated, pathname, state.onboardingStep, updateGeometry]);
 
   useEffect(() => {
-    if (!isHydrated || state.onboardingStep === null) return;
+    if (!isHydrated || !isGuideRoute || state.onboardingStep === null) return;
     const trapFocus = (event: KeyboardEvent) => {
       if (event.key !== "Tab" || !panelRef.current) return;
       const focusable = Array.from(panelRef.current.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])')).filter((element) => element.offsetParent !== null);
@@ -105,9 +107,9 @@ export function NewcomerGuide() {
     };
     document.addEventListener("keydown", trapFocus, true);
     return () => document.removeEventListener("keydown", trapFocus, true);
-  }, [isHydrated, state.onboardingStep]);
+  }, [isGuideRoute, isHydrated, state.onboardingStep]);
 
-  if (!isHydrated || state.onboardingStep === null) return null;
+  if (!isHydrated || !isGuideRoute || state.onboardingStep === null) return null;
   const index = state.onboardingStep;
   const step = steps[index];
   const go = (next: number) => {

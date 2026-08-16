@@ -19,7 +19,7 @@ const appNav = [
 
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const marketing = pathname === "/";
+  const marketing = pathname === "/" || pathname.startsWith("/proof") || pathname.startsWith("/pilot");
   const [menuOpen, setMenuOpen] = useState(false);
   const [auditOpen, setAuditOpen] = useState(false);
   const { config, activeSpace } = useRuntimeBoundary();
@@ -28,12 +28,12 @@ export function SiteShell({ children }: { children: ReactNode }) {
     return <div className="min-h-screen bg-[#FAF8F5] text-[#2D3436]">
       <header className="site-header"><div className="mx-auto flex h-[72px] max-w-[1360px] items-center gap-5 px-4 sm:px-6 lg:px-8">
         <Brand />
-        <span className="enterprise-preview-badge hidden sm:inline-flex">v0.3.0 · 公开模拟演示</span>
-        <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="展示站导航"><a href="#mechanism" className="nav-link">工作原理</a><a href="#case" className="nav-link">棉品模拟案例</a><a href="#versions" className="nav-link">实施状态</a></nav>
-        <Link href="/workspace" className="primary-action ml-1"><span className="hidden sm:inline">{config.isPublicDemo ? "进入模拟研究实验室" : "打开本地集成工作区"}</span><span className="sm:hidden">开始体验</span></Link>
+        <span className="enterprise-preview-badge hidden sm:inline-flex">v0.3.1 · 公开模拟展示</span>
+        <nav className="ml-auto hidden items-center gap-1 lg:flex" aria-label="展示站导航"><Link href="/#mechanism" className="nav-link">工作原理</Link><Link href="/proof" aria-current={pathname.startsWith("/proof") ? "page" : undefined} className={`nav-link ${pathname.startsWith("/proof") ? "nav-link-active" : ""}`}>成果证明</Link><Link href="/pilot" aria-current={pathname.startsWith("/pilot") ? "page" : undefined} className={`nav-link ${pathname.startsWith("/pilot") ? "nav-link-active" : ""}`}>企业试点</Link></nav>
+        <Link href="/workspace" className="primary-action ml-auto lg:ml-1"><span className="hidden sm:inline">{config.isPublicDemo ? "进入模拟研究实验室" : "打开本地集成工作区"}</span><span className="sm:hidden">开始体验</span></Link>
       </div></header>
       <main>{children}</main>
-      <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-5 py-6 text-center text-xs leading-6 text-[#636E72]">v0.3.0 Public Demo。当前公开站仅提供方法展示与独立模拟研究实验室；真实闭环仅在本地集成构建运行。</footer>
+      <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-5 py-6 text-center text-xs leading-6 text-[#636E72]">Evolution Lab · Next-Dollar Gate v0.3.1。公开站仅提供模拟展示和系统验收证据；真实闭环仅在 local_integrated 本地运行，不是云生产系统。</footer>
     </div>;
   }
 
@@ -45,18 +45,18 @@ export function SiteShell({ children }: { children: ReactNode }) {
         <span className={`hidden rounded-full px-2 py-1 text-[10px] font-bold sm:inline-flex ${realOpen ? "bg-[#E8F2EB] text-[#315C46]" : "bg-[#F5EBDD] text-[#8A5A33]"}`}>{realOpen ? "本地真实闭环 · SQLite" : "独立模拟研究实验室"}</span>
         {!realOpen ? <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 xl:flex" aria-label="模拟决策流程">{appNav.map(({ href, label, phase, icon: Icon }) => { const active = pathname.startsWith(href); return <Link key={href} href={href} aria-current={active ? "page" : undefined} className={`nav-link ${active ? "nav-link-active" : ""}`}><span className="nav-phase">{phase}</span><Icon className="h-4 w-4" />{label}</Link>; })}</nav> : <div className="flex-1" />}
         <div className="ml-auto flex items-center gap-2">
-          {!realOpen ? <><Link href="/opportunities" className="secondary-action hidden lg:inline-flex"><BookOpenCheck className="h-4 w-4" />模拟研究实验室</Link><button onClick={() => setAuditOpen(true)} className="icon-button hidden sm:inline-flex" aria-label="查看模拟操作记录"><History className="h-4 w-4" /></button><NewcomerGuideButton /></> : <Link href="/workspace" className="secondary-action"><ArrowLeft className="h-4 w-4"/>返回模拟</Link>}
+          {!realOpen ? <><Link href="/opportunities" className="secondary-action shell-simulation-link"><BookOpenCheck className="h-4 w-4" />模拟研究实验室</Link><button onClick={() => setAuditOpen(true)} className="icon-button shell-audit-button" aria-label="查看模拟操作记录"><History className="h-4 w-4" /></button><NewcomerGuideButton /></> : <Link href="/workspace" className="secondary-action" aria-label="返回模拟"><ArrowLeft className="h-4 w-4"/><span className="hidden sm:inline">返回模拟</span></Link>}
           {!realOpen ? <button onClick={() => setMenuOpen(!menuOpen)} className="icon-button xl:hidden" aria-expanded={menuOpen} aria-controls="simulation-nav" aria-label="打开模拟流程导航">{menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button> : null}
         </div>
       </div>
       {menuOpen && !realOpen ? <nav id="simulation-nav" className="mobile-workflow-nav" aria-label="移动端模拟决策流程">{appNav.map(({ href, label, phase, icon: Icon }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} className={`nav-link justify-start ${pathname.startsWith(href) ? "nav-link-active" : ""}`}><span className="nav-phase">{phase}</span><Icon className="h-4 w-4" />{label}</Link>)}</nav> : null}
     </header>
     <main>{children}</main>
-    <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-4 py-3 text-center text-xs leading-5 text-[#636E72]">{realOpen ? "v0.3.0 单企业封闭试点版 · 本地单用户系统，不是多用户生产或企业审批平台。" : "v0.3.0 Public Demo · 独立模拟研究实验室。所有记录均为演示数据，不用于生产、投资或经营决策。"}</footer>
+    <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-4 py-3 text-center text-xs leading-5 text-[#636E72]">{realOpen ? "v0.3.1 单企业本地封闭试点交付版 · 本地单用户系统，不是多用户生产或企业审批平台。" : "v0.3.1 Public Demo · 独立模拟研究实验室。所有记录均为演示夹具，不用于生产、投资或经营决策。"}</footer>
     {!realOpen ? <><NewcomerGuide /><AuditDrawer open={auditOpen} onClose={() => setAuditOpen(false)} /></> : null}
   </div>;
 }
 
 function Brand() {
-  return <Link href="/" className="group flex shrink-0 items-center gap-3" aria-label="Evolution Lab展示站"><div className="brand-mark"><span /><span /><span /></div><div><p className="text-[15px] font-semibold tracking-wide text-[#26312D]">Evolution Lab</p><p className="text-[10px] uppercase tracking-[0.16em] text-[#6F7D77]">新品投前决策引擎</p></div></Link>;
+  return <Link href="/" className="group flex shrink-0 items-center gap-3" aria-label="Evolution Lab · Next-Dollar Gate 首页"><div className="brand-mark"><span /><span /><span /></div><div><p className="text-[15px] font-semibold tracking-wide text-[#26312D]">Evolution Lab</p><p className="text-[10px] tracking-[0.08em] text-[#6F7D77]">新品投前决策与下一证据引擎</p></div></Link>;
 }
