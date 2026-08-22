@@ -11,7 +11,7 @@ import { ProductWorkbenchShell } from "@/components/workbench/product-workbench-
 
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const marketing = pathname === "/" || pathname.startsWith("/proof") || pathname.startsWith("/pilot");
+  const marketing = pathname === "/" || pathname.startsWith("/proof") || pathname.startsWith("/pilot") || pathname.startsWith("/enterprise-demo");
   const [auditOpen, setAuditOpen] = useState(false);
   const { config, activeSpace } = useRuntimeBoundary();
 
@@ -19,12 +19,12 @@ export function SiteShell({ children }: { children: ReactNode }) {
     return <div className="min-h-screen bg-[#FAF8F5] text-[#2D3436]">
       <header className="site-header"><div className="mx-auto flex h-[72px] max-w-[1360px] items-center gap-5 px-4 sm:px-6 lg:px-8">
         <Brand />
-        <span className="enterprise-preview-badge hidden sm:inline-flex">v0.3.1 · 公开模拟展示</span>
-        <nav className="ml-auto hidden items-center gap-1 lg:flex" aria-label="展示站导航"><Link href="/#mechanism" className="nav-link">工作原理</Link><Link href="/proof" aria-current={pathname.startsWith("/proof") ? "page" : undefined} className={`nav-link ${pathname.startsWith("/proof") ? "nav-link-active" : ""}`}>成果证明</Link><Link href="/pilot" aria-current={pathname.startsWith("/pilot") ? "page" : undefined} className={`nav-link ${pathname.startsWith("/pilot") ? "nav-link-active" : ""}`}>企业试点</Link></nav>
+        <span className="enterprise-preview-badge hidden sm:inline-flex">v0.4.0 · 公开互动演示</span>
+        <nav className="ml-auto hidden items-center gap-1 lg:flex" aria-label="展示站导航"><Link href="/#mechanism" className="nav-link">工作原理</Link><Link href="/enterprise-demo" aria-current={pathname.startsWith("/enterprise-demo") ? "page" : undefined} className={`nav-link ${pathname.startsWith("/enterprise-demo") ? "nav-link-active" : ""}`}>企业闭环</Link><Link href="/proof" aria-current={pathname.startsWith("/proof") ? "page" : undefined} className={`nav-link ${pathname.startsWith("/proof") ? "nav-link-active" : ""}`}>成果证明</Link><Link href="/pilot" aria-current={pathname.startsWith("/pilot") ? "page" : undefined} className={`nav-link ${pathname.startsWith("/pilot") ? "nav-link-active" : ""}`}>企业试点</Link></nav>
         <Link href="/workspace" className="primary-action ml-auto lg:ml-1"><span className="hidden sm:inline">{config.isPublicDemo ? "进入模拟研究实验室" : "打开本地集成工作区"}</span><span className="sm:hidden">开始体验</span></Link>
       </div></header>
       <main>{children}</main>
-      <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-5 py-6 text-center text-xs leading-6 text-[#636E72]">Evolution Lab · Next-Dollar Gate v0.3.1。公开站仅提供模拟展示和系统验收证据；真实闭环仅在 local_integrated 本地运行，不是云生产系统。</footer>
+      <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-5 py-6 text-center text-xs leading-6 text-[#636E72]">Evolution Lab · Next-Dollar Gate v0.4.0。公开站仅提供固定模拟演示和系统验收证据；真实闭环仅在 local_integrated 本地运行，不是云生产系统。</footer>
     </div>;
   }
 
@@ -42,7 +42,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       </div>
     </header>
     {realOpen ? <main>{children}</main> : <ProductWorkbenchShell>{children}</ProductWorkbenchShell>}
-    <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-4 py-3 text-center text-xs leading-5 text-[#636E72]">{realOpen || localWorkbench ? "v0.4.0 本地单用户产品工作台 · 人员身份为人工自述，不是多用户生产、RBAC或企业审批平台。" : "v0.3.1 Public Demo · 独立模拟研究实验室。所有记录均为演示夹具，不用于生产、投资或经营决策。"}</footer>
+    <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-4 py-3 text-center text-xs leading-5 text-[#636E72]">{realOpen || localWorkbench ? "v0.4.0 本地单用户产品工作台 · 人员身份为人工自述，不是多用户生产、RBAC或企业审批平台。" : "v0.4.0 Public Demo · 独立模拟研究实验室。所有记录均为演示夹具，不用于生产、投资或经营决策。"}</footer>
     {!realOpen && !localWorkbench ? <><NewcomerGuide /><AuditDrawer open={auditOpen} onClose={() => setAuditOpen(false)} /></> : null}
   </div>;
 }

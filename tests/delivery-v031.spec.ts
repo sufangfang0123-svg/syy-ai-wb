@@ -1,7 +1,7 @@
 import { expect, Page, test } from "@playwright/test";
 
 const profile = process.env.TEST_BUILD_PROFILE ?? "public_demo";
-const routes = ["/", "/workspace/", "/proof/", "/pilot/", "/assumptions/", "/tests/", "/decision/", "/results/", "/real/"];
+const routes = ["/", "/enterprise-demo/", "/workspace/", "/proof/", "/pilot/", "/assumptions/", "/tests/", "/decision/", "/results/", "/real/"];
 
 async function closeGuide(page: Page) {
   await page.waitForTimeout(500);
@@ -9,14 +9,15 @@ async function closeGuide(page: Page) {
   if (await dialog.isVisible().catch(() => false)) await page.keyboard.press("Escape");
 }
 
-test("v0.3.1 public delivery routes, CTAs and truth boundaries are explicit", async ({ page }) => {
+test("v0.4.0 public delivery routes, CTAs and truth boundaries are explicit", async ({ page }) => {
   test.setTimeout(60_000);
   test.skip(profile !== "public_demo", "public delivery build only");
   await page.goto("/");
-  await expect(page).toHaveTitle(/Evolution Lab · Next-Dollar Gate v0\.3\.1/);
+  await expect(page).toHaveTitle(/Evolution Lab · Next-Dollar Gate v0\.4\.0/);
   await expect(page.getByRole("link", { name: /体验完整模拟流程/ })).toHaveAttribute("href", /workspace/);
   await expect(page.getByRole("link", { name: /查看本地闭环系统证明/ })).toHaveAttribute("href", /proof/);
   await expect(page.getByRole("link", { name: /查看企业试点说明/ })).toHaveAttribute("href", /pilot/);
+  await expect(page.getByRole("link", { name: /查看企业闭环演示/ })).toHaveAttribute("href", /enterprise-demo/);
   await expect(page.getByText(/公开站是模拟演示/).first()).toBeVisible();
   await page.goto("/proof/");
   await expect(page.getByRole("heading", { name: /为什么下一笔不可逆新品费用/ })).toBeVisible();
@@ -34,7 +35,7 @@ test("v0.3.1 public delivery routes, CTAs and truth boundaries are explicit", as
 });
 
 for (const route of routes) {
-  test(`${route} fits the v0.3.1 desktop and mobile viewport`, async ({ page }, testInfo) => {
+  test(`${route} fits the v0.4.0 desktop and mobile viewport`, async ({ page }, testInfo) => {
     test.skip(profile !== "public_demo", "public delivery build only");
     if (!testInfo.project.name.includes("mobile")) await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(route);
@@ -49,7 +50,7 @@ for (const route of routes) {
 
 test("public delivery pages expose no empty or unexplained controls", async ({ page }) => {
   test.skip(profile !== "public_demo", "public delivery build only");
-  for (const route of ["/", "/proof/", "/pilot/"]) {
+  for (const route of ["/", "/enterprise-demo/", "/proof/", "/pilot/"]) {
     await page.goto(route);
     const controls = page.locator("a[href], button");
     for (const control of await controls.all()) {

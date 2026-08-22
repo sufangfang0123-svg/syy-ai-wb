@@ -7,7 +7,7 @@ import { ProductWorkbenchProvider } from "@/components/workbench/product-workben
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Evolution Lab · Next-Dollar Gate v0.3.1",
+  title: "Evolution Lab · Next-Dollar Gate v0.4.0",
   description: "新品投前决策与证据验证工作台；公开模拟展示与单企业本地封闭试点说明。",
 };
 
