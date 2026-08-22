@@ -4,9 +4,15 @@ import Link from "next/link";
 import { useState } from "react";
 import { AlertTriangle, ArrowRight, Check, GitCompareArrows, Lock, PencilLine, ShieldAlert } from "lucide-react";
 import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { LocalWorkbenchStage } from "@/components/workbench/local-workbench-stage";
 import { ProductConceptCandidate } from "@/domain/product-workbench-types";
 
 export default function EvolutionPage() {
+  const {mode}=useProductWorkbench();
+  return mode==="local_api"?<LocalWorkbenchStage stage="concept"/>:<PublicEvolutionPage/>;
+}
+
+function PublicEvolutionPage() {
   const { state, selectedConcept, selectConcept, updateConcept, lockConcept } = useProductWorkbench();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [reason, setReason] = useState(selectedConcept.selectionReason);

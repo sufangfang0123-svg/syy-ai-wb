@@ -10,8 +10,14 @@ import { DecisionProvenanceDrawer } from "@/components/evidence/decision-provena
 import { EvidenceLevel, FitnessDimensionKey } from "@/domain/types";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { LocalWorkbenchStage } from "@/components/workbench/local-workbench-stage";
 
 export default function OpportunitiesPage() {
+  const {mode}=useProductWorkbench();
+  return mode==="local_api"?<LocalWorkbenchStage stage="opportunities"/>:<PublicOpportunitiesPage/>;
+}
+
+function PublicOpportunitiesPage() {
   const { state, currentVersion, selectedOpportunity, selectOpportunity } = useEvolution();
   const { state: workbench, reviewOpportunity } = useProductWorkbench();
   const [query, setQuery] = useState("");

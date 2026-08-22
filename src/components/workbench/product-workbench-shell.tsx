@@ -7,6 +7,7 @@ import { BarChart3, Boxes, CheckSquare2, ClipboardList, FileText, FlaskConical, 
 import { useDecision } from "@/components/decision/decision-provider";
 import { useEvolution } from "@/components/demo/evolution-provider";
 import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { LocalProductWorkbenchShell } from "@/components/workbench/local-product-workbench-shell";
 
 const stages = [
   { href: "/workspace", label: "项目总览", step: "01", icon: LayoutDashboard, paths: ["/workspace"] },
@@ -20,6 +21,12 @@ const stages = [
 ];
 
 export function ProductWorkbenchShell({ children }: { children: ReactNode }) {
+  const workbench = useProductWorkbench();
+  if (workbench.mode === "local_api") return <LocalProductWorkbenchShell>{children}</LocalProductWorkbenchShell>;
+  return <PublicProductWorkbenchShell>{children}</PublicProductWorkbenchShell>;
+}
+
+function PublicProductWorkbenchShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { state: decisionState } = useDecision();
   const { state: evolutionState } = useEvolution();
@@ -28,7 +35,7 @@ export function ProductWorkbenchShell({ children }: { children: ReactNode }) {
   const gateLabel = decisionState.decision.recommendation === "continue" ? "继续投入" : decisionState.decision.recommendation === "stop" ? "停止" : "先补证";
   const staleCount = state.scenarioReviews.filter((item) => item.stale).length + state.contentAssets.filter((item) => item.stale).length;
 
-  return <div className="product-workbench" data-product-workbench>
+  return <div className="product-workbench" data-product-workbench data-workbench-adapter="public_fixture">
     <section className="project-command-bar" aria-label="当前项目状态">
       <div className="project-command-primary"><span className="simulation-chip">DEMO · 模拟项目</span><div><strong>{decisionState.project.name}</strong><small>{selectedConcept.name} · 比赛概念方案，非全棉时代正式产品</small></div></div>
       <dl className="project-command-facts">

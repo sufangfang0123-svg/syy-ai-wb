@@ -7,10 +7,16 @@ import { useDecision } from "@/components/decision/decision-provider";
 import { DataBoundary, WorkspaceHeading, recommendationLabel } from "@/components/decision/workspace-ui";
 import { DecisionRecommendation } from "@/domain/decision-types";
 import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { LocalWorkbenchStage } from "@/components/workbench/local-workbench-stage";
 
 const choices: DecisionRecommendation[] = ["continue", "supplement", "stop"];
 
 export default function DecisionPage() {
+  const {mode}=useProductWorkbench();
+  return mode==="local_api"?<LocalWorkbenchStage stage="decision"/>:<PublicDecisionPage/>;
+}
+
+function PublicDecisionPage() {
   const { state, isHydrated, confirmDecision } = useDecision();
   const { state: workbench, selectedConcept } = useProductWorkbench();
   const { decision, project } = state;

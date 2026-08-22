@@ -5,8 +5,15 @@ import { ArrowRight, Beaker, CheckCircle2, MinusCircle, StopCircle } from "lucid
 import { useDecision } from "@/components/decision/decision-provider";
 import { DataBoundary, EmptyState, WorkspaceHeading } from "@/components/decision/workspace-ui";
 import { formatStatusCounts, getValidationLedger } from "@/lib/validation-ledger";
+import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { LocalWorkbenchStage } from "@/components/workbench/local-workbench-stage";
 
 export default function TestsPage() {
+  const {mode}=useProductWorkbench();
+  return mode==="local_api"?<LocalWorkbenchStage stage="gate"/>:<PublicTestsPage/>;
+}
+
+function PublicTestsPage() {
   const { state } = useDecision();
   const test = state.tests[0];
   const ledger = getValidationLedger(state);

@@ -2,7 +2,7 @@ import { runtimeConfig } from "../config/runtime";
 
 export type Dimension="NEED"|"COMMERCIAL"|"PRODUCT"|"SUPPLY"|"COMPLIANCE";
 export type GateResult="CONTINUE"|"SUPPLEMENT"|"STOP";
-export type Project={id:string;name:string;description:string;product_category:string;target_user:string;decision_question:string;status:"active"|"archived";revision:number;planned_investment:number|null;currency:string;current_round:number;created_at:string;updated_at:string};
+export type Project={id:string;name:string;description:string;product_category:string;target_user:string;decision_question:string;status:"active"|"archived";revision:number;planned_investment:number|null;currency:string;current_round:number;category_pack_id:string;created_at:string;updated_at:string};
 export type Evidence={id:string;project_id:string;source_type:"manual"|"url";origin_kind:"manual"|"url"|"paste"|"file";title:string;source_url:string|null;publisher:string;published_at:string|null;retrieved_at:string|null;raw_text:string;summary:string;applicable_scope:string;limitations:string;original_filename:string|null;mime_type:string|null;size_bytes:number|null;file_sha256:string|null;imported_at:string;snapshot_ref:string;content_hash:string;status:"draft"|"confirmed";created_at:string;updated_at:string};
 export type Assumption={id:string;project_id:string;statement:string;criticality:number;dimension:Dimension;potential_loss:number|null;avoidable_loss:number|null;created_at:string;updated_at:string};
 export type EvidenceLink={id:string;evidence_id:string;assumption_id:string;direction:"support"|"contradict";strength:number;created_at:string};

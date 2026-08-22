@@ -4,10 +4,17 @@ import Link from "next/link";
 import { AlertOctagon, ArrowRight, CheckCircle2, HelpCircle } from "lucide-react";
 import { useDecision } from "@/components/decision/decision-provider";
 import { DataBoundary, EmptyState, WorkspaceHeading } from "@/components/decision/workspace-ui";
+import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { LocalWorkbenchStage } from "@/components/workbench/local-workbench-stage";
 
 const category = { demand: "需求", product: "产品", technology: "技术", cost: "成本", supply: "供应链", compliance: "合规", commercial: "商业" } as const;
 
 export default function AssumptionsPage() {
+  const {mode}=useProductWorkbench();
+  return mode==="local_api"?<LocalWorkbenchStage stage="gate"/>:<PublicAssumptionsPage/>;
+}
+
+function PublicAssumptionsPage() {
   const { state } = useDecision();
   const sorted = [...state.assumptions].sort((a, b) => ({ high: 3, medium: 2, low: 1 }[b.severity] - { high: 3, medium: 2, low: 1 }[a.severity]));
   return <div className="page-frame">

@@ -5,12 +5,18 @@ import Link from "next/link";
 import { ArrowRight, BarChart3, CheckCircle2, PackageCheck, Plus, ShieldAlert, ShoppingBag, Users } from "lucide-react";
 import { useDecision } from "@/components/decision/decision-provider";
 import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { LocalWorkbenchStage } from "@/components/workbench/local-workbench-stage";
 import { DataBoundary, WorkspaceHeading } from "@/components/decision/workspace-ui";
 import { ResultType } from "@/domain/decision-types";
 
 const resultMeta = { human: { label: "真人反馈", icon: Users }, sample: { label: "样品表现", icon: PackageCheck }, sales: { label: "销售结果", icon: ShoppingBag } } as const;
 
 export default function ResultsPage() {
+  const {mode}=useProductWorkbench();
+  return mode==="local_api"?<LocalWorkbenchStage stage="results"/>:<PublicResultsPage/>;
+}
+
+function PublicResultsPage() {
   const { state: decision, addResult } = useDecision();
   const { state, selectedConcept, addFeedback, addNextRoundItem } = useProductWorkbench();
   const [channel, setChannel] = useState("全部");

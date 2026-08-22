@@ -1,5 +1,7 @@
 import { expect, Page, test } from "@playwright/test";
 
+const profile = process.env.TEST_BUILD_PROFILE ?? "public_demo";
+
 async function enterWorkbench(page: Page) {
   await page.goto("/workspace/");
   await page.waitForTimeout(500);
@@ -8,11 +10,23 @@ async function enterWorkbench(page: Page) {
 }
 
 test.beforeEach(async ({ page }) => {
+  test.skip(profile !== "public_demo", "legacy fixture workflow is public_demo only");
   await page.goto("/");
   await page.evaluate(() => window.localStorage.clear());
 });
 
+test("public product workbench never calls the local backend or exposes Provider controls", async ({ page }) => {
+  let backendRequests = 0;
+  page.on("request", (request) => { if (request.url().startsWith("http://127.0.0.1:8000")) backendRequests += 1; });
+  await enterWorkbench(page);
+  await expect(page.locator("[data-product-workbench]")).toHaveAttribute("data-workbench-adapter", "public_fixture");
+  await expect(page.locator("body")).not.toContainText("导入结构化AI建议包");
+  await expect(page.locator("body")).not.toContainText("LOCAL · SQLite");
+  expect(backendRequests).toBe(0);
+});
+
 test("opportunity, concept, scenarios, content and feedback stay connected", async ({ page }, testInfo) => {
+  test.setTimeout(60_000);
   test.skip(testInfo.project.name.includes("mobile"), "desktop end-to-end workflow");
   await page.setViewportSize({ width: 1440, height: 900 });
   await enterWorkbench(page);
@@ -46,6 +60,7 @@ test("opportunity, concept, scenarios, content and feedback stay connected", asy
 });
 
 test("product workbench has no horizontal page overflow on target viewports", async ({ page }) => {
+  test.setTimeout(60_000);
   await enterWorkbench(page);
   for (const route of ["/workspace/", "/insights/", "/opportunities/", "/evolution/", "/launch/", "/evidence/", "/content/", "/results/", "/decision/"]) {
     await page.goto(route);

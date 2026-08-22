@@ -29,20 +29,21 @@ export function SiteShell({ children }: { children: ReactNode }) {
   }
 
   const realOpen = pathname.startsWith("/real") && config.isLocalIntegrated;
+  const localWorkbench = config.isLocalIntegrated && !realOpen;
   return <div className="min-h-screen bg-[#FAF8F5] text-[#2D3436]" data-build-profile={config.buildProfile} data-active-space={activeSpace}>
     <header className="site-header">
       <div className="mx-auto flex h-[72px] max-w-[1360px] items-center gap-4 px-4 lg:px-6">
         <Brand />
-        <span className={`hidden rounded-full px-2 py-1 text-[10px] font-bold sm:inline-flex ${realOpen ? "bg-[#E8F2EB] text-[#315C46]" : "bg-[#F5EBDD] text-[#8A5A33]"}`}>{realOpen ? "本地真实闭环 · SQLite" : "独立模拟研究实验室"}</span>
+        <span className={`hidden rounded-full px-2 py-1 text-[10px] font-bold sm:inline-flex ${realOpen || localWorkbench ? "bg-[#E8F2EB] text-[#315C46]" : "bg-[#F5EBDD] text-[#8A5A33]"}`}>{realOpen ? "本地 Evidence→Gate · SQLite" : localWorkbench ? "本地产品工作台 · SQLite" : "独立模拟研究实验室"}</span>
         <div className="flex-1" />
         <div className="ml-auto flex items-center gap-2">
-          {!realOpen ? <><Link href="/opportunities" className="secondary-action shell-simulation-link"><BookOpenCheck className="h-4 w-4" />模拟研究实验室</Link><button onClick={() => setAuditOpen(true)} className="icon-button shell-audit-button" aria-label="查看模拟操作记录"><History className="h-4 w-4" /></button><NewcomerGuideButton /></> : <Link href="/workspace" className="secondary-action" aria-label="返回模拟"><ArrowLeft className="h-4 w-4"/><span className="hidden sm:inline">返回模拟</span></Link>}
+          {localWorkbench ? <Link href="/real" className="secondary-action"><BookOpenCheck className="h-4 w-4"/>Evidence 与固定 Gate</Link> : !realOpen ? <><Link href="/opportunities" className="secondary-action shell-simulation-link"><BookOpenCheck className="h-4 w-4" />模拟研究实验室</Link><button onClick={() => setAuditOpen(true)} className="icon-button shell-audit-button" aria-label="查看模拟操作记录"><History className="h-4 w-4" /></button><NewcomerGuideButton /></> : <Link href="/workspace" className="secondary-action" aria-label="返回产品工作台"><ArrowLeft className="h-4 w-4"/><span className="hidden sm:inline">返回产品工作台</span></Link>}
         </div>
       </div>
     </header>
     {realOpen ? <main>{children}</main> : <ProductWorkbenchShell>{children}</ProductWorkbenchShell>}
-    <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-4 py-3 text-center text-xs leading-5 text-[#636E72]">{realOpen ? "v0.3.1 单企业本地封闭试点交付版 · 本地单用户系统，不是多用户生产或企业审批平台。" : "v0.3.1 Public Demo · 独立模拟研究实验室。所有记录均为演示夹具，不用于生产、投资或经营决策。"}</footer>
-    {!realOpen ? <><NewcomerGuide /><AuditDrawer open={auditOpen} onClose={() => setAuditOpen(false)} /></> : null}
+    <footer className="border-t border-[#DFE6E9] bg-[#F3F1EC] px-4 py-3 text-center text-xs leading-5 text-[#636E72]">{realOpen || localWorkbench ? "v0.4.0 本地单用户产品工作台 · 人员身份为人工自述，不是多用户生产、RBAC或企业审批平台。" : "v0.3.1 Public Demo · 独立模拟研究实验室。所有记录均为演示夹具，不用于生产、投资或经营决策。"}</footer>
+    {!realOpen && !localWorkbench ? <><NewcomerGuide /><AuditDrawer open={auditOpen} onClose={() => setAuditOpen(false)} /></> : null}
   </div>;
 }
 

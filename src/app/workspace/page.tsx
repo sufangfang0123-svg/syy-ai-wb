@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowRight, Boxes, CheckCircle2, CircleDollarSign, Clock
 import { useDecision } from "@/components/decision/decision-provider";
 import { useEvolution } from "@/components/demo/evolution-provider";
 import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { LocalWorkbenchStage } from "@/components/workbench/local-workbench-stage";
 import { DataBoundary, WorkspaceHeading, recommendationLabel } from "@/components/decision/workspace-ui";
 import { ModeSwitch } from "@/components/decision/workspace-ui";
 import { ServiceStatus } from "@/components/system/service-status";
@@ -12,6 +13,11 @@ import { ServiceStatus } from "@/components/system/service-status";
 const stages = [["洞察", "/insights", 100], ["产品共创", "/evolution", 70], ["数字实验", "/launch", 38], ["预验证Gate", "/evidence", 72], ["内容中枢", "/content", 54], ["转化反馈", "/results", 22]] as const;
 
 export default function WorkspacePage() {
+  const {mode}=useProductWorkbench();
+  return mode==="local_api"?<LocalWorkbenchStage stage="overview"/>:<PublicWorkspacePage/>;
+}
+
+function PublicWorkspacePage() {
   const { state: decision, updateProject } = useDecision();
   const { state: evolution } = useEvolution();
   const { state, selectedConcept } = useProductWorkbench();

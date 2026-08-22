@@ -6,8 +6,15 @@ import { ArrowRight, Filter, Layers3, MessageCircleWarning, Users } from "lucide
 import { useEvolution } from "@/components/demo/evolution-provider";
 import { EvidenceBadge } from "@/components/evidence/evidence-badge";
 import { EvidenceLevel } from "@/domain/types";
+import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { LocalWorkbenchStage } from "@/components/workbench/local-workbench-stage";
 
 export default function InsightsPage() {
+  const {mode}=useProductWorkbench();
+  return mode==="local_api"?<LocalWorkbenchStage stage="insights"/>:<PublicInsightsPage/>;
+}
+
+function PublicInsightsPage() {
   const { state } = useEvolution();
   const [level, setLevel] = useState<"ALL" | EvidenceLevel>("ALL");
   const [selected, setSelected] = useState(state.evidence[0].id);

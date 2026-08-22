@@ -4,12 +4,18 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Check, Clipboard, Download, FileEdit, GitCompareArrows, ShieldAlert } from "lucide-react";
 import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { LocalWorkbenchStage } from "@/components/workbench/local-workbench-stage";
 import { ReviewStatus } from "@/domain/product-workbench-types";
 
 const channels = ["全部", "小红书", "抖音", "电商", "视频号", "私域"] as const;
 const reviewLabels: Record<ReviewStatus, string> = { pending: "待审核", approved: "已通过", changes: "需修改", rejected: "不采用" };
 
 export default function ContentPage() {
+  const {mode}=useProductWorkbench();
+  return mode==="local_api"?<LocalWorkbenchStage stage="content"/>:<PublicContentPage/>;
+}
+
+function PublicContentPage() {
   const { state, selectedConcept, updateContent, reviewContent } = useProductWorkbench();
   const [channel, setChannel] = useState<(typeof channels)[number]>("全部");
   const [variant, setVariant] = useState<"A" | "B">("A");

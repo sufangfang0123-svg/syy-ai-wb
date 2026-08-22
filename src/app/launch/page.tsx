@@ -4,8 +4,14 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowRight, Filter, FlaskConical, GitCompareArrows, ShieldAlert } from "lucide-react";
 import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { LocalWorkbenchStage } from "@/components/workbench/local-workbench-stage";
 
 export default function LaunchPage() {
+  const {mode}=useProductWorkbench();
+  return mode==="local_api"?<LocalWorkbenchStage stage="scenarios"/>:<PublicLaunchPage/>;
+}
+
+function PublicLaunchPage() {
   const { state, selectedConcept, scenarios, reviewScenario } = useProductWorkbench();
   const [persona, setPersona] = useState("全部");
   const [channel, setChannel] = useState("全部");
