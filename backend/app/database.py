@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 from typing import Generator
@@ -8,8 +9,8 @@ from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 
-APP_VERSION = "0.3.1"
-SCHEMA_VERSION = 2
+APP_VERSION = "0.4.0"
+SCHEMA_VERSION = 3
 DEFAULT_DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 
 
@@ -45,11 +46,15 @@ SessionLocal = sessionmaker(bind=engine, expire_on_commit=False, class_=Session)
 
 def run_migrations(target_engine=None) -> int:
     from . import models  # noqa: F401
+    from . import workbench_models  # noqa: F401
+    from .category_packs import CATEGORY_PACKS
 
     active_engine = target_engine or engine
     with active_engine.begin() as connection:
         connection.execute(text("CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL)"))
         current = connection.execute(text("SELECT COALESCE(MAX(version), 0) FROM schema_migrations")).scalar_one()
+    if current > SCHEMA_VERSION:
+        raise RuntimeError(f"数据库 Schema {current} 高于当前程序支持的 {SCHEMA_VERSION}，已拒绝启动以避免破坏数据")
     if current < 1:
         Base.metadata.create_all(active_engine)
         with active_engine.begin() as connection:
@@ -93,7 +98,32 @@ def run_migrations(target_engine=None) -> int:
                             connection.execute(text(f'ALTER TABLE "{table}" ADD COLUMN "{name}" {ddl}'))
                 connection.execute(text("UPDATE evidence SET imported_at = created_at WHERE imported_at IS NULL"))
                 connection.execute(text("INSERT INTO schema_migrations(version, applied_at) VALUES (2, CURRENT_TIMESTAMP)"))
+            current = 2
+        # create_all仅补充缺失表，不改写旧表；先建v3新表，再对旧表做精确ALTER。
         Base.metadata.create_all(active_engine)
+        if current < 3:
+            additions = {
+                "projects": [("category_pack_id", "VARCHAR(80) NOT NULL DEFAULT 'woven_apparel_v1'")],
+                "audit_events": [
+                    ("actor", "VARCHAR(160) NOT NULL DEFAULT 'self-declared'"),
+                    ("data_nature", "VARCHAR(24) NOT NULL DEFAULT 'real_entry'"),
+                    ("metadata_json", "TEXT NOT NULL DEFAULT '{}'")
+                ],
+            }
+            with active_engine.begin() as connection:
+                inspector = inspect(connection)
+                for table, columns in additions.items():
+                    existing = {column["name"] for column in inspector.get_columns(table)}
+                    for name, ddl in columns:
+                        if name not in existing:
+                            connection.execute(text(f'ALTER TABLE "{table}" ADD COLUMN "{name}" {ddl}'))
+                connection.execute(text("INSERT INTO schema_migrations(version, applied_at) VALUES (3, CURRENT_TIMESTAMP)"))
+        Base.metadata.create_all(active_engine)
+    with active_engine.begin() as connection:
+        for pack in CATEGORY_PACKS:
+            existing = connection.execute(text("SELECT id FROM category_packs WHERE id=:id"), {"id": pack["id"]}).first()
+            if not existing:
+                connection.execute(text("INSERT INTO category_packs(id,name,version,status,category_type,description,config_json,created_at,updated_at) VALUES (:id,:name,:version,:status,:category_type,:description,:config_json,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)"), {**{key: pack[key] for key in ("id", "name", "version", "status", "category_type", "description")}, "config_json": json.dumps(pack["config"], ensure_ascii=False, sort_keys=True)})
     return SCHEMA_VERSION
 
 

@@ -30,6 +30,7 @@ class Project(Base):
     planned_investment: Mapped[float | None] = mapped_column(Float, nullable=True)
     currency: Mapped[str] = mapped_column(String(8), default="CNY")
     current_round: Mapped[int] = mapped_column(Integer, default=1)
+    category_pack_id: Mapped[str] = mapped_column(String(80), default="woven_apparel_v1", index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
     evidence: Mapped[list["Evidence"]] = relationship(back_populates="project", cascade="all, delete-orphan")
@@ -199,6 +200,9 @@ class AuditEvent(Base):
     entity_id: Mapped[str] = mapped_column(String(40))
     action: Mapped[str] = mapped_column(String(40))
     change_summary: Mapped[str] = mapped_column(Text)
+    actor: Mapped[str] = mapped_column(String(160), default="self-declared")
+    data_nature: Mapped[str] = mapped_column(String(24), default="real_entry")
+    metadata_json: Mapped[str] = mapped_column(Text, default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 

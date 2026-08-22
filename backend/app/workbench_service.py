@@ -1,0 +1,205 @@
+from __future__ import annotations
+
+import csv
+import hashlib
+import io
+import json
+from datetime import datetime
+from typing import Any
+
+from fastapi import HTTPException
+from sqlalchemy import select, update
+from sqlalchemy.orm import Session
+
+from .models import Assumption, Evidence, Project, utcnow
+from .services import audit, invalidate_project
+from .workbench_models import AIProposal, ChangeProposal, ContentAsset, FeedbackRecord, Opportunity, ProductConcept, RecommendationPolicy, ScenarioCandidate
+
+
+PRIORITY_INPUTS = (
+    "evidence_fit", "error_cost", "uncertainty_gap", "execution",
+    "category_fit", "channel_fit", "compliance_safety", "contrary_evidence_safety",
+)
+PRIORITY_POLICY_VERSION = "WOVEN_SCENARIO_PRIORITY_V1"
+PRIORITY_FORMULA = "0.18*Evidence适配 + 0.16*错误代价 + 0.16*不确定性缺口 + 0.14*验证可执行性 + 0.12*品类适配 + 0.10*渠道适配 + 0.08*声明安全 + 0.06*反证安全"
+PRIORITY_WEIGHTS = (0.18, 0.16, 0.16, 0.14, 0.12, 0.10, 0.08, 0.06)
+
+
+def compact_json(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def parse_json(value: str, default: Any) -> Any:
+    try:
+        return json.loads(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def require_revision(entity: Any, revision: int) -> None:
+    if entity.revision != revision:
+        raise HTTPException(409, {"message": "记录已被修改，请刷新后重试", "current_revision": entity.revision})
+
+
+def validate_project_refs(session: Session, project_id: str, evidence_ids: list[str], assumption_ids: list[str]) -> None:
+    if evidence_ids:
+        found = set(session.scalars(select(Evidence.id).where(Evidence.project_id == project_id, Evidence.id.in_(evidence_ids))).all())
+        missing = sorted(set(evidence_ids) - found)
+        if missing:
+            raise HTTPException(422, {"message": "Evidence引用不存在或不属于当前项目", "missing": missing})
+    if assumption_ids:
+        found = set(session.scalars(select(Assumption.id).where(Assumption.project_id == project_id, Assumption.id.in_(assumption_ids))).all())
+        missing = sorted(set(assumption_ids) - found)
+        if missing:
+            raise HTTPException(422, {"message": "Assumption引用不存在或不属于当前项目", "missing": missing})
+
+
+def validate_input_references(session: Session, project_id: str, references: list[str]) -> None:
+    known: set[str] = {project_id}
+    for model in (Evidence, Assumption, Opportunity, ProductConcept, ScenarioCandidate, ContentAsset, FeedbackRecord):
+        known.update(session.scalars(select(model.id).where(model.project_id == project_id)).all())
+    missing = sorted(set(references) - known)
+    if missing:
+        raise HTTPException(422, {"message": "AI建议包包含未知或跨项目引用", "missing": missing})
+
+
+def input_snapshot_hash(session: Session, project_id: str, references: list[str]) -> str:
+    validate_input_references(session, project_id, references)
+    records: list[dict[str, Any]] = []
+    model_names = (
+        (Evidence, "evidence"), (Assumption, "assumption"), (Opportunity, "opportunity"),
+        (ProductConcept, "product_concept"), (ScenarioCandidate, "scenario"),
+        (ContentAsset, "content_asset"), (FeedbackRecord, "feedback"),
+    )
+    for ref in sorted(set(references)):
+        if ref == project_id:
+            project = session.get(Project, project_id)
+            records.append({"id": ref, "type": "project", "revision": project.revision if project else None, "updated_at": str(project.updated_at) if project else None})
+            continue
+        for model, label in model_names:
+            entity = session.get(model, ref)
+            if entity is not None and entity.project_id == project_id:
+                records.append({"id": ref, "type": label, "revision": getattr(entity, "revision", None), "version": getattr(entity, "version", None), "updated_at": str(getattr(entity, "updated_at", "")), "content_hash": getattr(entity, "content_hash", None)})
+                break
+    return hashlib.sha256(compact_json(records).encode("utf-8")).hexdigest()
+
+
+def stale_concept_dependents(session: Session, project: Project, concept_id: str, reason: str, actor: str) -> None:
+    session.execute(update(ScenarioCandidate).where(ScenarioCandidate.concept_id == concept_id, ScenarioCandidate.is_stale.is_(False)).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    session.execute(update(ContentAsset).where(ContentAsset.concept_id == concept_id, ContentAsset.is_stale.is_(False)).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    session.execute(update(ChangeProposal).where(ChangeProposal.target_entity_id == concept_id, ChangeProposal.status == "proposed", ChangeProposal.is_stale.is_(False)).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    session.execute(update(AIProposal).where(AIProposal.project_id == project.id, AIProposal.status == "proposed", AIProposal.is_stale.is_(False)).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    session.execute(update(RecommendationPolicy).where(RecommendationPolicy.project_id == project.id, RecommendationPolicy.status == "proposed", RecommendationPolicy.is_stale.is_(False)).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    invalidate_project(session, project, reason)
+    audit(session, project.id, "product_concept", concept_id, "dependents_stale", reason, actor=actor, metadata={"concept_id": concept_id})
+
+
+def calculate_priority(inputs: dict[str, float]) -> tuple[float | None, list[str], str]:
+    missing = [key for key in PRIORITY_INPUTS if key not in inputs]
+    if missing:
+        return None, missing, "必要输入缺失，不生成总分；请由负责人补数或直接人工复核。"
+    score = round(sum(inputs[key] * weight for key, weight in zip(PRIORITY_INPUTS, PRIORITY_WEIGHTS)), 2)
+    return score, [], f"待验证优先级={score}；公式：{PRIORITY_FORMULA}。这不是成功率、销量、CTR/CVR或ROI预测。"
+
+
+def check_content_claims(body: str, approved_claims: list[str], prohibited_terms: list[str], evidence_ids: list[str]) -> list[dict[str, str]]:
+    findings: list[dict[str, str]] = []
+    for term in prohibited_terms:
+        if term and term in body:
+            findings.append({"type": "prohibited_term", "term": term, "message": f"命中品类包禁用词：{term}；必须人工修改。"})
+    absolute_terms = ("一定", "永久", "完全", "最", "第一", "零风险", "100%")
+    for term in absolute_terms:
+        if term in body:
+            findings.append({"type": "absolute_claim", "term": term, "message": f"检测到绝对化表达：{term}。"})
+    material_terms = ("全棉", "透气", "不起球", "不缩水", "色牢度")
+    if any(term in body for term in material_terms) and not evidence_ids:
+        findings.append({"type": "missing_evidence", "term": "material_or_effect", "message": "材质或效果表达没有关联Evidence。"})
+    if approved_claims and not any(claim.split("（", 1)[0] in body for claim in approved_claims):
+        findings.append({"type": "approved_claim_not_used", "term": "", "message": "当前文案未使用品类包已批准声明；这只是提示，不自动判定失败。"})
+    return findings
+
+
+def feedback_fingerprint(row: dict[str, str]) -> str:
+    canonical = compact_json({key: row.get(key, "").strip() for key in sorted(row)})
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def parse_feedback_csv(raw: bytes) -> list[dict[str, Any]]:
+    if len(raw) > 2_000_000:
+        raise HTTPException(413, "反馈CSV超过2MB限制")
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise HTTPException(422, "反馈CSV必须为UTF-8编码") from exc
+    reader = csv.DictReader(io.StringIO(text))
+    required = {
+        "channel", "content_asset_id", "window_start", "window_end", "source",
+        "impressions", "clicks", "interactions", "saves", "add_to_cart", "conversions",
+        "metric_definition", "owner", "data_nature",
+    }
+    if not reader.fieldnames or not required.issubset(set(reader.fieldnames)):
+        raise HTTPException(422, {"message": "反馈CSV字段缺失", "missing": sorted(required - set(reader.fieldnames or []))})
+    rows: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    batch_natures: set[str] = set()
+    for line_number, row in enumerate(reader, start=2):
+        normalized = {key: (value or "").strip() for key, value in row.items()}
+        fingerprint = feedback_fingerprint(normalized)
+        if fingerprint in seen:
+            raise HTTPException(422, {"message": "反馈CSV内存在重复记录", "line": line_number})
+        seen.add(fingerprint)
+        nature = normalized["data_nature"]
+        if nature not in {"real_entry", "manual_import", "fixed_demo"}:
+            raise HTTPException(422, {"message": "未知数据性质", "line": line_number})
+        batch_natures.add(nature)
+        try:
+            metrics = {key: int(normalized[key]) for key in ("impressions", "clicks", "interactions", "saves", "add_to_cart", "conversions")}
+            start = datetime.fromisoformat(normalized["window_start"].replace("Z", "+00:00"))
+            end = datetime.fromisoformat(normalized["window_end"].replace("Z", "+00:00"))
+        except (ValueError, TypeError) as exc:
+            raise HTTPException(422, {"message": "时间或指标格式无效", "line": line_number}) from exc
+        if any(value < 0 for value in metrics.values()):
+            raise HTTPException(422, {"message": "指标不得为负数", "line": line_number})
+        if not normalized["metric_definition"] or not normalized["source"] or not normalized["owner"]:
+            raise HTTPException(422, {"message": "来源、指标定义和负责人不能为空", "line": line_number})
+        if end <= start:
+            raise HTTPException(422, {"message": "数据时间窗必须明确且结束晚于开始", "line": line_number})
+        if metrics["clicks"] > metrics["impressions"] or metrics["conversions"] > metrics["clicks"] or metrics["add_to_cart"] > metrics["clicks"] or metrics["saves"] > metrics["interactions"] + metrics["clicks"]:
+            raise HTTPException(422, {"message": "漏斗指标超过合理上游数量", "line": line_number})
+        rows.append({**normalized, **metrics, "window_start": start, "window_end": end, "import_fingerprint": fingerprint, "line": line_number})
+    if not rows:
+        raise HTTPException(422, "反馈CSV没有数据行")
+    if len(batch_natures) > 1:
+        raise HTTPException(422, "同一批次禁止混合模拟与真实/人工导入数据")
+    return rows
+
+
+def recommendation_from_feedback(session: Session, project: Project, actor: str) -> RecommendationPolicy:
+    feedback = session.scalars(select(FeedbackRecord).where(FeedbackRecord.project_id == project.id)).all()
+    count = len(feedback)
+    insufficient = count < 3
+    channels = sorted({item.channel for item in feedback})
+    coverage = {"feedback_records": count, "channels": channels, "minimum_records": 3, "minimum_channels": 2}
+    if insufficient or len(channels) < 2:
+        suggestion: dict[str, Any] = {}
+        rationale = "数据不足，无法提出可靠调整。至少需要3条反馈且覆盖2个渠道；不会填入默认数字。"
+        insufficient = True
+    else:
+        suggestion = {"review_focus": "由负责人复核反馈记录中的共同主题", "next_evidence": "补充可追溯的内容版本与人群分层证据"}
+        rationale = "建议层只根据已导入反馈覆盖情况生成待审建议，不修改Gate、预算或正式概念。"
+    policy = RecommendationPolicy(
+        project_id=project.id,
+        policy_version=f"RECOMMENDATION_POLICY_V{project.current_round}.{project.revision}",
+        dimensions_json=compact_json(["signal_review", "scenario_validation", "content_revision", "next_evidence"]),
+        feedback_sample_count=count,
+        coverage_json=compact_json(coverage),
+        suggestion_json=compact_json(suggestion),
+        rationale=rationale,
+        data_insufficient=insufficient,
+        actor=actor,
+        data_nature="real_entry",
+    )
+    session.add(policy)
+    session.flush()
+    audit(session, project.id, "recommendation_policy", policy.id, "proposed", rationale, actor=actor, metadata=coverage)
+    return policy

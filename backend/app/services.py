@@ -17,8 +17,8 @@ RULE_VERSION = "NDG_GATE_V0.3.0"
 DIMENSIONS = ("NEED", "COMMERCIAL", "PRODUCT", "SUPPLY", "COMPLIANCE")
 
 
-def audit(session: Session, project_id: str | None, entity_type: str, entity_id: str, action: str, summary: str) -> None:
-    session.add(AuditEvent(project_id=project_id, entity_type=entity_type, entity_id=entity_id, action=action, change_summary=summary))
+def audit(session: Session, project_id: str | None, entity_type: str, entity_id: str, action: str, summary: str, *, actor: str = "self-declared", data_nature: str = "real_entry", metadata: dict | None = None) -> None:
+    session.add(AuditEvent(project_id=project_id, entity_type=entity_type, entity_id=entity_id, action=action, change_summary=summary, actor=actor, data_nature=data_nature, metadata_json=json.dumps(metadata or {}, ensure_ascii=False, sort_keys=True)))
 
 
 def invalidate_project(session: Session, project: Project, reason: str) -> None:
