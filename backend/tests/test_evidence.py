@@ -19,6 +19,58 @@ def test_manual_evidence_confirm_unconfirm_and_revision(client, project):
     unconfirmed = client.post(f"/api/v1/evidence/{evidence['id']}/unconfirm")
     assert unconfirmed.json()["status"] == "draft"
     assert client.get(f"/api/v1/projects/{project['id']}").json()["revision"] == 4
+    repeated = client.post(f"/api/v1/evidence/{evidence['id']}/unconfirm")
+    assert repeated.status_code == 200 and repeated.json()["status"] == "draft"
+    assert client.get(f"/api/v1/projects/{project['id']}").json()["revision"] == 4
+
+
+@pytest.mark.parametrize(("field", "value"), [
+    ("title", "修改后的标题"),
+    ("publisher", "修改后的发布方"),
+    ("published_at", "2026-08-22T00:00:00Z"),
+    ("raw_text", "修改后的受治理原文"),
+    ("summary", "修改后的摘要"),
+    ("applicable_scope", "修改后的适用范围"),
+    ("limitations", "修改后的限制"),
+])
+def test_confirmed_evidence_governed_fields_require_unconfirm(client, project, field, value):
+    created = client.post(f"/api/v1/projects/{project['id']}/evidence/manual", json={
+        **manual_payload(),
+        "published_at": "2026-08-01T00:00:00Z",
+        "applicable_scope": "原适用范围",
+        "limitations": "原限制",
+    }).json()
+    confirmed = client.post(f"/api/v1/evidence/{created['id']}/confirm").json()
+    revision_before = client.get(f"/api/v1/projects/{project['id']}").json()["revision"]
+
+    rejected = client.patch(f"/api/v1/evidence/{created['id']}", json={field: value})
+
+    assert rejected.status_code == 409
+    assert rejected.json()["detail"] == "请先取消确认；取消确认将使引用该Evidence的下游对象stale。"
+    persisted = client.get(f"/api/v1/evidence/{created['id']}").json()
+    assert persisted[field] == confirmed[field]
+    assert persisted["content_hash"] == confirmed["content_hash"]
+    assert client.get(f"/api/v1/projects/{project['id']}").json()["revision"] == revision_before
+
+
+def test_draft_evidence_can_be_edited_and_raw_text_rehashes(client, project):
+    from app.services import content_hash
+
+    created = client.post(f"/api/v1/projects/{project['id']}/evidence/manual", json=manual_payload()).json()
+    revision_before = client.get(f"/api/v1/projects/{project['id']}").json()["revision"]
+    replacement = "  更新后的  脱敏原文，必须产生新的规范化哈希。  "
+
+    updated = client.patch(f"/api/v1/evidence/{created['id']}", json={
+        "title": "更新后的草稿标题",
+        "raw_text": replacement,
+    })
+
+    assert updated.status_code == 200, updated.text
+    assert updated.json()["title"] == "更新后的草稿标题"
+    assert updated.json()["raw_text"] == replacement
+    assert updated.json()["content_hash"] == content_hash(replacement)
+    assert updated.json()["content_hash"] != created["content_hash"]
+    assert client.get(f"/api/v1/projects/{project['id']}").json()["revision"] == revision_before + 1
 
 
 def test_content_hash_duplicate_is_rejected_without_silent_copy(client, project):
@@ -104,3 +156,67 @@ def test_request_is_pinned_to_validated_ip_to_prevent_dns_rebinding(monkeypatch)
     assert calls[0].headers["host"] == "public.example"
     assert calls[0].extensions["validated_ip"] == "93.184.216.34"
     assert result["final_url"] == "https://public.example/report"
+
+
+def test_evidence_stale_state_and_summary_audit_survive_fastapi_restart(tmp_path):
+    from fastapi.testclient import TestClient
+
+    from app import database
+    from app.main import app
+
+    database_url = f"sqlite:///{(tmp_path / 'evidence-restart.sqlite3').as_posix()}"
+
+    def client_for(engine):
+        TestingSession = database.sessionmaker(bind=engine, expire_on_commit=False)
+
+        def override_session():
+            session = TestingSession()
+            try:
+                yield session
+            finally:
+                session.close()
+
+        app.dependency_overrides[database.get_session] = override_session
+        return TestClient(app)
+
+    first_engine = database.make_engine(database_url)
+    database.run_migrations(first_engine)
+    with client_for(first_engine) as first:
+        project = first.post("/api/v1/projects", json={
+            "name": "Evidence重启恢复", "decision_question": "失效状态能否恢复？",
+        }).json()
+        evidence = first.post(f"/api/v1/projects/{project['id']}/evidence/manual", json=manual_payload()).json()
+        first.post(f"/api/v1/evidence/{evidence['id']}/confirm").raise_for_status()
+        opportunity = first.post(f"/api/v1/projects/{project['id']}/opportunities", json={
+            "title": "重启恢复机会", "description": "只用于固定脱敏持久化测试",
+            "evidence_ids": [evidence["id"]], "status": "confirmed",
+            "actor": "验收负责人", "data_nature": "manual_hypothesis",
+        }).json()
+        first.post(f"/api/v1/evidence/{evidence['id']}/unconfirm").raise_for_status()
+        first_bundle = first.get(f"/api/v1/projects/{project['id']}/workbench").json()
+        first_summary = next(
+            item for item in first_bundle["audit_events"]
+            if item["entity_id"] == evidence["id"] and item["action"] == "dependents_stale"
+        )
+        first_revision = first_bundle["project"]["revision"]
+    app.dependency_overrides.clear()
+    first_engine.dispose()
+
+    second_engine = database.make_engine(database_url)
+    database.run_migrations(second_engine)
+    with client_for(second_engine) as restarted:
+        restored = restarted.get(f"/api/v1/projects/{project['id']}/workbench")
+        assert restored.status_code == 200, restored.text
+        bundle = restored.json()
+        restored_opportunity = next(item for item in bundle["opportunities"] if item["id"] == opportunity["id"])
+        restored_summary = next(
+            item for item in bundle["audit_events"]
+            if item["entity_id"] == evidence["id"] and item["action"] == "dependents_stale"
+        )
+        assert bundle["project"]["revision"] == first_revision
+        assert restored_opportunity["is_stale"] is True
+        assert evidence["id"] in restored_opportunity["stale_reason"]
+        assert restored_summary["id"] == first_summary["id"]
+        assert restored_summary["metadata_json"] == first_summary["metadata_json"]
+    app.dependency_overrides.clear()
+    second_engine.dispose()

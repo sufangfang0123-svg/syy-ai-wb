@@ -10,7 +10,11 @@ export class DemoEvolutionRepository implements EvolutionRepository {
     const saved = window.localStorage.getItem(STORAGE_KEY);
     if (!saved) return structuredClone(demoEvolutionState);
     try {
-      return JSON.parse(saved) as EvolutionState;
+      const parsed = JSON.parse(saved) as Partial<EvolutionState>;
+      const selectedOpportunityId = demoEvolutionState.opportunities.some((item) => item.id === parsed.selectedOpportunityId)
+        ? parsed.selectedOpportunityId!
+        : demoEvolutionState.selectedOpportunityId;
+      return { ...structuredClone(demoEvolutionState), selectedOpportunityId, demoStep: parsed.demoStep ?? null };
     } catch {
       return structuredClone(demoEvolutionState);
     }

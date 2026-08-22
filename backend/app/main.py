@@ -15,6 +15,10 @@ from .materials import extract_upload, store_snapshot
 from .models import Assumption, AuditEvent, Decision, Evidence, EvidenceAssumptionLink, EvidenceRelation, GateEvaluation, IterationRound, Project, ValidationResult, ValidationTest, utcnow
 from .schemas import AssumptionCreate, AssumptionRead, AssumptionUpdate, DecisionCreate, DecisionRead, EvidenceCreate, EvidenceRead, EvidenceRelationCreate, EvidenceRelationRead, EvidenceUpdate, GateRead, IterationRoundRead, LinkCreate, LinkRead, NextRoundCreate, PasteEvidenceCreate, ProjectCreate, ProjectRead, ProjectUpdate, TestCreate, TestRead, TestUpdate, UrlEvidenceCreate, ValidationResultCreate, ValidationResultRead
 from .services import audit, content_hash, decision_next_action, derive_validation_outcome, economics_snapshot, evaluate_gate, fetch_public_url, invalidate_project
+from .workbench_api import router as workbench_router
+from .workbench_models import AIProposal, CategoryPack, ChangeProposal, ContentAsset, FeedbackRecord, Opportunity, ProductConcept, RecommendationPolicy, ScenarioCandidate
+from .workbench_schemas import AIProposalRead, CategoryPackRead, ChangeProposalRead, ContentAssetRead, OpportunityRead, ProductConceptRead, RecommendationPolicyRead, ScenarioRead
+from .workbench_service import stale_evidence_dependents
 
 
 @asynccontextmanager
@@ -187,6 +191,10 @@ def update_evidence(evidence_id: str, payload: EvidenceUpdate, session: Session 
         raise HTTPException(404, "Evidence不存在")
     project = require_project(session, evidence.project_id)
     changes = payload.model_dump(exclude_unset=True)
+    if not changes:
+        return evidence
+    if evidence.status == "confirmed":
+        raise HTTPException(409, "请先取消确认；取消确认将使引用该Evidence的下游对象stale。")
     for key, value in changes.items():
         setattr(evidence, key, value)
     if payload.raw_text is not None:
@@ -212,8 +220,19 @@ def set_evidence_status(evidence_id: str, target: str, session: Session):
     if not evidence:
         raise HTTPException(404, "Evidence不存在")
     project = require_project(session, evidence.project_id)
+    if evidence.status == target:
+        return evidence
+    previous_status = evidence.status
     evidence.status = target
-    invalidate_project(session, project, f"Evidence状态改为{target}")
+    if previous_status == "confirmed" and target == "draft":
+        stale_evidence_dependents(
+            session,
+            project,
+            evidence.id,
+            trigger="evidence_unconfirmed",
+        )
+    else:
+        invalidate_project(session, project, f"Evidence状态改为{target}")
     audit(session, project.id, "evidence", evidence.id, target, f"status={target}")
     commit(session)
     return evidence
@@ -494,7 +513,7 @@ def decision_trace(project_id: str, session: Session = Depends(get_session)):
 def export_project(project_id: str, session: Session = Depends(get_session)):
     project = require_project(session, project_id)
     return {
-        "export_version": "1.0",
+        "export_version": "2.0",
         "exported_at": utcnow().isoformat(),
         "project": ProjectRead.model_validate(project).model_dump(mode="json"),
         "evidence": [EvidenceRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(Evidence).where(Evidence.project_id == project.id)).all()],
@@ -507,5 +526,17 @@ def export_project(project_id: str, session: Session = Depends(get_session)):
         "economics": economics_snapshot(session, project),
         "gates": [GateRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(GateEvaluation).where(GateEvaluation.project_id == project.id)).all()],
         "decisions": [DecisionRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(Decision).where(Decision.project_id == project.id)).all()],
-        "audit_events": [{"id": item.id, "entity_type": item.entity_type, "entity_id": item.entity_id, "action": item.action, "change_summary": item.change_summary, "created_at": item.created_at.isoformat()} for item in session.scalars(select(AuditEvent).where(AuditEvent.project_id == project.id).order_by(AuditEvent.created_at)).all()],
+        "category_pack": CategoryPackRead.model_validate(session.get(CategoryPack, project.category_pack_id)).model_dump(mode="json"),
+        "opportunities": [OpportunityRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(Opportunity).where(Opportunity.project_id == project.id)).all()],
+        "product_concepts": [ProductConceptRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(ProductConcept).where(ProductConcept.project_id == project.id)).all()],
+        "scenario_candidates": [ScenarioRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(ScenarioCandidate).where(ScenarioCandidate.project_id == project.id)).all()],
+        "content_assets": [ContentAssetRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(ContentAsset).where(ContentAsset.project_id == project.id)).all()],
+        "feedback_records": [{column.name: getattr(item, column.name).isoformat() if hasattr(getattr(item, column.name), "isoformat") else getattr(item, column.name) for column in FeedbackRecord.__table__.columns} for item in session.scalars(select(FeedbackRecord).where(FeedbackRecord.project_id == project.id)).all()],
+        "ai_proposals": [AIProposalRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(AIProposal).where(AIProposal.project_id == project.id)).all()],
+        "change_proposals": [ChangeProposalRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(ChangeProposal).where(ChangeProposal.project_id == project.id)).all()],
+        "recommendation_policies": [RecommendationPolicyRead.model_validate(item).model_dump(mode="json") for item in session.scalars(select(RecommendationPolicy).where(RecommendationPolicy.project_id == project.id)).all()],
+        "audit_events": [{"id": item.id, "entity_type": item.entity_type, "entity_id": item.entity_id, "action": item.action, "change_summary": item.change_summary, "actor": item.actor, "data_nature": item.data_nature, "metadata_json": item.metadata_json, "created_at": item.created_at.isoformat()} for item in session.scalars(select(AuditEvent).where(AuditEvent.project_id == project.id).order_by(AuditEvent.created_at)).all()],
     }
+
+
+app.include_router(workbench_router)

@@ -6,8 +6,15 @@ import Link from "next/link";
 import { useDecision } from "@/components/decision/decision-provider";
 import { DataBoundary, EmptyState, WorkspaceHeading } from "@/components/decision/workspace-ui";
 import { EvidenceLevel } from "@/domain/types";
+import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { LocalWorkbenchStage } from "@/components/workbench/local-workbench-stage";
 
 export default function EvidencePage() {
+  const {mode}=useProductWorkbench();
+  return mode==="local_api"?<LocalWorkbenchStage stage="gate"/>:<PublicEvidencePage/>;
+}
+
+function PublicEvidencePage() {
   const { state, addEvidence } = useDecision();
   const [open, setOpen] = useState(false);
   const [notice, setNotice] = useState("");

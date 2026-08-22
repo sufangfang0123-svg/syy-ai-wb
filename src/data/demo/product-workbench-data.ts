@@ -69,7 +69,6 @@ export const scenarioDimensions = {
 
 export function buildExperimentScenarios(conceptId: string): ExperimentScenario[] {
   return scenarioDimensions.personas.flatMap((persona, personaIndex) => scenarioDimensions.sellingPoints.flatMap((sellingPoint, sellingPointIndex) => scenarioDimensions.channels.map((channel, channelIndex) => {
-    const priority = 50 + ((personaIndex * 17 + sellingPointIndex * 11 + channelIndex * 7) % 41);
-    return { id: `SCN-${personaIndex + 1}${sellingPointIndex + 1}${channelIndex + 1}`, conceptId, persona, sellingPoint, channel, cta: scenarioDimensions.ctas[(personaIndex + channelIndex) % scenarioDimensions.ctas.length], assumptionId: ["ASM-DEMAND-01", "ASM-PRODUCT-01", "ASM-COMMERCIAL-01"][(sellingPointIndex + channelIndex) % 3], priority, rule: `50 + ((人群序号×17 + 卖点序号×11 + 渠道序号×7) mod 41) = ${priority}`, limitation: "演示性情景优先级，仅用于缩小待验证范围；不是消费者实验、销量、ROI或爆款概率。" };
+    return { id: `SCN-${personaIndex + 1}${sellingPointIndex + 1}${channelIndex + 1}`, conceptId, persona, sellingPoint, channel, cta: scenarioDimensions.ctas[(personaIndex + channelIndex) % scenarioDimensions.ctas.length], assumptionId: ["ASM-DEMAND-01", "ASM-PRODUCT-01", "ASM-COMMERCIAL-01"][(sellingPointIndex + channelIndex) % 3], priority: null, rule: "没有情景级输入，保持未评分；候选ID与数组位置不代表优先级。", limitation: "固定演示候选矩阵，不是消费者实验、AI排名、销量、ROI或爆款概率。" };
   })));
 }

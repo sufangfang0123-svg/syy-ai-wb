@@ -5,6 +5,8 @@ import { CSSProperties, useCallback, useEffect, useLayoutEffect, useRef, useStat
 import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, CircleHelp, RotateCcw, Trash2, X } from "lucide-react";
 import { useDecision } from "@/components/decision/decision-provider";
+import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
+import { useEvolution } from "@/components/demo/evolution-provider";
 import { computeGuidePlacement, GuidePlacement, GuideRect } from "@/lib/guide-position";
 
 const steps = [
@@ -43,6 +45,8 @@ export function NewcomerGuideButton() {
 
 export function NewcomerGuide() {
   const { state, isHydrated, setOnboardingStep, completeOnboarding, clearDemoData } = useDecision();
+  const { resetPublicFixture } = useProductWorkbench();
+  const { resetDemo } = useEvolution();
   const pathname = usePathname();
   const router = useRouter();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -51,10 +55,6 @@ export function NewcomerGuide() {
   const [placement, setPlacement] = useState<GuidePlacement>({ left: 12, top: 12, side: "center" });
   const normalizedPathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
   const isGuideRoute = steps.some((step) => normalizedPathname === step.route);
-
-  useEffect(() => {
-    if (isHydrated && isGuideRoute && !state.onboardingCompleted && state.onboardingStep === null) setOnboardingStep(0);
-  }, [isGuideRoute, isHydrated, state.onboardingCompleted, state.onboardingStep, setOnboardingStep]);
 
   useEffect(() => {
     if (!isHydrated || !isGuideRoute || state.onboardingStep === null) return;
@@ -93,22 +93,6 @@ export function NewcomerGuide() {
     };
   }, [isGuideRoute, isHydrated, pathname, state.onboardingStep, updateGeometry]);
 
-  useEffect(() => {
-    if (!isHydrated || !isGuideRoute || state.onboardingStep === null) return;
-    const trapFocus = (event: KeyboardEvent) => {
-      if (event.key !== "Tab" || !panelRef.current) return;
-      const focusable = Array.from(panelRef.current.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])')).filter((element) => element.offsetParent !== null);
-      if (!focusable.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (!panelRef.current.contains(document.activeElement)) { event.preventDefault(); first.focus(); }
-      else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-    };
-    document.addEventListener("keydown", trapFocus, true);
-    return () => document.removeEventListener("keydown", trapFocus, true);
-  }, [isGuideRoute, isHydrated, state.onboardingStep]);
-
   if (!isHydrated || !isGuideRoute || state.onboardingStep === null) return null;
   const index = state.onboardingStep;
   const step = steps[index];
@@ -118,12 +102,16 @@ export function NewcomerGuide() {
     router.push(steps[bounded].route);
   };
   const clear = () => {
-    if (window.confirm("确认清空并恢复模拟研究实验室？此操作只影响浏览器中的演示数据。")) clearDemoData();
+    if (window.confirm("确认清空并恢复全部浏览器模拟空间？此操作不影响本地真实项目。")) {
+      clearDemoData();
+      resetPublicFixture();
+      resetDemo();
+    }
   };
   const close = () => completeOnboarding();
   const panelStyle = { "--guide-left": `${placement.left}px`, "--guide-top": `${placement.top}px` } as CSSProperties;
 
-  return <Dialog.Root open modal={false} onOpenChange={(open) => { if (!open) close(); }}>
+  return <Dialog.Root open modal onOpenChange={(open) => { if (!open) close(); }}>
     <Dialog.Portal>
       <Dialog.Overlay className="guide-overlay" />
       <svg className="guide-mask" aria-hidden="true" width="100%" height="100%">

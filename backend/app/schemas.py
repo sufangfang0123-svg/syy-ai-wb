@@ -46,6 +46,7 @@ class ProjectRead(ORMModel):
     planned_investment: float | None
     currency: str
     current_round: int
+    category_pack_id: str
     created_at: datetime
     updated_at: datetime
 

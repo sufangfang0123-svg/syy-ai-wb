@@ -17,6 +17,8 @@ test("five-step guide stays usable, traps focus and restores it", async ({ page 
   test.setTimeout(60_000);
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto("/workspace/");
+  await expect(page.getByRole("dialog")).toBeHidden();
+  await page.getByRole("button", { name: "新手指引" }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   await expect.poll(() => page.evaluate(() => Boolean(document.activeElement?.closest('[role="dialog"]')))).toBe(true);
@@ -56,6 +58,7 @@ test("five-step guide stays usable, traps focus and restores it", async ({ page 
 test("guide panel remains fully visible on a small phone", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.includes("mobile"), "mobile project only");
   await page.goto("/workspace/");
+  await page.getByRole("button", { name: "新手指引" }).click();
   const panel = page.locator("[data-guide-panel]");
   await expect(panel).toBeVisible();
   const box = await panel.boundingBox();
