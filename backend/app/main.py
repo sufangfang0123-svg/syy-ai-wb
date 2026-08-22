@@ -18,6 +18,7 @@ from .services import audit, content_hash, decision_next_action, derive_validati
 from .workbench_api import router as workbench_router
 from .workbench_models import AIProposal, CategoryPack, ChangeProposal, ContentAsset, FeedbackRecord, Opportunity, ProductConcept, RecommendationPolicy, ScenarioCandidate
 from .workbench_schemas import AIProposalRead, CategoryPackRead, ChangeProposalRead, ContentAssetRead, OpportunityRead, ProductConceptRead, RecommendationPolicyRead, ScenarioRead
+from .workbench_service import stale_evidence_dependents
 
 
 @asynccontextmanager
@@ -190,6 +191,10 @@ def update_evidence(evidence_id: str, payload: EvidenceUpdate, session: Session 
         raise HTTPException(404, "Evidence不存在")
     project = require_project(session, evidence.project_id)
     changes = payload.model_dump(exclude_unset=True)
+    if not changes:
+        return evidence
+    if evidence.status == "confirmed":
+        raise HTTPException(409, "请先取消确认；取消确认将使引用该Evidence的下游对象stale。")
     for key, value in changes.items():
         setattr(evidence, key, value)
     if payload.raw_text is not None:
@@ -215,8 +220,19 @@ def set_evidence_status(evidence_id: str, target: str, session: Session):
     if not evidence:
         raise HTTPException(404, "Evidence不存在")
     project = require_project(session, evidence.project_id)
+    if evidence.status == target:
+        return evidence
+    previous_status = evidence.status
     evidence.status = target
-    invalidate_project(session, project, f"Evidence状态改为{target}")
+    if previous_status == "confirmed" and target == "draft":
+        stale_evidence_dependents(
+            session,
+            project,
+            evidence.id,
+            trigger="evidence_unconfirmed",
+        )
+    else:
+        invalidate_project(session, project, f"Evidence状态改为{target}")
     audit(session, project.id, "evidence", evidence.id, target, f"status={target}")
     commit(session)
     return evidence

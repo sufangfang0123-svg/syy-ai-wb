@@ -107,6 +107,228 @@ def input_snapshot_hash(session: Session, project_id: str, references: list[str]
     return hashlib.sha256(compact_json(records).encode("utf-8")).hexdigest()
 
 
+def _reference_ids(value: str) -> set[str]:
+    parsed = parse_json(value, [])
+    if not isinstance(parsed, list):
+        return set()
+    return {item for item in parsed if isinstance(item, str)}
+
+
+def stale_evidence_dependents(
+    session: Session,
+    project: Project,
+    evidence_id: str,
+    *,
+    trigger: str,
+    actor: str = "self-declared",
+) -> dict[str, Any]:
+    """Invalidate the exact project-local dependency closure for an Evidence change.
+
+    References are decoded as JSON arrays. Substring/LIKE matching is deliberately
+    avoided so an Evidence ID cannot invalidate a similarly named, unrelated ID.
+    This function owns the single project revision increment for the transition.
+    """
+    opportunities = {
+        entity.id: entity
+        for entity in session.scalars(select(Opportunity).where(Opportunity.project_id == project.id)).all()
+    }
+    scenarios = {
+        entity.id: entity
+        for entity in session.scalars(select(ScenarioCandidate).where(ScenarioCandidate.project_id == project.id)).all()
+    }
+    concepts = {
+        entity.id: entity
+        for entity in session.scalars(select(ProductConcept).where(ProductConcept.project_id == project.id)).all()
+    }
+    contents = {
+        entity.id: entity
+        for entity in session.scalars(select(ContentAsset).where(ContentAsset.project_id == project.id)).all()
+    }
+    feedback = {
+        entity.id: entity
+        for entity in session.scalars(select(FeedbackRecord).where(FeedbackRecord.project_id == project.id)).all()
+    }
+    proposals = {
+        entity.id: entity
+        for entity in session.scalars(select(AIProposal).where(AIProposal.project_id == project.id)).all()
+    }
+    changes = {
+        entity.id: entity
+        for entity in session.scalars(select(ChangeProposal).where(ChangeProposal.project_id == project.id)).all()
+    }
+    policies = {
+        entity.id: entity
+        for entity in session.scalars(select(RecommendationPolicy).where(RecommendationPolicy.project_id == project.id)).all()
+    }
+
+    affected_ai = {
+        entity.id for entity in proposals.values()
+        if evidence_id in _reference_ids(entity.input_refs_json)
+    }
+    affected_opportunities = {
+        entity.id for entity in opportunities.values()
+        if evidence_id in (_reference_ids(entity.evidence_ids_json) | _reference_ids(entity.contrary_evidence_json))
+    }
+    affected_scenarios = {
+        entity.id for entity in scenarios.values()
+        if evidence_id in (
+            _reference_ids(entity.evidence_ids_json)
+            | _reference_ids(entity.contrary_evidence_json)
+            | _reference_ids(entity.shortlist_evidence_ids_json)
+        )
+    }
+    affected_concepts = {
+        entity.id for entity in concepts.values()
+        if evidence_id in _reference_ids(entity.evidence_ids_json)
+    }
+    affected_contents = {
+        entity.id for entity in contents.values()
+        if evidence_id in (_reference_ids(entity.evidence_ids_json) | _reference_ids(entity.claim_refs_json))
+    }
+    affected_feedback: set[str] = set()
+    affected_changes = {
+        entity.id for entity in changes.values()
+        if evidence_id in _reference_ids(entity.contrary_evidence_json)
+    }
+
+    # Resolve both explicit references and structural descendants to a fixed point.
+    # This also covers accepted AI proposals whose formal entity has already been
+    # created, without deleting their review history.
+    while True:
+        before = (
+            len(affected_ai), len(affected_opportunities), len(affected_scenarios),
+            len(affected_concepts), len(affected_contents), len(affected_feedback),
+            len(affected_changes),
+        )
+
+        impacted_refs = {
+            evidence_id,
+            *affected_opportunities,
+            *affected_scenarios,
+            *affected_concepts,
+            *affected_contents,
+            *affected_feedback,
+            *affected_changes,
+        }
+        affected_ai.update(
+            entity.id for entity in proposals.values()
+            if _reference_ids(entity.input_refs_json) & impacted_refs
+        )
+
+        for proposal_id in tuple(affected_ai):
+            proposal = proposals.get(proposal_id)
+            if proposal is None:
+                continue
+            if proposal.accepted_entity_type == "opportunity" and proposal.accepted_entity_id in opportunities:
+                affected_opportunities.add(proposal.accepted_entity_id)
+            elif proposal.accepted_entity_type == "product_concept" and proposal.accepted_entity_id in concepts:
+                affected_concepts.add(proposal.accepted_entity_id)
+            elif proposal.accepted_entity_type == "content_asset" and proposal.accepted_entity_id in contents:
+                affected_contents.add(proposal.accepted_entity_id)
+            elif proposal.accepted_entity_type == "change_proposal" and proposal.accepted_entity_id in changes:
+                affected_changes.add(proposal.accepted_entity_id)
+
+            affected_opportunities.update(
+                entity.id for entity in opportunities.values() if entity.source_proposal_id == proposal_id
+            )
+            affected_concepts.update(
+                entity.id for entity in concepts.values() if entity.source_proposal_id == proposal_id
+            )
+            affected_contents.update(
+                entity.id for entity in contents.values() if entity.source_proposal_id == proposal_id
+            )
+            affected_changes.update(
+                entity.id for entity in changes.values() if entity.source_proposal_id == proposal_id
+            )
+
+        affected_scenarios.update(
+            entity.id for entity in scenarios.values()
+            if entity.opportunity_id in affected_opportunities
+        )
+        affected_concepts.update(
+            entity.id for entity in concepts.values()
+            if entity.opportunity_id in affected_opportunities or entity.source_scenario_id in affected_scenarios
+        )
+        affected_scenarios.update(
+            entity.id for entity in scenarios.values()
+            if entity.concept_id in affected_concepts
+        )
+        affected_contents.update(
+            entity.id for entity in contents.values()
+            if entity.opportunity_id in affected_opportunities or entity.concept_id in affected_concepts
+        )
+        affected_feedback.update(
+            entity.id for entity in feedback.values()
+            if entity.concept_id in affected_concepts or entity.content_asset_id in affected_contents
+        )
+        affected_changes.update(
+            entity.id for entity in changes.values()
+            if entity.target_entity_id in (affected_concepts | affected_contents)
+            or bool(_reference_ids(entity.feedback_ids_json) & affected_feedback)
+        )
+        for change_id in tuple(affected_changes):
+            change = changes.get(change_id)
+            if change is None or change.status != "accepted":
+                continue
+            if change.target_entity_type == "product_concept" and change.target_entity_id in concepts:
+                affected_concepts.add(change.target_entity_id)
+            elif change.target_entity_type == "content_asset" and change.target_entity_id in contents:
+                affected_contents.add(change.target_entity_id)
+
+        after = (
+            len(affected_ai), len(affected_opportunities), len(affected_scenarios),
+            len(affected_concepts), len(affected_contents), len(affected_feedback),
+            len(affected_changes),
+        )
+        if after == before:
+            break
+
+    reason = (
+        f"Evidence {evidence_id} 已取消确认（trigger={trigger}）；"
+        "引用该Evidence的下游对象必须重新人工确认或重新创建。"
+    )
+
+    def mark_stale(entities: dict[str, Any], ids: set[str]) -> list[str]:
+        changed: list[str] = []
+        for entity_id in sorted(ids):
+            entity = entities.get(entity_id)
+            if entity is None or entity.is_stale:
+                continue
+            entity.is_stale = True
+            entity.stale_reason = reason
+            entity.updated_at = utcnow()
+            changed.append(entity_id)
+        return changed
+
+    metadata: dict[str, Any] = {
+        "evidence_id": evidence_id,
+        "trigger": trigger,
+        "stale_ai_proposal_ids": mark_stale(proposals, affected_ai),
+        "stale_opportunity_ids": mark_stale(opportunities, affected_opportunities),
+        "stale_scenario_ids": mark_stale(scenarios, affected_scenarios),
+        "stale_concept_ids": mark_stale(concepts, affected_concepts),
+        "stale_content_ids": mark_stale(contents, affected_contents),
+        "stale_feedback_ids": mark_stale(feedback, affected_feedback),
+        "stale_change_proposal_ids": mark_stale(changes, affected_changes),
+        "stale_recommendation_policy_ids": [],
+    }
+    if affected_feedback:
+        metadata["stale_recommendation_policy_ids"] = mark_stale(policies, set(policies))
+
+    invalidate_project(session, project, reason)
+    audit(
+        session,
+        project.id,
+        "evidence",
+        evidence_id,
+        "dependents_stale",
+        reason,
+        actor=actor,
+        metadata=metadata,
+    )
+    return metadata
+
+
 def stale_concept_dependents(session: Session, project: Project, concept_id: str, reason: str, actor: str) -> None:
     content_ids = list(session.scalars(select(ContentAsset.id).where(
         ContentAsset.project_id == project.id,

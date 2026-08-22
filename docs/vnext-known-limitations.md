@@ -10,4 +10,5 @@
 - JSON导出不含附件二进制，不是完整恢复包。
 - GitHub Pages只运行`public_demo`，本地FastAPI/SQLite能力未云端部署。
 - 本轮不依赖PR #13，也未使用或写入任何API Key。
+- Evidence重新确认不会自动复活已stale的旧产品漏斗；负责人必须重新人工确认或重新创建后续对象。
 - `Project.category_pack_id`的数据库外键和Category Pack版本升级语义尚未完成，已跟踪于[Issue #16](https://github.com/sufangfang0123-svg/syy-ai-wb/issues/16)。

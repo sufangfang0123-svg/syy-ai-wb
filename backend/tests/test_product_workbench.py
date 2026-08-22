@@ -82,6 +82,180 @@ def make_real_chain(client, project):
     return evidence, assumption, opportunity, concept
 
 
+def feedback_csv(content_id: str, *, source: str = "脱敏Evidence级联UAT") -> bytes:
+    header = "channel,content_asset_id,window_start,window_end,source,impressions,clicks,interactions,saves,add_to_cart,conversions,metric_definition,owner,data_nature,notes\n"
+    row = f"小红书,{content_id},2026-08-20T00:00:00+00:00,2026-08-21T00:00:00+00:00,{source},100,20,15,8,5,2,公开指标定义夹具,验收负责人,manual_import,非客户数据\n"
+    return (header + row).encode()
+
+
+def test_unconfirm_evidence_stales_exact_product_dependency_closure(client, project):
+    evidence, assumption, opportunity, concept = make_real_chain(client, project)
+    bundle = client.get(f"/api/v1/projects/{project['id']}/workbench").json()
+    source_scenario = next(item for item in bundle["scenarios"] if item["id"] == concept["source_scenario_id"])
+    validation = client.patch(f"/api/v1/scenarios/{source_scenario['id']}", json={
+        "status": "validation", "owner": "验收负责人", "review_reason": "人工确认进入Validation",
+        "actor": "验收负责人", "revision": source_scenario["revision"],
+    })
+    assert validation.status_code == 200, validation.text
+
+    content = client.post(f"/api/v1/projects/{project['id']}/content-assets", json={
+        "concept_id": concept["id"], "opportunity_id": opportunity["id"], "channel": "小红书",
+        "target_user": "通勤人群假设", "scenario": "空调办公", "objective": "验证规格理解",
+        "experiment_hypothesis": "规格边界明确可能减少误解", "hook": "通勤内搭规格清单",
+        "body": "规格、成分与限制均待人工验证", "cta": "查看待验证规格", "product_genes": ["圆领变量"],
+        "evidence_ids": [evidence["id"]], "claim_refs": [evidence["id"]], "visual_spec": "规格卡片",
+        "variant": "A", "actor": "验收负责人", "data_nature": "real_entry",
+    })
+    assert content.status_code == 201, content.text
+    imported = client.post(
+        f"/api/v1/projects/{project['id']}/feedback/import",
+        files={"file": ("feedback.csv", feedback_csv(content.json()["id"]), "text/csv")},
+    )
+    assert imported.status_code == 201, imported.text
+    change = client.post(f"/api/v1/projects/{project['id']}/change-proposals", json={
+        "target_entity_type": "content_asset", "target_entity_id": content.json()["id"],
+        "feedback_ids": imported.json()["ids"], "proposed_patch": {"body": "修改后的待验证规格"},
+        "rationale": "仅作为待人工复核的变更", "contrary_evidence": [evidence["id"]],
+        "actor": "验收负责人", "data_nature": "manual_hypothesis",
+    })
+    assert change.status_code == 201, change.text
+    policy = client.post(
+        f"/api/v1/projects/{project['id']}/recommendation-policies", params={"actor": "验收负责人"}
+    )
+    assert policy.status_code == 201, policy.text
+
+    # A second opportunity chain in the same project references a different Evidence.
+    independent_evidence = client.post(f"/api/v1/projects/{project['id']}/evidence/manual", json={
+        "title": "独立机会链Evidence", "publisher": "系统验收夹具",
+        "raw_text": "这条证据只属于同项目的独立机会链。", "summary": "独立链引用",
+    }).json()
+    independent_evidence = client.post(f"/api/v1/evidence/{independent_evidence['id']}/confirm").json()
+    independent_opportunity = client.post(f"/api/v1/projects/{project['id']}/opportunities", json={
+        "title": "独立机会链", "description": "不引用目标Evidence的人工假设",
+        "evidence_ids": [independent_evidence["id"]], "status": "confirmed",
+        "actor": "验收负责人", "data_nature": "manual_hypothesis",
+    })
+    assert independent_opportunity.status_code == 201, independent_opportunity.text
+    independent_scenarios = client.post(f"/api/v1/projects/{project['id']}/scenarios/generate", json={
+        "opportunity_id": independent_opportunity.json()["id"], "evidence_ids": [independent_evidence["id"]],
+        "priority_inputs": {}, "actor": "验收负责人",
+    })
+    assert independent_scenarios.status_code == 201, independent_scenarios.text
+
+    # A separate project proves project isolation.
+    other_project = client.post("/api/v1/projects", json={
+        "name": "Evidence隔离项目", "decision_question": "跨项目状态是否保持隔离？",
+    }).json()
+    other_evidence = client.post(f"/api/v1/projects/{other_project['id']}/evidence/manual", json={
+        "title": "其他项目Evidence", "publisher": "系统验收夹具", "raw_text": "跨项目对象不得失效。",
+    }).json()
+    other_evidence = client.post(f"/api/v1/evidence/{other_evidence['id']}/confirm").json()
+    other_opportunity = client.post(f"/api/v1/projects/{other_project['id']}/opportunities", json={
+        "title": "其他项目机会", "description": "跨项目隔离验证", "evidence_ids": [other_evidence["id"]],
+        "status": "confirmed", "actor": "其他负责人", "data_nature": "manual_hypothesis",
+    })
+    assert other_opportunity.status_code == 201, other_opportunity.text
+
+    before = client.get(f"/api/v1/projects/{project['id']}/workbench").json()
+    affected_scenario_ids = {
+        item["id"] for item in before["scenarios"] if item["opportunity_id"] == opportunity["id"]
+    }
+    affected_ai_ids = {
+        item["id"] for item in before["ai_proposals"]
+        if evidence["id"] in json.loads(item["input_refs_json"])
+    }
+    assert affected_ai_ids and all(
+        item["status"] == "accepted" for item in before["ai_proposals"] if item["id"] in affected_ai_ids
+    )
+    gate = client.post(f"/api/v1/projects/{project['id']}/gate")
+    assert gate.status_code == 201, gate.text
+    assert gate.json()["rule_version"] == "NDG_GATE_V0.3.0"
+    decision = client.post(f"/api/v1/projects/{project['id']}/decision", json={
+        "gate_evaluation_id": gate.json()["id"], "decision": gate.json()["result"],
+        "rationale": "负责人仅确认规则结果，非AI自动决策", "decided_by": "验收负责人",
+    })
+    assert decision.status_code == 201, decision.text
+    revision_before = client.get(f"/api/v1/projects/{project['id']}").json()["revision"]
+
+    unconfirmed = client.post(f"/api/v1/evidence/{evidence['id']}/unconfirm")
+
+    assert unconfirmed.status_code == 200, unconfirmed.text
+    assert unconfirmed.json()["status"] == "draft"
+    assert client.get(f"/api/v1/projects/{project['id']}").json()["revision"] == revision_before + 1
+    after = client.get(f"/api/v1/projects/{project['id']}/workbench").json()
+    stale_reason = f"Evidence {evidence['id']} 已取消确认"
+    assert next(item for item in after["opportunities"] if item["id"] == opportunity["id"])["is_stale"] is True
+    assert stale_reason in next(item for item in after["opportunities"] if item["id"] == opportunity["id"])["stale_reason"]
+    assert {item["id"] for item in after["scenarios"] if item["is_stale"]} == affected_scenario_ids
+    assert next(item for item in after["concepts"] if item["id"] == concept["id"])["is_stale"] is True
+    assert next(item for item in after["content_assets"] if item["id"] == content.json()["id"])["is_stale"] is True
+    assert next(item for item in after["feedback_records"] if item["id"] == imported.json()["ids"][0])["is_stale"] is True
+    assert next(item for item in after["change_proposals"] if item["id"] == change.json()["id"])["is_stale"] is True
+    assert next(item for item in after["recommendation_policies"] if item["id"] == policy.json()["id"])["is_stale"] is True
+    assert affected_ai_ids == {item["id"] for item in after["ai_proposals"] if item["is_stale"]}
+    assert next(item for item in after["gates"] if item["id"] == gate.json()["id"])["is_stale"] is True
+    assert next(item for item in after["decisions"] if item["id"] == decision.json()["id"])["is_stale"] is True
+
+    # Exact-reference and project isolation: the independent chains stay current.
+    assert next(item for item in after["opportunities"] if item["id"] == independent_opportunity.json()["id"])["is_stale"] is False
+    assert not any(
+        item["is_stale"] for item in after["scenarios"]
+        if item["opportunity_id"] == independent_opportunity.json()["id"]
+    )
+    other_after = client.get(f"/api/v1/projects/{other_project['id']}/workbench").json()
+    assert next(item for item in other_after["opportunities"] if item["id"] == other_opportunity.json()["id"])["is_stale"] is False
+
+    summary_events = [
+        item for item in after["audit_events"]
+        if item["entity_id"] == evidence["id"] and item["action"] == "dependents_stale"
+    ]
+    assert len(summary_events) == 1
+    metadata = json.loads(summary_events[0]["metadata_json"])
+    assert metadata == {
+        "evidence_id": evidence["id"],
+        "trigger": "evidence_unconfirmed",
+        "stale_ai_proposal_ids": sorted(affected_ai_ids),
+        "stale_opportunity_ids": [opportunity["id"]],
+        "stale_scenario_ids": sorted(affected_scenario_ids),
+        "stale_concept_ids": [concept["id"]],
+        "stale_content_ids": [content.json()["id"]],
+        "stale_feedback_ids": imported.json()["ids"],
+        "stale_change_proposal_ids": [change.json()["id"]],
+        "stale_recommendation_policy_ids": [policy.json()["id"]],
+    }
+
+    # Stale entities cannot be used to continue the funnel or accept old proposals.
+    assert client.post(f"/api/v1/projects/{project['id']}/scenarios/generate", json={
+        "opportunity_id": opportunity["id"], "evidence_ids": [], "priority_inputs": {}, "actor": "验收负责人",
+    }).status_code == 409
+    assert client.post(f"/api/v1/projects/{project['id']}/content-assets", json={
+        "concept_id": concept["id"], "channel": "小红书", "target_user": "待验证人群",
+        "scenario": "待验证场景", "objective": "验证阻断", "experiment_hypothesis": "待验证",
+        "body": "不得创建", "actor": "验收负责人",
+    }).status_code == 409
+    assert client.post(
+        f"/api/v1/projects/{project['id']}/feedback/import",
+        files={"file": ("feedback-2.csv", feedback_csv(content.json()["id"], source="第二批脱敏UAT"), "text/csv")},
+    ).status_code == 409
+    assert client.patch(f"/api/v1/change-proposals/{change.json()['id']}/review", json={
+        "decision": "accepted", "reviewer": "验收负责人", "review_reason": "不应允许",
+        "revision": change.json()["revision"],
+    }).status_code == 409
+    accepted_ai = next(item for item in after["ai_proposals"] if item["id"] in affected_ai_ids)
+    assert client.patch(f"/api/v1/ai-proposals/{accepted_ai['id']}/review", json={
+        "decision": "accepted", "reviewer": "验收负责人", "review_reason": "不应允许",
+        "candidate_index": 0, "revision": accepted_ai["revision"],
+    }).status_code == 409
+
+    # Reconfirmation only confirms the source again; it never revives old objects.
+    assert client.post(f"/api/v1/evidence/{evidence['id']}/confirm").status_code == 200
+    reconfirmed = client.get(f"/api/v1/projects/{project['id']}/workbench").json()
+    assert next(item for item in reconfirmed["opportunities"] if item["id"] == opportunity["id"])["is_stale"] is True
+    assert next(item for item in reconfirmed["concepts"] if item["id"] == concept["id"])["is_stale"] is True
+    assert reconfirmed["provider"]["requests"] == 0
+    assert reconfirmed["gate_rule_version"] == "NDG_GATE_V0.3.0"
+
+
 def test_category_pack_and_proposal_boundaries(client, project):
     packs = client.get("/api/v1/category-packs").json()
     assert {item["id"] for item in packs} == {"woven_apparel_v1", "legacy_nonwoven_cotton_care_v1"}
@@ -1299,7 +1473,7 @@ def test_ai_proposal_snapshot_rejects_draft_stale_and_fixed_demo_inputs(client, 
     assert "opp_fixed_snapshot_attack" in fixed_snapshot.json()["detail"]["blocked"]
 
 
-def test_ai_proposal_accept_rechecks_snapshot_after_upstream_change(client, project):
+def test_ai_proposal_becomes_stale_when_confirmed_input_is_unconfirmed(client, project):
     evidence, _ = seed_evidence_assumption(client, project)
     snapshot = client.get(
         f"/api/v1/projects/{project['id']}/ai-proposals/snapshot", params=[("refs", evidence["id"])]
@@ -1313,6 +1487,8 @@ def test_ai_proposal_accept_rechecks_snapshot_after_upstream_change(client, proj
             "title": "待审机会", "description": "输入变化后不得接受", "evidence_ids": [evidence["id"]],
         }], "actor": "验收负责人",
     }).json()
+    unconfirmed = client.post(f"/api/v1/evidence/{evidence['id']}/unconfirm")
+    assert unconfirmed.status_code == 200
     changed = client.patch(f"/api/v1/evidence/{evidence['id']}", json={
         "summary": "Evidence在候选导入后发生实质变化",
     })
@@ -1326,7 +1502,8 @@ def test_ai_proposal_accept_rechecks_snapshot_after_upstream_change(client, proj
     assert bundle["opportunities"] == []
     saved = next(item for item in bundle["ai_proposals"] if item["id"] == proposal["id"])
     assert saved["is_stale"] is True
-    assert "输入快照已变化" in saved["stale_reason"]
+    assert evidence["id"] in saved["stale_reason"]
+    assert "evidence_unconfirmed" in saved["stale_reason"]
 
 
 def test_ai_proposal_candidate_references_must_be_in_declared_snapshot(client, project):

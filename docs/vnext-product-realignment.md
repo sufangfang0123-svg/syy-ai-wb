@@ -8,7 +8,7 @@
 
 `Project → CategoryPack → Evidence → AIProposal → Opportunity → 100个未评分ScenarioCandidate → 人工shortlist → ProductConcept → Validation → NDG_GATE_V0.3.0 → ContentAsset → FeedbackRecord → ChangeProposal → Decision → IterationRound`
 
-每个新增对象保留稳定ID、项目ID、状态、revision/version、人工自述操作者、数据性质、stale原因和时间。所有人工写操作和关键触发动作写入`AuditEvent`；批量派生的stale状态保留原因，并可由对应触发事件追溯。Category Pack切换或Opportunity实质变化使派生漏斗失效；其他影响判断的项目或Evidence变化使当前Gate/Decision失效。概念实质变化使相关内容、反馈、未完成变更和推荐层失效。
+每个新增对象保留稳定ID、项目ID、状态、revision/version、人工自述操作者、数据性质、stale原因和时间。所有人工写操作和关键触发动作写入`AuditEvent`；批量派生的stale状态保留原因，并可由对应触发事件追溯。Category Pack切换或Opportunity实质变化使派生漏斗失效；已确认Evidence不能直接修改，取消确认会按解析后的项目内JSON引用使直接依赖和真实下游、AIProposal、Gate与Decision失效。概念实质变化使相关内容、反馈、未完成变更和推荐层失效。
 
 ## 数据边界
 
