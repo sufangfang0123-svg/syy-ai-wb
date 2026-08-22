@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { RotateCcw, X, Bot, UserRound } from "lucide-react";
 import { useDecision } from "@/components/decision/decision-provider";
+import { useProductWorkbench } from "@/components/workbench/product-workbench-provider";
 import { useEvolution } from "./evolution-provider";
 
 const decisionRoutes = ["/workspace", "/evidence", "/assumptions", "/tests", "/decision", "/results"];
@@ -11,15 +12,16 @@ export function AuditDrawer({ open, onClose }: { open: boolean; onClose: () => v
   const pathname = usePathname();
   const { state: evolutionState, resetDemo } = useEvolution();
   const { state: decisionState, clearDemoData } = useDecision();
+  const { state: workbenchState, resetPublicFixture } = useProductWorkbench();
   const decisionScope = decisionRoutes.some((route) => pathname.startsWith(route));
   if (!open) return null;
 
   const logs = decisionScope
     ? decisionState.auditLogs.map((log) => ({ id: log.id, action: log.action, object: log.object, summary: log.summary, createdAt: log.createdAt, source: `${log.source} · 模拟`, aiGenerated: false }))
-    : evolutionState.auditLogs.map((log) => ({ id: log.id, action: log.action, object: log.object, summary: `${log.oldValue} → ${log.newValue}`, createdAt: log.createdAt, source: `${log.source} · 研究实验室模拟`, aiGenerated: log.aiGenerated }));
+    : [...workbenchState.auditEvents.map((log) => ({ id: log.id, action: log.action, object: log.object, summary: log.summary, createdAt: log.createdAt, source: `${log.source} · 模拟`, aiGenerated: false })), ...evolutionState.auditLogs.map((log) => ({ id: log.id, action: log.action, object: log.object, summary: `${log.oldValue} → ${log.newValue}`, createdAt: log.createdAt, source: `${log.source} · 研究实验室模拟`, aiGenerated: log.aiGenerated }))];
   const title = decisionScope ? "模拟决策审计" : "研究实验室审计";
   const description = decisionScope ? "仅记录模拟决策流程的对象变化，不等同于企业可信身份审计。" : "仅记录研究实验室的模拟进化操作，不与决策流程日志混合。";
-  const reset = decisionScope ? clearDemoData : resetDemo;
+  const reset = decisionScope ? clearDemoData : () => { resetDemo(); resetPublicFixture(); };
 
   return <div className="fixed inset-0 z-[90] flex justify-end bg-[#17231F]/30" role="dialog" aria-modal="true" aria-label={title}>
     <button className="absolute inset-0" onClick={onClose} aria-label={`关闭${title}`} />

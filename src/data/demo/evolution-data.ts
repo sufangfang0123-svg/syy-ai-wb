@@ -1,17 +1,10 @@
 import {
   AuditLog,
-  CalibrationResult,
-  ClaimSpine,
-  ContentAsset,
-  DataReadinessItem,
   DataType,
   Evidence,
   EvidenceLevel,
   EvolutionState,
-  GateDecision,
   Opportunity,
-  ProductGenome,
-  ProductVersion,
   SourceType,
 } from "@/domain/types";
 
@@ -91,14 +84,8 @@ const opportunities: Opportunity[] = [
       { id: "CE-01", statement: "便携规格可能被认为容量不足或单价偏高", alternative: "自备分装袋", nonPurchaseReason: "已有低成本替代方案", riskyAssumption: "用户愿意为收纳效率支付溢价", evidenceId: "C087" },
       { id: "CE-02", statement: "小包装会增加工艺复杂度", alternative: "维持常规规格", nonPurchaseReason: "供应链成本可能转嫁至售价", riskyAssumption: "包装缩小不会影响材料与密封", evidenceId: "D071" },
     ],
-    evidenceLevel: "B",
-    evidenceCoverage: 68,
-    aiConfidence: 78,
-    humanReviewRate: 85,
-    fitness: 82,
-    status: "validation",
-    validationPool: true,
-    gatePreview: ["PASS", "PASS", "WARNING", "WARNING", "PASS"],
+    missingEvidence: ["真实目标人群的购买或使用行为", "小规格密封与成本验证", "价格带分层验证"],
+    owner: "产品负责人（模拟自述）",
   },
   {
     id: "OP-02",
@@ -111,14 +98,8 @@ const opportunities: Opportunity[] = [
     hypothesis: "低打扰包装与独立处理袋可改善外出体验",
     evidenceIds: ["B026", "C031", "D032"],
     counterEvidence: [{ id: "CE-03", statement: "过度隐蔽可能降低识别度并增加材料", alternative: "普通独立包装", nonPurchaseReason: "不愿为包装功能加价", riskyAssumption: "隐私价值高于减量诉求", evidenceId: "D032" }],
-    evidenceLevel: "B",
-    evidenceCoverage: 46,
-    aiConfidence: 71,
-    humanReviewRate: 67,
-    fitness: 69,
-    status: "active",
-    validationPool: false,
-    gatePreview: ["PASS", "WARNING", "PASS", "WARNING", "WARNING"],
+    missingEvidence: ["公共空间任务的真实频次", "包装减量与低打扰的权衡", "支付意愿"],
+    owner: "产品负责人（模拟自述）",
   },
   {
     id: "OP-03",
@@ -131,111 +112,18 @@ const opportunities: Opportunity[] = [
     hypothesis: "统一事实标签与可追溯说明能降低理解成本",
     evidenceIds: ["C055", "B041", "C063", "B082"],
     counterEvidence: [{ id: "CE-04", statement: "信息过多可能增加阅读负担", alternative: "保持简洁包装", nonPurchaseReason: "用户未必主动查看", riskyAssumption: "透明信息一定提升选择意愿", evidenceId: "C055" }],
-    evidenceLevel: "B",
-    evidenceCoverage: 55,
-    aiConfidence: 74,
-    humanReviewRate: 76,
-    fitness: 73,
-    status: "active",
-    validationPool: false,
-    gatePreview: ["PASS", "PASS", "WARNING", "PASS", "WARNING"],
+    missingEvidence: ["信息标签理解测试", "技术条款与检测范围", "信息密度对选择的影响"],
+    owner: "产品负责人（模拟自述）",
   },
 ];
 
-const genomeValue = (category: keyof ProductGenome, id: string, label: string, selected = true, verified = true) => ({
-  id,
-  label,
-  category,
-  selected,
-  locked: false,
-  verified,
-});
-
-export const baseGenome: ProductGenome = {
-  G1: [genomeValue("G1", "g1-1", "20—35岁差旅女性"), genomeValue("G1", "g1-2", "中等预算"), genomeValue("G1", "g1-3", "内容社区决策")],
-  G2: [genomeValue("G2", "g2-1", "短期出差"), genomeValue("G2", "g2-2", "运动健身"), genomeValue("G2", "g2-3", "周末出行")],
-  G3: [genomeValue("G3", "g3-1", "清洁"), genomeValue("G3", "g3-2", "擦干"), genomeValue("G3", "g3-3", "收纳"), genomeValue("G3", "g3-4", "补给")],
-  G4: [genomeValue("G4", "g4-1", "全棉水刺"), genomeValue("G4", "g4-2", "Cotton Soft", false, false), genomeValue("G4", "g4-3", "密封结构待企业确认", true, false)],
-  G5: [genomeValue("G5", "g5-1", "柔软触感"), genomeValue("G5", "g5-2", "单手取用"), genomeValue("G5", "g5-3", "小体积"), genomeValue("G5", "g5-4", "低打扰")],
-  G6: [genomeValue("G6", "g6-1", "安心"), genomeValue("G6", "g6-2", "体面"), genomeValue("G6", "g6-3", "自主")],
-  G7: [genomeValue("G7", "g7-1", "出行清单"), genomeValue("G7", "g7-2", "场景对比"), genomeValue("G7", "g7-3", "可视化收纳")],
-  G8: [genomeValue("G8", "g8-1", "79元价格带", true, false), genomeValue("G8", "g8-2", "补充装"), genomeValue("G8", "g8-3", "包装减量", false)],
-};
-
-const score = (finalFitness: number, evidenceFactor: number, riskPenalty: number, evidenceCoverage: number) => ({
-  dimensions: { demand: 86, pain: 82, brand: 88, differentiation: 77, communication: 84, supply: 69, commercial: 72, compliance: 76 },
-  rawFitness: 81,
-  evidenceFactor,
-  riskPenalty,
-  finalFitness,
-  evidenceCoverage,
-  freshness: "high" as const,
-  evidenceIds: ["B018", "C001", "C044", "C087", "D012", "B082"],
-});
-
-const versions: ProductVersion[] = [
-  { id: "PV-10", label: "V1.0", opportunityId: "OP-01", name: "随行护理组合", status: "eliminated", fitness: score(58, 0.63, 5, 38), evidenceLevel: "C", mutation: "初始概念", genome: baseGenome, createdAt: "2026-07-01", eliminatedBy: "V5 商业价值", learning: "模块过多导致价格与体积同时上升", revivable: true },
-  { id: "PV-15", label: "V1.5", parentId: "PV-10", opportunityId: "OP-01", name: "随行护理轻组合", status: "eliminated", fitness: score(64, 0.68, 4, 44), evidenceLevel: "C", mutation: "减少非核心模块", genome: baseGenome, createdAt: "2026-07-08", eliminatedBy: "V4 供应链", learning: "特殊规格缺少现有产线验证", revivable: true },
-  { id: "PV-20", label: "V2.0", parentId: "PV-15", opportunityId: "OP-01", name: "棉感随行胶囊", status: "eliminated", fitness: score(71, 0.72, 3, 51), evidenceLevel: "B", mutation: "按天组织模块", genome: baseGenome, createdAt: "2026-07-18", eliminatedBy: "V1 消费者价值", learning: "三天固定组合不适合全部旅程长度", revivable: true },
-  { id: "PV-25", label: "V2.5", parentId: "PV-20", opportunityId: "OP-01", name: "棉感随行胶囊", status: "testing", fitness: score(76, 0.78, 2, 59), evidenceLevel: "B", mutation: "加入可选补给模块", genome: baseGenome, createdAt: "2026-07-28", learning: "模块化提高适配性，但价格仍需校准", revivable: true },
-  { id: "PV-32", label: "V3.2", parentId: "PV-25", opportunityId: "OP-01", name: "棉感随行胶囊", status: "survivor", fitness: score(82, 0.84, 1, 68), evidenceLevel: "B", mutation: "单手取用与补充装", genome: baseGenome, createdAt: "2026-08-08", learning: "模拟夹具提示便携与安心值得优先验证，尚无真人研究结论", revivable: true },
-];
-
-const gates: GateDecision[] = [
-  { id: "V1", name: "消费者价值", mode: "soft", status: "PASS", aiRole: "演示需求证据与反例整理", owner: "商品经理", reason: "模拟人研夹具重复呈现该任务，不能替代真实验证", evidenceIds: ["B018", "B082"] },
-  { id: "V2", name: "品牌匹配", mode: "soft", status: "PASS", aiRole: "按品牌规则进行预审", owner: "品牌团队", reason: "棉材质与随行场景具有关联", evidenceIds: ["B041", "C001"] },
-  { id: "V3", name: "安全合规", mode: "hard", status: "WARNING", aiRole: "扫描缺证主张与风险措辞", owner: "质量 / 法务", reason: "密封结构和材料描述待企业技术确认", evidenceIds: ["C055"] },
-  { id: "V4", name: "供应链", mode: "hard", status: "WARNING", aiRole: "识别工艺缺失项与风险", owner: "供应链团队", reason: "小规格包装需要产线与成本验证", evidenceIds: ["D071"] },
-  { id: "V5", name: "商业价值", mode: "soft", status: "PASS", aiRole: "提供情景测算", owner: "业务 / 财务", reason: "采用区间情景，不使用单点销量承诺", evidenceIds: ["C087", "D012"] },
-];
-
-const calibrations: CalibrationResult[] = [
-  { id: "CAL-01", metric: "便携偏好", syntheticValue: 78, humanValue: 72, unit: "%", conclusion: "方向一致，模拟略高估", action: "便携权重下调 3 个百分点", evidenceLevel: "B" },
-  { id: "CAL-02", metric: "79元接受度", syntheticValue: 61, humanValue: 42, unit: "%", conclusion: "模拟夹具显示两类设定存在差异", action: "真实项目需执行价格分层验证", evidenceLevel: "B" },
-  { id: "CAL-03", metric: "安心卖点", syntheticValue: 66, humanValue: 70, unit: "%", conclusion: "模拟人研夹具设定略高", action: "把安心列入真人验证方案，不作为已证实结论", evidenceLevel: "B" },
-];
-
-const claims: ClaimSpine[] = [
-  { claimId: "CLM-01", claimText: "模块化收纳，按旅程选择所需补给", evidenceIds: ["B018", "C001", "C074"], evidenceLevel: "B", approved: true, allowedChannels: ["小红书", "抖音", "电商", "私域"], prohibitedExpressions: ["适合所有人", "绝对省空间"], reviewStatus: "approved" },
-  { claimId: "CLM-02", claimText: "单手取用，减少外出场景中的操作步骤", evidenceIds: ["B018", "B082"], evidenceLevel: "B", approved: true, allowedChannels: ["小红书", "视频号", "直播"], prohibitedExpressions: ["零负担", "完全静音"], reviewStatus: "approved" },
-  { claimId: "CLM-03", claimText: "材料与密封信息清晰可追溯", evidenceIds: ["B041", "C055"], evidenceLevel: "B", approved: false, allowedChannels: ["电商"], prohibitedExpressions: ["医学功效", "绝对安全"], reviewStatus: "pending" },
-];
-
-const contentAssets: ContentAsset[] = [
-  { id: "CA-01", channel: "小红书", claimId: "CLM-01", variant: "A", title: "三天两夜，我的护理包只留下这三个模块", structure: "场景问题 → 收纳对比 → 模块清单 → 证据说明", status: "approved", metricLabel: "模拟收藏倾向", metricValue: 68, dataType: "syntheticSimulation" },
-  { id: "CA-02", channel: "小红书", claimId: "CLM-01", variant: "B", title: "出差不再临时分装：按天选择随行补给", structure: "准备时间 → 使用过程 → 补充装 → 验证邀请", status: "reviewed", metricLabel: "模拟收藏倾向", metricValue: 62, dataType: "syntheticSimulation" },
-  { id: "CA-03", channel: "抖音", claimId: "CLM-02", variant: "A", title: "15秒单手取用对比实验", structure: "问题钩子 → 操作对比 → 事实字幕 → 真实验证边界说明", status: "approved", metricLabel: "模拟完播倾向", metricValue: 71, dataType: "syntheticSimulation" },
-  { id: "CA-04", channel: "电商", claimId: "CLM-03", variant: "A", title: "材料、结构与适用边界说明", structure: "产品事实 → 结构拆解 → 待确认项 → 服务说明", status: "pending", metricLabel: "模拟理解度", metricValue: 73, dataType: "syntheticSimulation" },
-];
-
 const auditLogs: AuditLog[] = [
-  { id: "AUD-01", action: "Mutation", createdAt: "2026-08-08 14:32", object: "PV-32", oldValue: "V2.5", newValue: "V3.2：加入单手取用", source: "System Demo Fixture", aiGenerated: false },
-  { id: "AUD-02", action: "Fixture Check", createdAt: "2026-08-08 15:10", object: "CAL-02", oldValue: "模拟情景 61%", newValue: "模拟人研夹具 42%", source: "System Demo Fixture", aiGenerated: false },
-  { id: "AUD-03", action: "Claim Review", createdAt: "2026-08-08 15:45", object: "CLM-03", oldValue: "演示草稿", newValue: "待企业技术 / 合规确认", source: "System Demo Fixture", aiGenerated: false },
-];
-
-export const dataReadiness: DataReadinessItem[] = [
-  { id: "DR-01", label: "模拟公开资料字段", status: "ready", note: "已加载固定演示夹具，不代表真实来源" },
-  { id: "DR-02", label: "模拟人研夹具", status: "partial", note: "仅用于演示流程，不是客户或真人研究成果" },
-  { id: "DR-03", label: "社媒信号", status: "partial", note: "演示数据" },
-  { id: "DR-04", label: "企业销售数据", status: "locked", note: "待企业授权" },
-  { id: "DR-05", label: "会员行为", status: "locked", note: "待企业授权" },
-  { id: "DR-06", label: "BOM 成本", status: "locked", note: "待企业授权" },
-  { id: "DR-07", label: "真实投放 ROI", status: "locked", note: "待企业授权" },
+  { id: "AUD-01", action: "Fixture Loaded", createdAt: "2026-08-08 14:32", object: "DEMO-OPPORTUNITY-SET", oldValue: "无", newValue: "加载固定机会夹具；尚未人工复核", source: "System Demo Fixture", aiGenerated: false },
 ];
 
 export const demoEvolutionState: EvolutionState = {
   evidence: evidenceSeed,
   opportunities,
-  versions,
-  currentVersionId: "PV-32",
-  gates,
-  experiments: [
-    { id: "EXP-037", round: 37, parentVersionId: "PV-25", experimentType: "genome", variable: "单手取用", hypothesis: "减少外出操作步骤", evidenceLevel: "D", result: "evolve", decision: "形成真人概念测试方案", nextVersionId: "PV-32", createdAt: "2026-08-08" },
-  ],
-  calibrations,
-  claims,
-  contentAssets,
   auditLogs,
   selectedOpportunityId: "OP-01",
   demoStep: null,

@@ -1,6 +1,6 @@
 # Evolution Lab · Next-Dollar Gate
 
-> v0.4.0 本地 AI 辅助爆品共创工作台。当前可交付形态仍是单企业、本地、单用户的封闭试点，不是云生产系统。
+> v0.4.0 新品投前决策与证据验证工作台。当前可交付形态仍是单企业、本地、单用户的封闭试点，不是云生产系统。
 
 在下一笔打样、开模、备货、投放或渠道费用发生前，系统把企业已授权材料转成可追溯Evidence，连接Assumption与Validation，由确定性规则输出`CONTINUE`、`SUPPLEMENT`或`STOP`，最终Decision仍由人工负责人确认。
 

@@ -16,13 +16,10 @@ from .services import audit, invalidate_project
 from .workbench_models import AIProposal, ChangeProposal, ContentAsset, FeedbackRecord, Opportunity, ProductConcept, RecommendationPolicy, ScenarioCandidate
 
 
-PRIORITY_INPUTS = (
+SCENARIO_REQUIRED_INPUTS = (
     "evidence_fit", "error_cost", "uncertainty_gap", "execution",
     "category_fit", "channel_fit", "compliance_safety", "contrary_evidence_safety",
 )
-PRIORITY_POLICY_VERSION = "WOVEN_SCENARIO_PRIORITY_V1"
-PRIORITY_FORMULA = "0.18*Evidence适配 + 0.16*错误代价 + 0.16*不确定性缺口 + 0.14*验证可执行性 + 0.12*品类适配 + 0.10*渠道适配 + 0.08*声明安全 + 0.06*反证安全"
-PRIORITY_WEIGHTS = (0.18, 0.16, 0.16, 0.14, 0.12, 0.10, 0.08, 0.06)
 
 
 def compact_json(value: Any) -> str:
@@ -435,14 +432,6 @@ def stale_project_scenario_funnel(session: Session, project: Project, reason: st
     ).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
     invalidate_project(session, project, reason)
     audit(session, project.id, "project", project.id, "scenario_funnel_stale", reason, actor=actor)
-
-
-def calculate_priority(inputs: dict[str, float]) -> tuple[float | None, list[str], str]:
-    missing = [key for key in PRIORITY_INPUTS if key not in inputs]
-    if missing:
-        return None, missing, "必要输入缺失，不生成总分；请由负责人补数或直接人工复核。"
-    score = round(sum(inputs[key] * weight for key, weight in zip(PRIORITY_INPUTS, PRIORITY_WEIGHTS)), 2)
-    return score, [], f"待验证优先级={score}；公式：{PRIORITY_FORMULA}。这不是成功率、销量、CTR/CVR或ROI预测。"
 
 
 def check_content_claims(body: str, approved_claims: list[str], prohibited_terms: list[str], evidence_ids: list[str]) -> list[dict[str, str]]:

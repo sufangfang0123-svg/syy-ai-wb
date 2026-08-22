@@ -15,9 +15,7 @@ export function EvidenceBadge({ level, compact = false }: { level: EvidenceLevel
   const meta = EVIDENCE_LEVELS[level];
   return (
     <span
-      tabIndex={0}
-      aria-label={`${level}级证据：${meta.definition}`}
-      title={`${meta.definition}\n可用于：${meta.decision}\n限制：${meta.limitation}`}
+      aria-label={`${level}级证据：${meta.definition}。可用于：${meta.decision}。限制：${meta.limitation}`}
       className={`inline-flex items-center gap-1 rounded-full border font-semibold ${compact ? "px-2 py-0.5 text-[11px]" : "px-2.5 py-1 text-xs"} ${styles[level]}`}
     >
       <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />

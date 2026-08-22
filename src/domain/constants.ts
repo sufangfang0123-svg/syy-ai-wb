@@ -1,4 +1,4 @@
-import { DataType, EvidenceLevel, FitnessDimensionKey, GenomeCategory } from "./types";
+import { DataType, EvidenceLevel } from "./types";
 
 export const EVIDENCE_LEVELS: Record<
   EvidenceLevel,
@@ -28,28 +28,6 @@ export const EVIDENCE_LEVELS: Record<
     decision: "仅用于预筛、压力测试和寻找反例",
     limitation: "不代表真实消费者预测或商业结果",
   },
-};
-
-export const FITNESS_LABELS: Record<FitnessDimensionKey, string> = {
-  demand: "需求真实度",
-  pain: "痛点强度",
-  brand: "品牌匹配",
-  differentiation: "差异化",
-  communication: "传播潜力",
-  supply: "供应链可行",
-  commercial: "商业潜力",
-  compliance: "合规可控",
-};
-
-export const GENOME_LABELS: Record<GenomeCategory, { title: string; subtitle: string }> = {
-  G1: { title: "人群基因", subtitle: "年龄、阶段、预算、渠道" },
-  G2: { title: "场景基因", subtitle: "通勤、旅行、运动、居家" },
-  G3: { title: "任务基因", subtitle: "清洁、擦干、收纳、补给" },
-  G4: { title: "材料与技术", subtitle: "已知事实与待企业确认" },
-  G5: { title: "体验基因", subtitle: "触感、尺寸、静音、便携" },
-  G6: { title: "情绪基因", subtitle: "安心、体面、松弛、自主" },
-  G7: { title: "传播基因", subtitle: "对比、场景、清单、分享" },
-  G8: { title: "商业与可持续", subtitle: "价格、复购、包装、系列" },
 };
 
 export const DEMO_DISCLAIMER = "D级模拟演示，仅用于预筛与流程验证，不构成真实市场预测或商业承诺。";

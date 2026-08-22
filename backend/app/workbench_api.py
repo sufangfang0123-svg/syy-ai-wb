@@ -15,7 +15,7 @@ from .models import Assumption, AuditEvent, Decision, Evidence, EvidenceAssumpti
 from .services import audit, invalidate_project
 from .workbench_models import AIProposal, CategoryPack, ChangeProposal, ContentAsset, FeedbackRecord, Opportunity, ProductConcept, RecommendationPolicy, ScenarioCandidate
 from .workbench_schemas import AIProposalImport, AIProposalRead, AIProposalReview, CategoryPackRead, CategoryPackSelect, ChangeProposalCreate, ChangeProposalRead, ChangeProposalReview, ContentAssetCreate, ContentAssetRead, ContentAssetUpdate, OpportunityCreate, OpportunityRead, OpportunityUpdate, ProductConceptCreate, ProductConceptRead, ProductConceptUpdate, RecommendationPolicyRead, RecommendationReview, ScenarioGenerate, ScenarioRead, ScenarioReview
-from .workbench_service import PRIORITY_INPUTS, check_content_claims, compact_json, input_snapshot_hash, parse_feedback_csv, parse_json, recommendation_from_feedback, require_revision, stale_concept_dependents, stale_opportunity_funnel, stale_project_scenario_funnel, validate_input_references, validate_project_refs
+from .workbench_service import SCENARIO_REQUIRED_INPUTS, check_content_claims, compact_json, input_snapshot_hash, parse_feedback_csv, parse_json, recommendation_from_feedback, require_revision, stale_concept_dependents, stale_opportunity_funnel, stale_project_scenario_funnel, validate_input_references, validate_project_refs
 
 
 router = APIRouter(prefix="/api/v1", tags=["product-workbench"])
@@ -364,7 +364,7 @@ def generate_scenarios(project_id: str, payload: ScenarioGenerate, session: Sess
     channels = list(config.get("channel_templates", []))[:5]
     if len(personas) < 4 or len(genes) < 5 or len(channels) < 5:
         raise HTTPException(422, "当前Category Pack不能形成4×5×5候选空间")
-    missing = list(PRIORITY_INPUTS)
+    missing = list(SCENARIO_REQUIRED_INPUTS)
     rationale = "当前候选宇宙没有情景级priority输入，因此保持未评分；不得用数组、创建或数据库顺序冒充优先级。"
     entities: list[ScenarioCandidate] = []
     for p_index, persona in enumerate(personas, 1):

@@ -47,7 +47,9 @@ export function preflightFeedbackCsv(text: string): FeedbackPreflight {
 }
 
 export function scenarioPriorityLabel(priority: number | null, missingInputs: string[]): string {
-  return priority === null ? `未评分 · 缺失 ${missingInputs.length} 项输入` : `待验证优先级 ${priority}`;
+  return priority === null
+    ? `未评分 · 缺失 ${missingInputs.length} 项输入`
+    : `未评分 · 历史值已撤销 · 缺失 ${missingInputs.length} 项输入`;
 }
 
 export type ScenarioState = { status: string; is_stale: boolean };

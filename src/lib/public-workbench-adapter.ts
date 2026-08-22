@@ -19,3 +19,8 @@ export function loadPublicFixtureState(storage?: Pick<Storage, "getItem">): Prod
 export function savePublicFixtureState(storage: Pick<Storage, "setItem">, state: ProductWorkbenchState) {
   storage.setItem(PUBLIC_FIXTURE_STORAGE_KEY, JSON.stringify(state));
 }
+
+export function resetPublicFixtureState(storage: Pick<Storage, "removeItem">) {
+  storage.removeItem(PUBLIC_FIXTURE_STORAGE_KEY);
+  storage.removeItem(LEGACY_PUBLIC_FIXTURE_STORAGE_KEY);
+}

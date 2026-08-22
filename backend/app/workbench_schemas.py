@@ -175,7 +175,7 @@ class ScenarioGenerate(BaseModel):
     actor: str = Field(min_length=2, max_length=160)
 
     @model_validator(mode="after")
-    def validate_scores(self):
+    def forbid_shared_priority_inputs(self):
         for key, value in self.priority_inputs.items():
             if key not in {"evidence_fit", "error_cost", "uncertainty_gap", "execution", "category_fit", "channel_fit", "compliance_safety", "contrary_evidence_safety"}:
                 raise ValueError(f"未知优先级输入: {key}")
