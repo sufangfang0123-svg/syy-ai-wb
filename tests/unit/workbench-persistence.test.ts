@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { adapterKind } from "../../src/lib/local-workbench-adapter";
-import { LEGACY_PUBLIC_FIXTURE_STORAGE_KEY, PUBLIC_FIXTURE_STORAGE_KEY, loadPublicFixtureState, savePublicFixtureState } from "../../src/lib/public-workbench-adapter";
+import { LEGACY_PUBLIC_FIXTURE_STORAGE_KEY, PUBLIC_FIXTURE_STORAGE_KEY, loadPublicFixtureState, resetPublicFixtureState, savePublicFixtureState } from "../../src/lib/public-workbench-adapter";
 import { canReviewProposal, categoryPackSelection, countDataNatures, feedbackChangeProposal, isProposalImportReady, partitionScenarioUniverse, preflightContentClaims, preflightFeedbackCsv, scenarioPriorityLabel } from "../../src/lib/workbench-validation";
 
 describe("persistent workbench boundaries", () => {
@@ -20,6 +20,9 @@ describe("persistent workbench boundaries", () => {
     savePublicFixtureState(storage, state);
     expect(values.has(PUBLIC_FIXTURE_STORAGE_KEY)).toBe(true);
     expect(loadPublicFixtureState(storage).revision).toBe(7);
+    resetPublicFixtureState({ removeItem: (key: string) => values.delete(key) });
+    expect(values.has(PUBLIC_FIXTURE_STORAGE_KEY)).toBe(false);
+    expect(values.has(LEGACY_PUBLIC_FIXTURE_STORAGE_KEY)).toBe(false);
   });
 
   it("keeps category pack switching revision-aware", () => {
@@ -34,7 +37,7 @@ describe("persistent workbench boundaries", () => {
 
   it("does not invent a scenario score when inputs are missing", () => {
     expect(scenarioPriorityLabel(null, ["evidence_fit", "validation_cost"])).toBe("未评分 · 缺失 2 项输入");
-    expect(scenarioPriorityLabel(68, [])).toBe("待验证优先级 68");
+    expect(scenarioPriorityLabel(68, [])).toBe("未评分 · 历史值已撤销 · 缺失 0 项输入");
   });
 
   it("does not turn the first array records into a shortlist", () => {
