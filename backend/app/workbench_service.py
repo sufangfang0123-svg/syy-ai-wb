@@ -55,12 +55,35 @@ def validate_project_refs(session: Session, project_id: str, evidence_ids: list[
 
 
 def validate_input_references(session: Session, project_id: str, references: list[str]) -> None:
-    known: set[str] = {project_id}
-    for model in (Evidence, Assumption, Opportunity, ProductConcept, ScenarioCandidate, ContentAsset, FeedbackRecord):
-        known.update(session.scalars(select(model.id).where(model.project_id == project_id)).all())
-    missing = sorted(set(references) - known)
+    missing: list[str] = []
+    blocked: list[str] = []
+    governed_models = (Opportunity, ProductConcept, ScenarioCandidate, ContentAsset, FeedbackRecord)
+    for reference in sorted(set(references)):
+        if reference == project_id:
+            continue
+        evidence = session.get(Evidence, reference)
+        if evidence is not None and evidence.project_id == project_id:
+            if evidence.status != "confirmed":
+                blocked.append(reference)
+            continue
+        assumption = session.get(Assumption, reference)
+        if assumption is not None and assumption.project_id == project_id:
+            continue
+        matched = False
+        for model in governed_models:
+            entity = session.get(model, reference)
+            if entity is None or entity.project_id != project_id:
+                continue
+            matched = True
+            if entity.is_stale or entity.data_nature in {"fixed_demo", "ai_proposal"}:
+                blocked.append(reference)
+            break
+        if not matched:
+            missing.append(reference)
     if missing:
         raise HTTPException(422, {"message": "AI建议包包含未知或跨项目引用", "missing": missing})
+    if blocked:
+        raise HTTPException(422, {"message": "AI建议包只能引用已确认、未失效且非fixed_demo/ai_proposal的输入", "blocked": blocked})
 
 
 def input_snapshot_hash(session: Session, project_id: str, references: list[str]) -> str:
@@ -85,13 +108,111 @@ def input_snapshot_hash(session: Session, project_id: str, references: list[str]
 
 
 def stale_concept_dependents(session: Session, project: Project, concept_id: str, reason: str, actor: str) -> None:
-    session.execute(update(ScenarioCandidate).where(ScenarioCandidate.concept_id == concept_id, ScenarioCandidate.is_stale.is_(False)).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
-    session.execute(update(ContentAsset).where(ContentAsset.concept_id == concept_id, ContentAsset.is_stale.is_(False)).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
-    session.execute(update(ChangeProposal).where(ChangeProposal.target_entity_id == concept_id, ChangeProposal.status == "proposed", ChangeProposal.is_stale.is_(False)).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    content_ids = list(session.scalars(select(ContentAsset.id).where(
+        ContentAsset.project_id == project.id,
+        ContentAsset.concept_id == concept_id,
+        ContentAsset.is_stale.is_(False),
+    )).all())
+    feedback_ids = list(session.scalars(select(FeedbackRecord.id).where(
+        FeedbackRecord.project_id == project.id,
+        FeedbackRecord.is_stale.is_(False),
+        (FeedbackRecord.concept_id == concept_id) | (FeedbackRecord.content_asset_id.in_(content_ids)),
+    )).all())
+    if content_ids:
+        session.execute(update(ContentAsset).where(ContentAsset.id.in_(content_ids)).values(
+            is_stale=True, stale_reason=reason, updated_at=utcnow()
+        ))
+    if feedback_ids:
+        session.execute(update(FeedbackRecord).where(FeedbackRecord.id.in_(feedback_ids)).values(
+            is_stale=True, stale_reason=reason, updated_at=utcnow()
+        ))
+    affected_targets = [concept_id, *content_ids]
+    session.execute(update(ChangeProposal).where(
+        ChangeProposal.project_id == project.id,
+        ChangeProposal.target_entity_id.in_(affected_targets),
+        ChangeProposal.status == "proposed",
+        ChangeProposal.is_stale.is_(False),
+    ).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
     session.execute(update(AIProposal).where(AIProposal.project_id == project.id, AIProposal.status == "proposed", AIProposal.is_stale.is_(False)).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
-    session.execute(update(RecommendationPolicy).where(RecommendationPolicy.project_id == project.id, RecommendationPolicy.status == "proposed", RecommendationPolicy.is_stale.is_(False)).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    session.execute(update(RecommendationPolicy).where(
+        RecommendationPolicy.project_id == project.id,
+        RecommendationPolicy.is_stale.is_(False),
+    ).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
     invalidate_project(session, project, reason)
     audit(session, project.id, "product_concept", concept_id, "dependents_stale", reason, actor=actor, metadata={"concept_id": concept_id})
+
+
+def stale_opportunity_funnel(session: Session, project: Project, opportunity_id: str, reason: str, actor: str) -> None:
+    concept_ids = list(session.scalars(select(ProductConcept.id).where(
+        ProductConcept.project_id == project.id,
+        ProductConcept.opportunity_id == opportunity_id,
+        ProductConcept.is_stale.is_(False),
+    )).all())
+    content_ids = list(session.scalars(select(ContentAsset.id).where(
+        ContentAsset.project_id == project.id,
+        ContentAsset.is_stale.is_(False),
+        (ContentAsset.opportunity_id == opportunity_id) | (ContentAsset.concept_id.in_(concept_ids)),
+    )).all())
+    feedback_ids = list(session.scalars(select(FeedbackRecord.id).where(
+        FeedbackRecord.project_id == project.id,
+        FeedbackRecord.is_stale.is_(False),
+        (FeedbackRecord.content_asset_id.in_(content_ids)) | (FeedbackRecord.concept_id.in_(concept_ids)),
+    )).all())
+    session.execute(update(ScenarioCandidate).where(
+        ScenarioCandidate.project_id == project.id,
+        ScenarioCandidate.opportunity_id == opportunity_id,
+        ScenarioCandidate.is_stale.is_(False),
+    ).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    if concept_ids:
+        session.execute(update(ProductConcept).where(ProductConcept.id.in_(concept_ids)).values(
+            is_stale=True, stale_reason=reason, updated_at=utcnow()
+        ))
+    if content_ids:
+        session.execute(update(ContentAsset).where(ContentAsset.id.in_(content_ids)).values(
+            is_stale=True, stale_reason=reason, updated_at=utcnow()
+        ))
+    if feedback_ids:
+        session.execute(update(FeedbackRecord).where(FeedbackRecord.id.in_(feedback_ids)).values(
+            is_stale=True, stale_reason=reason, updated_at=utcnow()
+        ))
+    session.execute(update(RecommendationPolicy).where(
+        RecommendationPolicy.project_id == project.id,
+        RecommendationPolicy.is_stale.is_(False),
+    ).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    affected_targets = [*concept_ids, *content_ids]
+    if affected_targets:
+        session.execute(update(ChangeProposal).where(
+            ChangeProposal.project_id == project.id,
+            ChangeProposal.target_entity_id.in_(affected_targets),
+            ChangeProposal.status == "proposed",
+            ChangeProposal.is_stale.is_(False),
+        ).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    session.execute(update(AIProposal).where(
+        AIProposal.project_id == project.id,
+        AIProposal.status == "proposed",
+        AIProposal.is_stale.is_(False),
+    ).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    invalidate_project(session, project, reason)
+    audit(session, project.id, "opportunity", opportunity_id, "funnel_stale", reason, actor=actor, metadata={"opportunity_id": opportunity_id})
+
+
+def stale_project_scenario_funnel(session: Session, project: Project, reason: str, actor: str) -> None:
+    for model in (ScenarioCandidate, ProductConcept, ContentAsset, FeedbackRecord, RecommendationPolicy):
+        session.execute(update(model).where(model.project_id == project.id, model.is_stale.is_(False)).values(
+            is_stale=True, stale_reason=reason, updated_at=utcnow()
+        ))
+    session.execute(update(ChangeProposal).where(
+        ChangeProposal.project_id == project.id,
+        ChangeProposal.status == "proposed",
+        ChangeProposal.is_stale.is_(False),
+    ).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    session.execute(update(AIProposal).where(
+        AIProposal.project_id == project.id,
+        AIProposal.status == "proposed",
+        AIProposal.is_stale.is_(False),
+    ).values(is_stale=True, stale_reason=reason, updated_at=utcnow()))
+    invalidate_project(session, project, reason)
+    audit(session, project.id, "project", project.id, "scenario_funnel_stale", reason, actor=actor)
 
 
 def calculate_priority(inputs: dict[str, float]) -> tuple[float | None, list[str], str]:
@@ -149,7 +270,7 @@ def parse_feedback_csv(raw: bytes) -> list[dict[str, Any]]:
             raise HTTPException(422, {"message": "反馈CSV内存在重复记录", "line": line_number})
         seen.add(fingerprint)
         nature = normalized["data_nature"]
-        if nature not in {"real_entry", "manual_import", "fixed_demo"}:
+        if nature not in {"real_entry", "manual_import"}:
             raise HTTPException(422, {"message": "未知数据性质", "line": line_number})
         batch_natures.add(nature)
         try:
@@ -175,7 +296,11 @@ def parse_feedback_csv(raw: bytes) -> list[dict[str, Any]]:
 
 
 def recommendation_from_feedback(session: Session, project: Project, actor: str) -> RecommendationPolicy:
-    feedback = session.scalars(select(FeedbackRecord).where(FeedbackRecord.project_id == project.id)).all()
+    feedback = session.scalars(select(FeedbackRecord).where(
+        FeedbackRecord.project_id == project.id,
+        FeedbackRecord.is_stale.is_(False),
+        FeedbackRecord.data_nature.in_(("real_entry", "manual_import")),
+    )).all()
     count = len(feedback)
     insufficient = count < 3
     channels = sorted({item.channel for item in feedback})

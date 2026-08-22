@@ -1,7 +1,8 @@
 import { demoProductWorkbenchState } from "../data/demo/product-workbench-data";
 import { ProductWorkbenchState } from "../domain/product-workbench-types";
 
-export const PUBLIC_FIXTURE_STORAGE_KEY = "cotton-product-workbench-demo:v1";
+export const LEGACY_PUBLIC_FIXTURE_STORAGE_KEY = "cotton-product-workbench-demo:v1";
+export const PUBLIC_FIXTURE_STORAGE_KEY = "cotton-product-workbench-demo:v2";
 
 export function loadPublicFixtureState(storage?: Pick<Storage, "getItem">): ProductWorkbenchState {
   const fallback = structuredClone(demoProductWorkbenchState);

@@ -9,7 +9,7 @@
 | 构建 | 能力 | 数据 |
 | --- | --- | --- |
 | `public_demo` | 展示站、旧版非织造棉品模拟实验室、系统验收材料 | 固定模拟夹具；无真实入口、FastAPI、SQLite或Provider |
-| `local_integrated` | 有纺服装品类包、材料、AIProposal导入、人审Opportunity、产品概念、情景漏斗、内容、反馈、ChangeProposal、固定Gate与人工Decision | 本机SQLite及非公开附件目录 |
+| `local_integrated` | 有纺服装品类包、材料、AIProposal导入、人审Opportunity、未评分情景宇宙、人工shortlist、基于shortlist的产品概念、内容、反馈、ChangeProposal、固定Gate与人工Decision | 本机SQLite及非公开附件目录 |
 
 GitHub Pages只执行`public_demo`。公开`/real/`始终显示真实入口关闭；后端不健康时不回退到localStorage或模拟成功。公开站没有云后端。
 
@@ -27,7 +27,7 @@ npm.cmd run dev:integrated
 
 ## v0.4.0本地产品链路
 
-`项目与Category Pack → 授权Evidence → 结构化AIProposal导入 → 人工确认Opportunity → ProductConcept → 100项候选漏斗 → Validation → 固定Gate → ContentAsset审核 → Feedback CSV → ChangeProposal → 人工Decision → 下一轮与stale追溯`
+`项目与Category Pack → 授权Evidence → 结构化AIProposal导入 → 人工确认Opportunity → 100项未评分Scenario候选宇宙 → 人工shortlist → 基于shortlist创建并锁定ProductConcept → Validation → 固定Gate → ContentAsset审核 → Feedback CSV → ChangeProposal → 人工Decision → 下一轮与stale追溯`
 
 本地默认品类包是`woven_apparel_v1`。旧“棉感随行胶囊/全棉水刺护理组合”只保留为`legacy_nonwoven_cotton_care_v1`固定模拟夹具。新默认案例“全棉轻适通勤内搭”是比赛概念方案，不是全棉时代正式产品；材质、价格、用户需求、功能与供应结论均为待验证假设。
 
@@ -50,6 +50,7 @@ Gate规则版本保持`NDG_GATE_V0.3.0`，汇总`NEED / COMMERCIAL / PRODUCT / S
 - [AIProposal契约](docs/ai-proposal-contract.md)
 - [本地产品工作台API](docs/local-product-workbench-api.md)
 - [QA记录](docs/vnext-qa-report.md)
+- [真实性漏斗前后对比](docs/truth-funnel-audit-v0.4.0.md)
 - [v0.4.0限制](docs/vnext-known-limitations.md)
 - [明早交接](docs/next-morning-handoff.md)
 
@@ -84,4 +85,4 @@ git diff --check
 npm.cmd audit
 ```
 
-技术栈：Next.js 15.5、React 19、TypeScript、FastAPI、SQLAlchemy、Pydantic、SQLite（WAL/外键）、Vitest、Playwright、GitHub Actions和GitHub Pages。数据库Schema为3；Gate继续使用`NDG_GATE_V0.3.0`。
+技术栈：Next.js 15.5、React 19、TypeScript、FastAPI、SQLAlchemy、Pydantic、SQLite（WAL/外键）、Vitest、Playwright、GitHub Actions和GitHub Pages。数据库Schema为5；Gate继续使用`NDG_GATE_V0.3.0`。

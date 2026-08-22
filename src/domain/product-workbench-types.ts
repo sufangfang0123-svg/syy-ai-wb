@@ -38,6 +38,7 @@ export interface ScenarioReview {
   status: "unreviewed" | "shortlisted" | "validation" | "rejected";
   owner: string;
   note: string;
+  evidenceIds: string[];
   stale: boolean;
   updatedAt: string;
 }
@@ -116,7 +117,7 @@ export interface ExperimentScenario {
   channel: string;
   cta: string;
   assumptionId: string;
-  priority: number;
+  priority: null;
   rule: string;
   limitation: string;
 }

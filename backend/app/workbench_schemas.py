@@ -6,7 +6,9 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
-DataNature = Literal["real_entry", "manual_import", "fixed_demo", "ai_proposal"]
+DataNature = Literal["real_entry", "manual_import", "manual_hypothesis", "fixed_demo", "ai_proposal"]
+FormalHypothesisNature = Literal["manual_import", "manual_hypothesis"]
+ContentNature = Literal["real_entry", "manual_import", "manual_hypothesis"]
 ProposalTask = Literal[
     "evidence_signal", "signal_cluster", "opportunity", "product_concept",
     "scenario_narrowing", "content_brief", "feedback_theme", "change_proposal",
@@ -47,7 +49,7 @@ class OpportunityCreate(BaseModel):
     human_reason: str = Field(default="", max_length=5000)
     status: Literal["candidate", "confirmed", "rejected"] = "candidate"
     actor: str = Field(min_length=2, max_length=160)
-    data_nature: DataNature = "real_entry"
+    data_nature: FormalHypothesisNature = "manual_hypothesis"
 
 
 class OpportunityUpdate(BaseModel):
@@ -89,6 +91,7 @@ class OpportunityRead(ORMModel):
 
 class ProductConceptCreate(BaseModel):
     opportunity_id: str
+    source_scenario_id: str
     name: str = Field(min_length=2, max_length=240)
     target_user: str = Field(default="", max_length=5000)
     scenario: str = Field(default="", max_length=5000)
@@ -107,7 +110,7 @@ class ProductConceptCreate(BaseModel):
     status: Literal["candidate", "selected", "rejected"] = "candidate"
     locked: bool = False
     actor: str = Field(min_length=2, max_length=160)
-    data_nature: DataNature = "real_entry"
+    data_nature: FormalHypothesisNature = "manual_hypothesis"
 
 
 class ProductConceptUpdate(BaseModel):
@@ -135,6 +138,7 @@ class ProductConceptRead(ORMModel):
     id: str
     project_id: str
     opportunity_id: str
+    source_scenario_id: str | None
     name: str
     target_user: str
     scenario: str
@@ -164,7 +168,7 @@ class ProductConceptRead(ORMModel):
 
 class ScenarioGenerate(BaseModel):
     opportunity_id: str
-    concept_id: str
+    concept_id: str | None = None
     assumption_id: str | None = None
     evidence_ids: list[str] = Field(default_factory=list, max_length=200)
     priority_inputs: dict[str, float] = Field(default_factory=dict)
@@ -177,6 +181,8 @@ class ScenarioGenerate(BaseModel):
                 raise ValueError(f"未知优先级输入: {key}")
             if value < 0 or value > 100:
                 raise ValueError(f"{key} 必须在0到100之间")
+        if self.priority_inputs:
+            raise ValueError("当前接口没有情景级priority输入；禁止把同一组输入复制为100个候选的评分")
         return self
 
 
@@ -184,6 +190,7 @@ class ScenarioReview(BaseModel):
     status: Literal["candidate_space", "shortlisted", "must_validate", "validation", "rejected"]
     owner: str = Field(min_length=2, max_length=160)
     review_reason: str = Field(min_length=2, max_length=5000)
+    evidence_ids: list[str] | None = Field(default=None, max_length=200)
     actor: str = Field(min_length=2, max_length=160)
     revision: int = Field(ge=1)
 
@@ -192,7 +199,7 @@ class ScenarioRead(ORMModel):
     id: str
     project_id: str
     opportunity_id: str
-    concept_id: str
+    concept_id: str | None
     assumption_id: str | None
     evidence_ids_json: str
     persona: str
@@ -207,6 +214,10 @@ class ScenarioRead(ORMModel):
     contrary_evidence_json: str
     owner: str
     review_reason: str
+    shortlisted_by: str
+    shortlist_reason: str
+    shortlist_evidence_ids_json: str
+    shortlisted_at: datetime | None
     status: str
     revision: int
     version: int
@@ -236,7 +247,7 @@ class ContentAssetCreate(BaseModel):
     variant: str = Field(default="A", max_length=24)
     source_proposal_id: str | None = None
     actor: str = Field(min_length=2, max_length=160)
-    data_nature: DataNature = "real_entry"
+    data_nature: ContentNature = "real_entry"
 
 
 class ContentAssetUpdate(BaseModel):
@@ -283,6 +294,8 @@ class ContentAssetRead(ORMModel):
     review_status: str
     reviewer: str
     review_reason: str
+    review_findings_snapshot_json: str
+    reviewed_at: datetime | None
     revision: int
     version: int
     actor: str
@@ -298,7 +311,10 @@ class AIProposalImport(BaseModel):
     task_type: ProposalTask
     input_entity_references: list[str] = Field(min_length=1, max_length=200)
     input_snapshot_hash: str = Field(min_length=64, max_length=64, pattern=r"^[a-f0-9]{64}$")
-    origin: Literal["fixed_demo", "manual_ai_import", "provider_optional"] = "manual_ai_import"
+    origin: Literal["manual_ai_import"] = "manual_ai_import"
+    submission_kind: Literal["external_ai_output", "manual_hypothesis"]
+    source_confirmed: Literal[True]
+    source_description: str = Field(min_length=2, max_length=2000)
     provider: str | None = Field(default=None, max_length=80)
     model: str | None = Field(default=None, max_length=120)
     prompt_template_version: str = Field(min_length=1, max_length=60)
@@ -337,6 +353,8 @@ class AIProposalRead(ORMModel):
     origin: str
     provider: str | None
     model: str | None
+    source_description: str
+    source_confirmed_at: datetime | None
     prompt_template_version: str
     output_schema_version: str
     candidates_json: str
@@ -369,7 +387,7 @@ class ChangeProposalCreate(BaseModel):
     rationale: str = Field(min_length=2, max_length=10_000)
     contrary_evidence: list[str] = Field(default_factory=list, max_length=100)
     actor: str = Field(min_length=2, max_length=160)
-    data_nature: DataNature = "real_entry"
+    data_nature: FormalHypothesisNature = "manual_hypothesis"
 
 
 class ChangeProposalReview(BaseModel):

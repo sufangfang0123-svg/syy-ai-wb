@@ -50,6 +50,37 @@ export function scenarioPriorityLabel(priority: number | null, missingInputs: st
   return priority === null ? `未评分 · 缺失 ${missingInputs.length} 项输入` : `待验证优先级 ${priority}`;
 }
 
+export type ScenarioState = { status: string; is_stale: boolean };
+
+export function partitionScenarioUniverse<T extends ScenarioState>(items: T[]) {
+  return {
+    candidates: items.filter((item) => !item.is_stale && item.status === "candidate_space"),
+    shortlisted: items.filter((item) => !item.is_stale && ["shortlisted", "must_validate"].includes(item.status)),
+    validation: items.filter((item) => !item.is_stale && item.status === "validation"),
+    inactive: items.filter((item) => item.is_stale || item.status === "rejected"),
+  };
+}
+
+export type CountableNature = { data_nature: string; is_stale?: boolean };
+
+export function countDataNatures(items: CountableNature[]) {
+  const counts = { real_entry: 0, manual_import: 0, manual_hypothesis: 0, ai_proposal: 0, fixed_demo: 0 };
+  for (const item of items) {
+    if (item.data_nature in counts) counts[item.data_nature as keyof typeof counts] += 1;
+  }
+  return counts;
+}
+
+export function isProposalImportReady(text: string, sourceConfirmed: boolean, sourceDescription: string): boolean {
+  if (!sourceConfirmed || sourceDescription.trim().length < 2 || !text.trim()) return false;
+  try {
+    const parsed = JSON.parse(text) as { candidates?: unknown[] };
+    return Array.isArray(parsed.candidates) && parsed.candidates.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 export function preflightContentClaims(body: string, prohibitedTerms: string[], evidenceIds: string[]): string[] {
   const findings: string[] = [];
   for (const term of prohibitedTerms) if (body.includes(term)) findings.push(`命中禁用表达：${term}`);
@@ -75,6 +106,6 @@ export function feedbackChangeProposal(targetEntityId: string, feedbackId: strin
     rationale: "负责人基于已导入反馈提出；尚未接受",
     contrary_evidence: [],
     actor: "负责人（人工自述）",
-    data_nature: "real_entry",
+    data_nature: "manual_hypothesis",
   };
 }

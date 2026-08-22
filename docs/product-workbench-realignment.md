@@ -2,26 +2,24 @@
 
 ## 当前范围
 
-本工作台把既有 Evidence→Assumption→Validation→Gate→Decision 治理链放入完整产品流程：项目总览、洞察与机会、产品共创、数字情景、预验证 Gate、内容中枢、转化反馈、决策与下一轮。
+本工作台把既有 Evidence→Assumption→Validation→Gate→Decision 治理链放入完整产品流程：项目总览、洞察与机会、未评分数字情景、人工shortlist、基于shortlist的产品共创、预验证 Gate、内容中枢、转化反馈、决策与下一轮。
 
 公开构建使用固定模拟夹具和浏览器演示状态；本地 `local_integrated` 继续承载原有 FastAPI、SQLite 和 `NDG_GATE_V0.3.0` 真实治理闭环。两者不会互相回退或混用。
 
 ## 状态与追溯
 
-- Opportunity 由负责人记录状态和理由后进入产品共创。
-- 三个 ProductConcept 候选均标注来源、唯一变量、Evidence、假设、供应及合规风险。
-- 选中概念贯穿 ExperimentScenario、ContentAsset、FeedbackRecord 和最终汇总。
-- 概念实质修改增加演示 revision，并把已关联情景和内容版本标记为 stale。
+- Opportunity 经人工确认后才能生成未评分情景宇宙。
+- 情景必须由负责人明确勾选并记录理由、操作者、时间和已确认Evidence，才进入shortlist。
+- ProductConcept只能从人工shortlist创建并保存`source_scenario_id`；锁定后才能把对应情景标记进入Validation。
+- 概念实质修改增加revision，并把下游内容、反馈、待审变更和推荐层标记为stale。
 - 内容资产保留固定原始文本、人工版本、A/B版本、审核意见、Evidence 和概念ID。
 - 反馈记录保留渠道、内容版本、指标、主题、来源、时间、负责人和数据性质。
 
 ## 100个数字情景
 
-情景矩阵由4类人群 × 5类卖点 × 5类渠道确定性组合而成，共100项。演示优先级公式为：
+情景矩阵由4类人群 × 5类卖点 × 5类渠道确定性组合而成，共100项。当前没有逐情景的完整输入，因此全部候选保持未评分；数组顺序、创建时间和数据库返回顺序都不代表优先级。
 
-`50 + ((人群序号×17 + 卖点序号×11 + 渠道序号×7) mod 41)`
-
-该数值只用于排序待验证范围，不代表真实消费者实验、销量、ROI或爆款概率。情景进入 Validation 仅表示负责人选择候选；真实项目仍需在本地工作区人工创建并确认 Validation。
+shortlist 只能由负责人明确勾选，并记录筛选理由、操作者、时间和已确认 Evidence 引用。未来若增加评分，必须为每个情景分别提供输入、独立计算并明确显示缺失项；评分只能辅助人工判断，不能自动形成最终决策。情景进入 Validation 仅表示负责人选择候选；真实项目仍需在本地工作区人工创建并确认 Validation。
 
 ## 真实性边界
 

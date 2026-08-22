@@ -41,9 +41,17 @@ test("opportunity, concept, scenarios, content and feedback stay connected", asy
 
   await page.goto("/launch/");
   await expect(page.locator(".scenario-table > article")).toHaveCount(100);
-  await expect(page.getByText("100 / 100 个固定组合")).toBeVisible();
-  await page.locator(".scenario-table > article").first().getByRole("button", { name: "进入Validation" }).click();
-  await expect(page.locator(".scenario-table > article").first()).toContainText("validation");
+  await expect(page.getByText("固定演示 · 100个未评分候选")).toBeVisible();
+  await expect(page.locator(".scenario-table")).not.toContainText("演示优先级");
+  await expect(page.locator(".priority-cell")).toHaveCount(100);
+  await expect(page.locator(".priority-cell").first()).toContainText("未评分");
+  await page.getByLabel("筛选理由（必填）").fill("人工选择用于检查固定演示漏斗；不代表优先级。 ");
+  const firstScenario = page.locator(".scenario-table > article").first();
+  await firstScenario.getByRole("checkbox", { name: /加入人工shortlist/ }).check();
+  await firstScenario.getByRole("button", { name: "加入人工 shortlist" }).click();
+  await expect(firstScenario).toContainText("人工 shortlist");
+  await firstScenario.getByRole("button", { name: "标记进入验证" }).click();
+  await expect(firstScenario).toContainText("已进入验证");
 
   await page.goto("/content/");
   await expect(page.locator(".content-asset-list > button")).toHaveCount(5);
