@@ -1,0 +1,1298 @@
+{
+  "baseUrl": "http://127.0.0.1:4173",
+  "generatedAt": "2026-08-22T23:31:28.816Z",
+  "results": [
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 2858,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/judge-kit/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 3102,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/enterprise-demo/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 6786,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/workspace/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1625,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/insights/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1311,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/evidence/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1310,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/opportunities/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1262,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/launch/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 9706,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/evolution/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1517,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/assumptions/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1160,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/tests/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1171,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/content/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1134,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/results/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1827,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/decision/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1805,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/proof/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 5781,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/pilot/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 3478,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop-wide",
+      "width": 1440,
+      "height": 900,
+      "route": "/real/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 900,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 2782,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/judge-kit/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 3090,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/enterprise-demo/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 6774,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/workspace/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 1625,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/insights/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 1311,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/evidence/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 1310,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/opportunities/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 1130,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/launch/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 9706,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/evolution/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 1517,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/assumptions/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 1160,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/tests/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 1171,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/content/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 1134,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/results/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 1827,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/decision/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 1805,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/proof/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 5772,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/pilot/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 3387,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "desktop",
+      "width": 1366,
+      "height": 768,
+      "route": "/real/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 768,
+        "clientHeight": 768
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 5626,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/judge-kit/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 4350,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/enterprise-demo/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 12732,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/workspace/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 2922,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/insights/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 2467,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/evidence/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 2621,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/opportunities/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1802,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/launch/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 34310,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/evolution/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 3161,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/assumptions/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1981,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/tests/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 2377,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/content/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 2348,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/results/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 2965,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/decision/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 3116,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/proof/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 8245,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/pilot/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 4867,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "/real/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 5682,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/judge-kit/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 4367,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/enterprise-demo/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 12814,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/workspace/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 2939,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/insights/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 2466,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/evidence/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 2619,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/opportunities/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 1801,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/launch/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 34309,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/evolution/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 3216,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/assumptions/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 1997,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/tests/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 2399,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/content/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 2346,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/results/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 2963,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/decision/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 3140,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/proof/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 8219,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/pilot/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 4859,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    },
+    {
+      "viewport": "mobile-small",
+      "width": 375,
+      "height": 812,
+      "route": "/real/",
+      "status": 200,
+      "title": "Evolution Lab · Next-Dollar Gate v0.4.0",
+      "horizontalOverflow": false,
+      "dimensions": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 812,
+        "clientHeight": 812
+      },
+      "consoleErrors": [],
+      "apiRequests": [],
+      "hasDemoBoundary": true,
+      "hasV040": true
+    }
+  ]
+}

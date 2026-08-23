@@ -46,3 +46,17 @@ test-results/
 .next-dev-*.log
 .next-dev-*.err.log
 docs/audit/acceptance-hardening/after/08-workspace-200-percent.png
+
+# Competition videos are release assets, not Git history.
+videos/**/renders/*.mp4
+videos/**/audio/*.wav
+videos/**/audio/*.mp3
+videos/**/captures/*.webm
+videos/**/captures/*.mp4
+.tmp/
+docs/audit/v040-closeout/before/
+docs/audit/v040-closeout/after/
+videos/**/snapshots/
+videos/**/qa/
+videos/**/AGENTS.md
+videos/**/CLAUDE.md

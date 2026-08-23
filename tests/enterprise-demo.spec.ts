@@ -26,6 +26,15 @@ test.describe("v0.4.0 enterprise closed-loop walkthrough", () => {
     await expect(page.getByText(/不是企业账号或审批系统/)).toBeVisible();
   });
 
+  test("shows a fixed demo AIProposal instance without claiming a provider run", async ({ page }) => {
+    await page.getByRole("link", { name: "工作实例" }).click();
+    await expect(page.getByRole("heading", { name: "一份候选如何从外部输出进入人工审核" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "AIP-DEMO-001" })).toBeVisible();
+    await expect(page.getByText("来源：fixed_demo")).toBeVisible();
+    await expect(page.getByText("本轮Provider请求次数：0", { exact: true })).toBeVisible();
+    await expect(page.locator("#ai-proposal-instance")).toContainText("未接受的AIProposal不能进入正式对象");
+  });
+
   test("exposes the governed workflow without automatic ranking claims", async ({ page }) => {
     const steps = page.locator(".enterprise-workflow > li");
     await expect(steps).toHaveCount(16);

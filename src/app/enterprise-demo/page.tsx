@@ -171,6 +171,7 @@ export default function EnterpriseDemoPage() {
         <a href="#responsibility">责任架构</a>
         <a href="#workflow">完整流程</a>
         <a href="#agents">Agent工作流</a>
+        <a href="#ai-proposal-instance">工作实例</a>
         <a href="#replication">可复制性</a>
         <a href="#evidence">技术证据</a>
         <a href="#boundaries">边界与试点</a>
@@ -212,6 +213,32 @@ export default function EnterpriseDemoPage() {
           <dl><div><dt>输入</dt><dd>{input}</dd></div><div><dt>输出Schema</dt><dd>{output}</dd></div><div><dt>Evidence引用</dt><dd>{evidence}</dd></div><div><dt>不确定性</dt><dd>{uncertainty}</dd></div><div><dt>人工检查点</dt><dd>{human}</dd></div><div><dt>Audit</dt><dd>{audit}</dd></div></dl>
         </article>)}</div>
       </div>
+    </section>
+
+    <section id="ai-proposal-instance" className="page-frame delivery-section scroll-mt-24">
+      <div className="delivery-heading">
+        <p className="section-kicker">Governed AIProposal instance</p>
+        <h2>一份候选如何从外部输出进入人工审核</h2>
+        <p>以下是固定脱敏结构实例，用来说明治理合同与人工检查点；它不是本次实时Provider生成结果，也不计入正式企业数据。</p>
+      </div>
+      <div className="enterprise-layer-grid">
+        <article>
+          <Bot/><span>输入快照</span><h3>AIP-DEMO-001</h3>
+          <p><strong>任务：</strong>opportunity<br/><strong>来源：</strong>fixed_demo<br/><strong>引用：</strong>EV-DEMO-001、EV-DEMO-003<br/><strong>Schema：</strong>ai_proposal_v1</p>
+          <small>输入快照哈希、Prompt版本和稳定ID用于追溯；本实例明确标为固定演示。</small>
+        </article>
+        <article>
+          <FileCheck2/><span>候选内容</span><h3>待验证机会假设</h3>
+          <p>候选认为“通勤叠穿中的闷热与摩擦”值得进一步验证；反证是已有替代面料与人群差异，缺失输入包括真实穿着观察、可接受价格和供应约束。</p>
+          <small>候选不是事实。Evidence引用、不确定性、反证和缺失输入必须同时存在。</small>
+        </article>
+        <article>
+          <UserCheck/><span>人工检查点</span><h3>接受、编辑或拒绝</h3>
+          <p>负责人核对引用后，可编辑并接受为正式Opportunity，或填写理由拒绝。审核动作保留操作者自述、时间、原始快照、修改内容和Audit。</p>
+          <small>未接受的AIProposal不能进入正式对象；Evidence变化会使真实依赖链stale。</small>
+        </article>
+      </div>
+      <div className="enterprise-boundary-line" role="note"><ShieldCheck className="h-5 w-5"/><strong>本轮Provider请求次数：0</strong><span>无模型质量结论</span><span>无客户材料</span><span>Gate不读取AI判断</span></div>
     </section>
 
     <section id="replication" className="page-frame delivery-section scroll-mt-24">
