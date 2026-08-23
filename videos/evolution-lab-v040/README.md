@@ -2,6 +2,8 @@
 
 本目录保存180秒完整版与60秒精华版的HyperFrames源文件、字幕、设计说明、公开演示截图和封面。MP4为GitHub Release资产，不进入Git历史。
 
+独立交付件包括`STORYBOARD-180S.md`、`STORYBOARD-60S.md`、`narration-180s.txt`、`narration-60s.txt`、两份SRT、`VIDEO-QA.md`和`renders/evolution-lab-v040-cover.png`。
+
 ## 成片
 
 - 180秒：`evolution-lab-v040-full-180s.mp4`，SHA-256 `7C1701F86FB533FA59A64C9B9C368C680D7A8882A37F9036F847A64E451D89A6`
