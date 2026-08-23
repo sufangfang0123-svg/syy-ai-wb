@@ -1,8 +1,11 @@
 # 棉生万物 · Evolution Lab v0.4.0 参赛材料索引
 
-版本：`v0.4.0 Competition Closeout`  
-工程边界：公开固定演示 + 本地单企业单用户封闭试点  
-固定规则：`NDG_GATE_V0.3.0`  
+版本：`v0.4.0 Competition Closeout`
+
+工程边界：公开固定演示 + 本地单企业单用户封闭试点
+
+固定规则：`NDG_GATE_V0.3.0`
+
 Provider请求次数：`0`
 
 ## 评委两步入口
