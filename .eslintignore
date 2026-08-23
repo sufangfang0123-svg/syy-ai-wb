@@ -3,4 +3,5 @@ dist
 node_modules
 playwright-report
 test-results
+videos/**/assets/gsap.min.js
 next-env.d.ts

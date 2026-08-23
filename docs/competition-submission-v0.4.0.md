@@ -81,6 +81,7 @@ Evidence记录原文、来源、范围、限制、哈希与确认状态。已确
 ## 14. 产品页面与企业演示入口
 
 - 公开互动演示：<https://sufangfang0123-svg.github.io/syy-ai-wb/>
+- 评委三分钟入口：<https://sufangfang0123-svg.github.io/syy-ai-wb/judge-kit/>
 - 企业闭环导览：<https://sufangfang0123-svg.github.io/syy-ai-wb/enterprise-demo/>
 - 系统验收证明：<https://sufangfang0123-svg.github.io/syy-ai-wb/proof/>
 - 企业试点说明：<https://sufangfang0123-svg.github.io/syy-ai-wb/pilot/>
@@ -143,5 +144,7 @@ AIProposal进入Opportunity、ProductConcept、ChangeProposal三个关键对象�
 - 演示脚本：[enterprise-demo-script-v0.4.0.md](enterprise-demo-script-v0.4.0.md)
 - 宣称矩阵：[competition-claims-matrix-v0.4.0.md](competition-claims-matrix-v0.4.0.md)
 - 飞书迁移映射：[feishu-update-map-v0.4.0.md](feishu-update-map-v0.4.0.md)
+- 参赛材料索引：[submission-index-v0.4.0.md](submission-index-v0.4.0.md)
+- 比赛收口QA：[competition-closeout-qa-v0.4.0.md](competition-closeout-qa-v0.4.0.md)
 
 最终边界：Provider请求次数为0；真实企业数据数量为0；无客户经营成果；无云生产；无RBAC；无真实飞书集成。

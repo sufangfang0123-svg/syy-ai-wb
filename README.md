@@ -15,6 +15,7 @@ GitHub Pages只执行`public_demo`。公开`/real/`始终显示真实入口关�
 
 - [公开互动演示](https://sufangfang0123-svg.github.io/syy-ai-wb/)
 - [企业闭环导览](https://sufangfang0123-svg.github.io/syy-ai-wb/enterprise-demo/)
+- [评委三分钟入口](https://sufangfang0123-svg.github.io/syy-ai-wb/judge-kit/)
 - [系统验收证明](https://sufangfang0123-svg.github.io/syy-ai-wb/proof/)
 - [企业试点边界](https://sufangfang0123-svg.github.io/syy-ai-wb/pilot/)
 
@@ -66,6 +67,10 @@ Gate规则版本保持`NDG_GATE_V0.3.0`，汇总`NEED / COMMERCIAL / PRODUCT / S
 - [飞书更新映射](docs/feishu-update-map-v0.4.0.md)
 - [比赛评委反方问答](docs/competition-judge-red-team-v0.4.0.md)
 - [v0.4.0发布QA记录](docs/competition-release-qa-v0.4.0.md)
+- [v0.4.0参赛材料索引](docs/submission-index-v0.4.0.md)
+- [飞书可粘贴终稿](docs/feishu-paste-ready-v0.4.0.md)
+- [v0.4.0比赛交付收口QA](docs/competition-closeout-qa-v0.4.0.md)
+- [v0.4.0比赛收口反方审查](docs/competition-closeout-red-team-v0.4.0.md)
 
 ## 既有公开证明与交付资料
 
